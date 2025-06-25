@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>اختيار اسم عشوائي</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #f0f4f8;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    .header {
+      background-color: #00796B;
+      color: white;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+    }
+    #classSelect {
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+    }
+    #randomNameDisplay {
+      font-size: 3rem;
+      font-weight: bold;
+      color: #00796B;
+      margin: 40px 0;
+      min-height: 100px;
+    }
+    .controls {
+      margin-top: 20px;
+    }
+    .controls button {
+      font-size: 1rem;
+      padding: 10px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      background-color: #00796B;
+      color: white;
+      cursor: pointer;
+    }
+    .controls button:hover {
+      background-color: #004d40;
+    }
+    .back-button {
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🎲 اختيار اسم عشوائي</h1>
+    <p>اختر الصف وابدأ الدوران لاختيار الطالب</p>
+  </div>
+
+  <select id="classSelect">
+    <option value="">-- اختر الصف --</option>
+  </select>
+  <div class="controls">
+    <button onclick="startRolling()">ابدأ</button>
+    <button onclick="muteToggle()" id="muteBtn">🔈 كتم الصوت</button>
+  </div>
+  <div id="randomNameDisplay"></div>
+  <div class="controls" id="resultControls" style="display:none">
+    <button onclick="removeCurrentName()">🗑️ إزالة</button>
+    <button onclick="startRolling()">🔁 متابعة</button>
+  </div>
+  <div class="back-button">
+    <button onclick="window.location.href='../main.html'">⬅️ عودة إلى الصفحة الرئيسية</button>
+  </div>
+
+  <audio id="spinSound" src="../assets/media/sounds/reveal.mp3"></audio>
+  <audio id="selectSound" src="../assets/media/sounds/select.mp3"></audio>
+
+  <script>
+    let studentData = {};
+    let currentList = [];
+    let currentIndex = -1;
+    let interval = null;
+    let currentName = "";
+    let isMuted = false;
+
+    async function loadStudents() {
+      const res = await fetch('../data/studentData.json');
+      studentData = await res.json();
+      const classSelect = document.getElementById("classSelect");
+      Object.keys(studentData).forEach(cls => {
+        const option = document.createElement("option");
+        option.value = cls;
+        option.textContent = cls;
+        classSelect.appendChild(option);
+      });
+    }
+
+    function startRolling() {
+      const selectedClass = document.getElementById("classSelect").value;
+      const display = document.getElementById("randomNameDisplay");
+      const controls = document.getElementById("resultControls");
+
+      if (!selectedClass || !studentData[selectedClass]) {
+        display.textContent = "يرجى اختيار الصف أولاً";
+        return;
+      }
+
+      if (currentList.length === 0) {
+        currentList = [...studentData[selectedClass]];
+      }
+
+      if (currentList.length === 0) {
+        display.textContent = "لا يوجد طلاب متبقين.";
+        return;
+      }
+
+      controls.style.display = "none";
+      if (!isMuted) document.getElementById("spinSound").play();
+
+      interval = setInterval(() => {
+        currentIndex = Math.floor(Math.random() * currentList.length);
+        currentName = currentList[currentIndex];
+        display.textContent = currentName;
+        display.style.fontSize = (Math.random() * 2 + 2.5) + 'rem';
+      }, 100);
+
+      setTimeout(stopRolling, 2000);
+    }
+
+    function stopRolling() {
+      clearInterval(interval);
+      interval = null;
+      document.getElementById("resultControls").style.display = "block";
+      if (!isMuted) document.getElementById("selectSound").play();
+    }
+
+    function removeCurrentName() {
+      if (currentIndex !== -1) {
+        currentList.splice(currentIndex, 1);
+        document.getElementById("randomNameDisplay").textContent = "تم إزالة: " + currentName;
+        document.getElementById("resultControls").style.display = "none";
+      }
+    }
+
+    function muteToggle() {
+      isMuted = !isMuted;
+      document.getElementById("muteBtn").textContent = isMuted ? "🔇 إلغاء كتم" : "🔈 كتم الصوت";
+    }
+
+    window.onload = loadStudents;
+  </script>
+</body>
+</html>
