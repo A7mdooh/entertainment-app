@@ -83,8 +83,10 @@
     <button id="startBtn" onclick="startRollingOnce()">🚀 ابدأ</button>
     <button onclick="muteToggle()" id="muteBtn">🔈</button>
   </div>
-  
+
+  <div id="randomNameDisplay"></div>
   <p id="studentCount" style="font-size: 1.2rem; color: #555;"></p>
+
   <div class="controls" id="resultControls" style="display:none">
     <button onclick="removeCurrentName()">🗑️</button>
     <button onclick="startRolling()">🔁 متابعة</button>
@@ -121,7 +123,6 @@
         currentList = [...studentData[classSelect.value]];
         updateStudentCount();
       });
-    }
     }
 
     function startRollingOnce() {
@@ -172,17 +173,15 @@
     }
 
     function removeCurrentName() {
-  if (currentIndex !== -1) {
-    currentList.splice(currentIndex, 1);
-    document.getElementById("randomNameDisplay").textContent = "تمت الإزالة: " + currentName;
-    document.getElementById("resultControls").style.display = "block";
-    updateStudentCount();
-  }
-}
-}
-}
+      if (currentIndex !== -1) {
+        currentList.splice(currentIndex, 1);
+        document.getElementById("randomNameDisplay").textContent = "تمت الإزالة: " + currentName;
+        document.getElementById("resultControls").style.display = "block";
+        updateStudentCount();
+      }
+    }
 
-function muteToggle() {
+    function muteToggle() {
       isMuted = !isMuted;
       document.getElementById("muteBtn").textContent = isMuted ? "🔇" : "🔈";
     }
@@ -194,9 +193,9 @@ function muteToggle() {
     }
 
     function updateStudentCount() {
-  const count = currentList.length;
-  document.getElementById("studentCount").textContent = `عدد الطلاب المتبقين: ${count}`;
-}
+      const count = currentList.length;
+      document.getElementById("studentCount").textContent = `عدد الطلاب المتبقين: ${count}`;
+    }
 
     window.onload = loadStudents;
   </script>
