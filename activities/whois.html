@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>من هو؟</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background-color: #eef4f7;
+      padding: 2rem;
+      text-align: center;
+    }
+    .whois-card {
+      background: linear-gradient(135deg, #f3f4f6, #e0f7fa);
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: all 0.3s ease-in-out;
+      max-width: 600px;
+      margin: auto;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      margin: 10px;
+    }
+    #revealBtn {
+      background-color: #4CAF50;
+      color: white;
+    }
+    #nextBtn {
+      background-color: #2196F3;
+      color: white;
+    }
+    #resetBtn {
+      background-color: #FF9800;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>🤔 من هو؟</h1>
+  <label for="classSelect">اختر الصف:</label>
+  <select id="classSelect"></select>
+  <button onclick="startGame()">ابدأ</button>
+
+  <div id="gameBox" style="margin-top: 2rem;"></div>
+
+  <script type="module">
+    import students from '../data/studentData.json' assert {{ type: "json" }};
+
+    const select = document.getElementById("classSelect");
+    const gameBox = document.getElementById("gameBox");
+
+    const hints = [
+      "طالب محبوب في الفصل",
+      "يحب الرياضة",
+      "يساعد زملاءه",
+      "متفوق في مادة معينة",
+      "يبتسم كثيرًا"
+    ];
+
+    Object.keys(students).forEach(cls => {
+      const opt = document.createElement("option");
+      opt.value = cls;
+      opt.textContent = cls;
+      select.appendChild(opt);
+    });
+
+    let remaining = [];
+    let used = [];
+
+    function startGame() {
+      const selectedClass = select.value;
+      if (!selectedClass) return alert("يرجى اختيار الصف");
+      remaining = [...students[selectedClass]];
+      used = [];
+      gameBox.innerHTML = "";
+      pickStudent();
+    }
+
+    function pickStudent() {
+      if (remaining.length === 0) {
+        gameBox.innerHTML = "<h2>✅ تم استخدام جميع الطلاب!</h2>";
+        return;
+      }
+      const i = Math.floor(Math.random() * remaining.length);
+      const name = remaining.splice(i, 1)[0];
+      used.push(name);
+      const hint = hints[Math.floor(Math.random() * hints.length)];
+
+      const box = document.createElement("div");
+      box.className = "whois-card";
+      box.innerHTML = `
+        <h2>من هو؟ 🤔</h2>
+        <p>${hint}</p>
+        <button id="revealBtn">إظهار الإجابة</button>
+        <h3 id="answerBox"></h3>
+        <div>
+          <button id="nextBtn">طالب آخر 🔄</button>
+          <button id="resetBtn">إعادة ♻️</button>
+        </div>
+      `;
+      box.querySelector("#revealBtn").onclick = () => {
+        box.querySelector("#answerBox").textContent = "👤 " + name;
+        const sound = new Audio("../assets/media/sounds/reveal.mp3");
+        sound.play();
+      };
+      box.querySelector("#nextBtn").onclick = () => {
+        gameBox.innerHTML = "";
+        pickStudent();
+      };
+      box.querySelector("#resetBtn").onclick = () => {
+        startGame();
+      };
+      gameBox.appendChild(box);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>فيديو تعليمي</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background-color: #f4f4f4;
+      padding: 2rem;
+      text-align: center;
+    }
+    iframe {
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 720px;
+      height: 400px;
+    }
+    h1 {
+      color: #00796B;
+      margin-bottom: 2rem;
+    }
+    select {
+      padding: 10px;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎬 فيديو تعليمي</h1>
+  <label for="videoSelect">اختر فيديو:</label>
+  <select id="videoSelect">
+    <option value="https://www.youtube.com/embed/zOjov-2OZ0E">ما هو البرمجة؟</option>
+    <option value="https://www.youtube.com/embed/3XU7bX7-fbE">الفضاء للأطفال</option>
+    <option value="https://www.youtube.com/embed/2eVRyXj6fRU">كيف تعمل الكهرباء؟</option>
+  </select>
+
+  <div>
+    <iframe id="videoFrame" src="https://www.youtube.com/embed/zOjov-2OZ0E" allowfullscreen></iframe>
+  </div>
+
+  <script>
+    const videoSelect = document.getElementById("videoSelect");
+    const videoFrame = document.getElementById("videoFrame");
+
+    videoSelect.onchange = () => {
+      videoFrame.src = videoSelect.value;
+    };
+  </script>
+</body>
+</html>

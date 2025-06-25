@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>الأنشطة الترفيهية</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #f0f4f8;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    .header {
+      background-color: #00796B;
+      color: white;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+    }
+    .activity-card {
+      background: white;
+      padding: 20px;
+      margin: 10px auto;
+      max-width: 500px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease;
+      cursor: pointer;
+    }
+    .activity-card:hover {
+      transform: translateY(-5px);
+    }
+    .activity-title {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: #00796B;
+    }
+    .activity-desc {
+      color: #444;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>📚 الأنشطة الترفيهية لحصص الاحتياط</h1>
+    <p>اختر نشاطًا لبدء التفاعل مع الطلاب</p>
+  </div>
+
+  <div class="activity-card" onclick="window.location.href='activities/quiz.html'">
+    <div class="activity-title">مسابقة تفاعلية</div>
+    <div class="activity-desc">أسئلة واختيارات بين الطلاب أو الفرق</div>
+  </div>
+
+  <div class="activity-card" onclick="window.location.href='activities/whois.html'">
+    <div class="activity-title">من هو؟</div>
+    <div class="activity-desc">تحدي الوصف لمعرفة الطالب بناءً على تلميحات</div>
+  </div>
+
+  <div class="activity-card" onclick="window.location.href='activities/story.html'">
+    <div class="activity-title">قصة تفاعلية</div>
+    <div class="activity-desc">تابع قصة قصيرة برسومات وتعليم أخلاقي</div>
+  </div>
+
+  <div class="activity-card" onclick="window.location.href='activities/video.html'">
+    <div class="activity-title">فيديو تعليمي</div>
+    <div class="activity-desc">مشاهدة فيديو مفيد من اليوتيوب داخل الفصل</div>
+  </div>
+
+  <div class="activity-card" onclick="window.location.href='activities/gallery.html'">
+    <div class="activity-title">معرض الصور</div>
+    <div class="activity-desc">عرض صور تعليمية ممتعة للطلاب</div>
+  </div>
+</body>
+</html>
