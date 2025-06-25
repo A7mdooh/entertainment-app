@@ -2,9 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <title>الأنشطة الترفيهية</title>
+  <title>اختيار اسم عشوائي</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css" />
   <style>
     body {
       font-family: 'Cairo', sans-serif;
@@ -20,64 +19,171 @@
       border-radius: 8px;
       margin-bottom: 2rem;
     }
-    .activity-card {
-      background: white;
-      padding: 20px;
-      margin: 10px auto;
-      max-width: 500px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      transition: transform 0.2s ease;
+    #classSelect {
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+    }
+    #randomNameDisplay {
+      font-size: 3.5rem;
+      font-weight: bold;
+      color: #00796B;
+      margin: 40px 0;
+      min-height: 100px;
+      transition: transform 0.2s ease-in-out;
+    }
+    .controls {
+      margin-top: 20px;
+    }
+    .controls button {
+      font-size: 1rem;
+      padding: 10px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      background-color: #00796B;
+      color: white;
       cursor: pointer;
     }
-    .activity-card:hover {
-      transform: translateY(-5px);
+    .controls button:hover {
+      background-color: #004d40;
     }
-    .activity-title {
+    .firework {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100px;
+      height: 100px;
+      background-image: url('../assets/media/sounds/firework.gif');
+      background-size: cover;
+      z-index: 1000;
+      display: none;
+    }
+    #muteBtn {
+      background: none;
+      border: none;
       font-size: 1.5rem;
-      margin-bottom: 0.5rem;
-      color: #00796B;
-    }
-    .activity-desc {
-      color: #444;
-      font-size: 1rem;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
   <div class="header">
-    <h1>📚 الأنشطة الترفيهية لحصص الاحتياط</h1>
-    <p>اختر نشاطًا لبدء التفاعل مع الطلاب</p>
+    <h1>🎲 اختيار اسم عشوائي</h1>
+    <p>اختر الصف وابدأ الدوران لاختيار الطالب</p>
   </div>
 
-  <div class="activity-card" onclick="window.location.href='activities/quiz.html'">
-    <div class="activity-title">مسابقة تفاعلية</div>
-    <div class="activity-desc">أسئلة واختيارات بين الطلاب أو الفرق</div>
+  <select id="classSelect">
+    <option value="">-- اختر الصف --</option>
+  </select>
+  <div class="controls">
+    <button id="startBtn" onclick="startRollingOnce()">🚀 ابدأ</button>
+    <button onclick="muteToggle()" id="muteBtn">🔈</button>
+  </div>
+  <div id="randomNameDisplay"></div>
+  <div class="controls" id="resultControls" style="display:none">
+    <button onclick="removeCurrentName()">🗑️</button>
+    <button onclick="startRolling()">🔁 متابعة</button>
+  </div>
+  <div class="controls">
+    <button onclick="stopRolling()" id="stopBtn" style="display:none">🖐️</button>
   </div>
 
-  <div class="activity-card" onclick="window.location.href='activities/whois.html'">
-    <div class="activity-title">من هو؟</div>
-    <div class="activity-desc">تحدي الوصف لمعرفة الطالب بناءً على تلميحات</div>
-  </div>
+  <div class="firework" id="firework"></div>
 
-  <div class="activity-card" onclick="window.location.href='activities/story.html'">
-    <div class="activity-title">قصة تفاعلية</div>
-    <div class="activity-desc">تابع قصة قصيرة برسومات وتعليم أخلاقي</div>
-  </div>
+  <audio id="spinSound" src="../assets/media/sounds/reveal.mp3"></audio>
+  <audio id="selectSound" src="../assets/media/sounds/select.mp3"></audio>
 
-  <div class="activity-card" onclick="window.location.href='activities/video.html'">
-    <div class="activity-title">فيديو تعليمي</div>
-    <div class="activity-desc">مشاهدة فيديو مفيد من اليوتيوب داخل الفصل</div>
-  </div>
+  <script>
+    let studentData = {};
+    let currentList = [];
+    let currentIndex = -1;
+    let interval = null;
+    let currentName = "";
+    let isMuted = false;
+    let started = false;
 
-  <div class="activity-card" onclick="window.location.href='activities/gallery.html'">
-    <div class="activity-title">معرض الصور</div>
-    <div class="activity-desc">عرض صور تعليمية ممتعة للطلاب</div>
-  </div>
+    async function loadStudents() {
+      const res = await fetch('../data/studentData.json');
+      studentData = await res.json();
+      const classSelect = document.getElementById("classSelect");
+      Object.keys(studentData).forEach(cls => {
+        const option = document.createElement("option");
+        option.value = cls;
+        option.textContent = cls;
+        classSelect.appendChild(option);
+      });
+    }
 
-  <div class="activity-card" onclick="window.location.href='activities/random.html'">
-    <div class="activity-title">اختيار اسم عشوائي</div>
-    <div class="activity-desc">عرض سريع لأسماء الصف واختيار طالب بشكل جذاب</div>
-  </div>
+    function startRollingOnce() {
+      if (started) return;
+      started = true;
+      document.getElementById("startBtn").disabled = true;
+      startRolling();
+    }
+
+    function startRolling() {
+      const selectedClass = document.getElementById("classSelect").value;
+      const display = document.getElementById("randomNameDisplay");
+      const controls = document.getElementById("resultControls");
+
+      if (!selectedClass || !studentData[selectedClass]) {
+        display.textContent = "يرجى اختيار الصف أولاً";
+        return;
+      }
+
+      if (currentList.length === 0) {
+        currentList = [...studentData[selectedClass]];
+      }
+
+      if (currentList.length === 0) {
+        display.textContent = "لا يوجد طلاب متبقين.";
+        return;
+      }
+
+      controls.style.display = "none";
+      document.getElementById("stopBtn").style.display = "inline-block";
+      if (!isMuted) document.getElementById("spinSound").play();
+
+      interval = setInterval(() => {
+        currentIndex = Math.floor(Math.random() * currentList.length);
+        currentName = currentList[currentIndex];
+        display.textContent = currentName;
+        display.style.transform = `scale(${1 + Math.random() * 0.5})`;
+      }, 50);
+    }
+
+    function stopRolling() {
+      clearInterval(interval);
+      interval = null;
+      document.getElementById("resultControls").style.display = "block";
+      document.getElementById("stopBtn").style.display = "none";
+      if (!isMuted) document.getElementById("selectSound").play();
+      showFirework();
+    }
+
+    function removeCurrentName() {
+      if (currentIndex !== -1) {
+        currentList.splice(currentIndex, 1);
+        document.getElementById("resultControls").style.display = "none";
+      }
+    }
+
+    function muteToggle() {
+      isMuted = !isMuted;
+      document.getElementById("muteBtn").textContent = isMuted ? "🔇" : "🔈";
+    }
+
+    function showFirework() {
+      const fw = document.getElementById("firework");
+      fw.style.display = "block";
+      setTimeout(() => { fw.style.display = "none"; }, 2000);
+    }
+
+    window.onload = loadStudents;
+  </script>
 </body>
 </html>
