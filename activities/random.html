@@ -166,10 +166,13 @@
     }
 
     function removeCurrentName() {
-      if (currentIndex !== -1) {
-        currentList.splice(currentIndex, 1);
-        document.getElementById("resultControls").style.display = "none";
-      }
+  if (currentIndex !== -1) {
+    currentList.splice(currentIndex, 1);
+    document.getElementById("randomNameDisplay").textContent = "تمت الإزالة: " + currentName;
+    document.getElementById("resultControls").style.display = "block";
+  }
+}
+}
     }
 
     function muteToggle() {
