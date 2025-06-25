@@ -42,65 +42,12 @@
       color: #444;
       font-size: 1rem;
     }
-    .dropdown {
-      margin-bottom: 1.5rem;
-    }
-    select {
-      padding: 8px;
-      font-size: 1rem;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      margin-right: 10px;
-    }
-    #randomNameDisplay {
-      margin-top: 40px;
-      font-size: 3rem;
-      font-weight: bold;
-      color: #333;
-      min-height: 80px;
-      animation: pulse 0.4s ease-in-out infinite alternate;
-    }
-    @keyframes pulse {
-      from { transform: scale(1); }
-      to { transform: scale(1.2); }
-    }
-    #controlButtons {
-      margin-top: 20px;
-      display: none;
-    }
-    #controlButtons button {
-      font-size: 1.2rem;
-      padding: 10px 20px;
-      margin: 0 10px;
-      border-radius: 8px;
-      border: none;
-      background-color: #00796B;
-      color: white;
-      cursor: pointer;
-    }
-    #controlButtons button:hover {
-      background-color: #004d40;
-    }
   </style>
 </head>
 <body>
   <div class="header">
     <h1>📚 الأنشطة الترفيهية لحصص الاحتياط</h1>
     <p>اختر نشاطًا لبدء التفاعل مع الطلاب</p>
-  </div>
-
-  <div class="dropdown">
-    <label for="classSelect">اختر الصف:</label>
-    <select id="classSelect">
-      <option value="">-- اختر الصف --</option>
-    </select>
-    <button onclick="startRolling()">🎲 اختيار اسم عشوائي</button>
-  </div>
-
-  <div id="randomNameDisplay"></div>
-  <div id="controlButtons">
-    <button onclick="removeCurrentName()">🗑️ إزالة</button>
-    <button onclick="startRolling()">🔁 تابع</button>
   </div>
 
   <div class="activity-card" onclick="window.location.href='activities/quiz.html'">
@@ -128,81 +75,9 @@
     <div class="activity-desc">عرض صور تعليمية ممتعة للطلاب</div>
   </div>
 
-  <audio id="spinSound" src="assets/media/sounds/reveal.mp3"></audio>
-  <audio id="selectSound" src="assets/media/sounds/select.mp3"></audio>
-
-  <script>
-    let studentData = {};
-    let currentList = [];
-    let currentIndex = -1;
-    let interval = null;
-    let currentName = "";
-
-    async function loadStudents() {
-      const res = await fetch('data/studentData.json');
-      studentData = await res.json();
-      const classSelect = document.getElementById("classSelect");
-      Object.keys(studentData).forEach(cls => {
-        const option = document.createElement("option");
-        option.value = cls;
-        option.textContent = cls;
-        classSelect.appendChild(option);
-      });
-    }
-
-    function startRolling() {
-      const selectedClass = document.getElementById("classSelect").value;
-      const display = document.getElementById("randomNameDisplay");
-      const controls = document.getElementById("controlButtons");
-
-      if (!selectedClass || !studentData[selectedClass]) {
-        display.textContent = "يرجى اختيار الصف أولاً";
-        return;
-      }
-
-      if (currentList.length === 0) {
-        currentList = [...studentData[selectedClass]];
-      }
-
-      if (currentList.length === 0) {
-        display.textContent = "لا يوجد طلاب متبقين.";
-        return;
-      }
-
-      controls.style.display = "none";
-      document.getElementById("spinSound").play();
-
-      interval = setInterval(() => {
-        currentIndex = Math.floor(Math.random() * currentList.length);
-        currentName = currentList[currentIndex];
-        display.textContent = currentName;
-      }, 100);
-
-      document.body.onclick = stopRolling;
-    }
-
-    function stopRolling() {
-      if (interval) {
-        clearInterval(interval);
-        interval = null;
-        document.body.onclick = null;
-        document.getElementById("controlButtons").style.display = "block";
-        document.getElementById("selectSound").play();
-        document.getElementById("randomNameDisplay").style.animation = "none";
-        void document.getElementById("randomNameDisplay").offsetWidth; // إعادة التحريك
-        document.getElementById("randomNameDisplay").style.animation = "pulse 0.6s ease-in-out 4 alternate";
-      }
-    }
-
-    function removeCurrentName() {
-      if (currentIndex !== -1) {
-        currentList.splice(currentIndex, 1);
-        document.getElementById("randomNameDisplay").textContent = "تم إزالة: " + currentName;
-        document.getElementById("controlButtons").style.display = "none";
-      }
-    }
-
-    window.onload = loadStudents;
-  </script>
+  <div class="activity-card" onclick="window.location.href='activities/random.html'">
+    <div class="activity-title">اختيار اسم عشوائي</div>
+    <div class="activity-desc">عرض سريع لأسماء الصف واختيار طالب بشكل جذاب</div>
+  </div>
 </body>
 </html>
