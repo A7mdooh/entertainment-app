@@ -58,3 +58,38 @@ button {
   border-radius: 12px;
   min-height: 150px;
 }
+@keyframes popName {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+    filter: brightness(200%);
+  }
+  80% {
+    transform: scale(1.2);
+    opacity: 1;
+    filter: brightness(120%);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(100%);
+  }
+}
+
+#randomNameDisplay {
+  font-size: 3rem;
+  font-weight: bold;
+  color: white;
+  background-color: #00796B;
+  padding: 30px 40px;
+  border-radius: 16px;
+  box-shadow: 0 0 40px rgba(0, 121, 107, 0.6);
+  display: inline-block;
+  transition: all 0.3s ease-in-out;
+  opacity: 0; /* سيتم التحكم بها عند الإظهار */
+}
+
+#randomNameDisplay.show {
+  animation: popName 0.6s ease-out;
+  opacity: 1;
+}
+
