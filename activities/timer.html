@@ -46,7 +46,12 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      opacity: 1;
+      transition: opacity 1s ease;
       display: none;
+    }
+    .modal.fade-out {
+      opacity: 0;
     }
     .modal-content {
       background: white;
@@ -123,6 +128,19 @@
       timerDisplay.textContent = mode === 'countdown' ? formatTime(timeLeft) : formatTime(elapsed);
     }
 
+    function showModal() {
+      modal.classList.remove('fade-out');
+      modal.style.display = 'flex';
+      endSound.play();
+      setTimeout(() => {
+        modal.classList.add('fade-out');
+        setTimeout(() => {
+          modal.style.display = 'none';
+          modal.classList.remove('fade-out');
+        }, 1000);
+      }, 8000);
+    }
+
     function startTimer() {
       pauseTimer();
       duration = parseInt(document.getElementById('time').value);
@@ -137,9 +155,7 @@
             if (timeLeft <= 10) beep.play();
           } else {
             clearInterval(interval);
-            modal.style.display = 'flex';
-            endSound.play();
-            setTimeout(() => { modal.style.display = 'none'; }, 8000);
+            showModal();
           }
         } else {
           if (elapsed < duration) {
@@ -147,9 +163,7 @@
             if (duration - elapsed <= 10) beep.play();
           } else {
             clearInterval(interval);
-            modal.style.display = 'flex';
-            endSound.play();
-            setTimeout(() => { modal.style.display = 'none'; }, 8000);
+            showModal();
           }
         }
         updateDisplay();
