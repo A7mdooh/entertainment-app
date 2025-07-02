@@ -1,76 +1,137 @@
+
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
 <head>
-<meta charset="utf-8"/>
-<title>الأنشطة الترفيهية</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo&amp;display=swap" rel="stylesheet"/>
-<style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>برنامج حصص الاحتياط</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet"/>
+  <link href="assets/css/style.css" rel="stylesheet"/>
+  <style>
     body {
-      font-family: 'Cairo', sans-serif;
-      background: #f0f4f8;
       margin: 0;
-      padding: 20px;
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(to bottom right, #e0f7fa, #f3f4f6);
+      color: #333;
       text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
     }
-    .header {
-      background-color: #00796B;
-      color: white;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-bottom: 2rem;
+    .school-logo {
+      width: 120px;
+      margin-bottom: 1rem;
     }
-    .activity-card {
-      background: white;
-      padding: 20px;
-      margin: 10px auto;
-      max-width: 500px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      transition: transform 0.2s ease;
-      cursor: pointer;
-    }
-    .activity-card:hover {
-      transform: translateY(-5px);
-    }
-    .activity-title {
-      font-size: 1.5rem;
+    .title {
+      font-size: 2.5rem;
       margin-bottom: 0.5rem;
+    }
+    .subtitle {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
       color: #00796B;
     }
-    .activity-desc {
-      color: #444;
-      font-size: 1rem;
+    #current-day-index {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: #333;
+    }
+    #digital-clock {
+      font-family: 'Courier New', monospace;
+      font-size: 2rem;
+      color: #ff0000;
+      text-shadow: 0 0 10px #ff0000;
+      margin-bottom: 1rem;
+    }
+    #current-class {
+      font-size: 1.3rem;
+      color: blue;
+      margin-top: 1rem;
+    }
+    .start-btn {
+      margin-top: 2rem;
+      padding: 12px 24px;
+      font-size: 1.2rem;
+      border: none;
+      background-color: #00796B;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .start-btn:hover {
+      background-color: #004d40;
     }
   </style>
 </head>
 <body>
-<div class="header"><div id="current-day" style="font-size: 1.2rem; margin-bottom: 0.5rem;"></div>
-<h1>📚 الأنشطة الترفيهية لحصص الاحتياط</h1>
-<p>اختر نشاطًا لبدء التفاعل مع الطلاب</p>
-</div> <div class="activity-card" onclick="window.location.href='activities/random.html'">
-<div class="activity-title">اختيار اسم عشوائي</div>
-<div class="activity-desc">يتم اختيار طالب عشوائي من الصف بطريقة ممتعة</div>
-</div> <div class="activity-card" onclick="window.location.href='activities/challenges.html'">
-<div class="activity-title">تحدي الفرق</div>
-<div class="activity-desc">تحدي بين فريقين مع عداد ونقاط ومؤثرات</div>
-</div> <div class="activity-card" onclick="window.location.href='activities/quiz.html'">
-<div class="activity-title">مسابقة تفاعلية</div>
-<div class="activity-desc">أسئلة واختيارات بين الطلاب أو الفرق</div>
-</div> <div class="activity-card" onclick="window.location.href='activities/whois.html'">
-<div class="activity-title">من هو؟</div>
-<div class="activity-desc">تحدي الوصف لمعرفة الطالب بناءً على تلميحات</div>
-</div> <div class="activity-card" onclick="window.location.href='activities/story.html'">
-<div class="activity-title">قصة تفاعلية</div>
-<div class="activity-desc">تابع قصة قصيرة برسومات وتعليم أخلاقي</div>
-</div> <div class="activity-card" onclick="window.location.href='activities/video.html'">
-<div class="activity-title">فيديو تعليمي</div>
-<div class="activity-desc">مشاهدة فيديو مفيد من اليوتيوب داخل الفصل</div>
-</div> <div class="activity-card" onclick="window.location.href='activities/gallery.html'">
-<div class="activity-title">معرض الصور</div>
-<div class="activity-desc">عرض صور تعليمية ممتعة للطلاب</div>
-</div><script>
+  <img alt="شعار المدرسة" class="school-logo" src="assets/media/images/school-logo.png"/>
+  <div class="title" id="schoolName">جارٍ التحميل...</div>
+  <div class="subtitle">برنامج الحصص الاحتياطية</div>
+  <div id="current-day-index"></div>
+  <div id="digital-clock"></div>
+  <div id="current-class"></div>
+  <a class="start-btn" href="main.html">ابدأ البرنامج</a>
+
+  <script>
+    // عرض اليوم
     const arabicDays = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
     const today = new Date().getDay();
-    document.getElementById('current-day').textContent = 'اليوم: ' + arabicDays[today];
-    </script></body>
+    document.getElementById('current-day-index').textContent = arabicDays[today];
+
+    // عرض الساعة الرقمية
+    function updateClock() {
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      const ampm = hours >= 12 ? 'م' : 'ص';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      hours = String(hours).padStart(2, '0');
+      document.getElementById('digital-clock').textContent = `${hours}:${minutes}:${seconds} ${ampm}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // تحميل اسم المدرسة من JSON
+    fetch('config/school.json')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('schoolName').textContent = data.schoolName || 'مدرستي';
+      })
+      .catch(error => {
+        console.error('خطأ في تحميل اسم المدرسة:', error);
+      });
+
+    // تحميل الجدول الزمني وعرض الحصة الحالية
+    fetch('data/schedule.json')
+      .then(response => {
+        if (!response.ok) throw new Error('تعذر تحميل الجدول');
+        return response.json();
+      })
+      .then(schedule => {
+        function updateCurrentClass() {
+          const now = new Date();
+          const currentTime = now.toTimeString().split(' ')[0];
+          const currentClass = schedule.find(period => {
+            return currentTime >= period.start && currentTime < period.end;
+          });
+          const classDiv = document.getElementById('current-class');
+          if (currentClass) {
+            classDiv.textContent = `الآن: ${currentClass.label}`;
+          } else {
+            classDiv.textContent = '';
+          }
+        }
+        updateCurrentClass();
+        setInterval(updateCurrentClass, 60000);
+      })
+      .catch(error => {
+        console.error('فشل في تحميل الجدول:', error);
+      });
+  </script>
+</body>
 </html>
