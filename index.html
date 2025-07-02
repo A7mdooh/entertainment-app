@@ -1,13 +1,14 @@
 
 <!DOCTYPE html>
+
 <html dir="rtl" lang="ar">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>برنامج حصص الاحتياط</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet"/>
-  <link href="assets/css/style.css" rel="stylesheet"/>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>برنامج حصص الاحتياط</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo&amp;display=swap" rel="stylesheet"/>
+<link href="assets/css/style.css" rel="stylesheet"/>
+<style>
     body {
       margin: 0;
       font-family: 'Cairo', sans-serif;
@@ -62,17 +63,17 @@
   </style>
 </head>
 <body>
-
-  <img alt="شعار المدرسة" class="school-logo" src="assets/media/images/school-logo.png"/>
-  <div class="title" id="schoolName">جارٍ التحميل...</div>
-  <div class="subtitle">برنامج الحصص الاحتياطية</div>
-
-  <div id="current-day-index"></div>
-  <div id="digital-clock"></div>
-
-  <a href="main.html" class="start-btn">ابدأ البرنامج</a>
-
-  <script>
+<img alt="شعار المدرسة" class="school-logo" src="assets/media/images/school-logo.png"/>
+<div class="title" id="schoolName">جارٍ التحميل...</div>
+<div class="subtitle">برنامج الحصص الاحتياطية</div>
+<div id="current-day-index"></div>
+<div id="digital-clock"></div><div id="current-class" style="
+  font-size: 1.3rem;
+  color: blue;
+  margin-top: 1rem;
+"></div>
+<a class="start-btn" href="main.html">ابدأ البرنامج</a>
+<script>
     // عرض اليوم
     const arabicDays = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
     const today = new Date().getDay();
@@ -103,6 +104,31 @@
         console.error('خطأ في تحميل اسم المدرسة:', error);
       });
   </script>
+<script>
+fetch('schedule.json')
+  .then(response => response.json())
+  .then(schedule => {
+    function updateCurrentClass() {
+      const now = new Date();
+      const currentTime = now.toTimeString().split(' ')[0];
 
-</body>
+      const currentClass = schedule.find(period => {
+        return currentTime >= period.start && currentTime < period.end;
+      });
+
+      const classDiv = document.getElementById('current-class');
+      if (currentClass) {
+        classDiv.textContent = `الآن: ${currentClass.label}`;
+      } else {
+        classDiv.textContent = '';
+      }
+    }
+
+    updateCurrentClass();
+    setInterval(updateCurrentClass, 60000); // update every minute
+  })
+  .catch(error => {
+    console.error('فشل في تحميل الجدول:', error);
+  });
+</script></body>
 </html>
