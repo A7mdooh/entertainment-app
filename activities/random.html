@@ -51,10 +51,25 @@
     .controls button:hover {
       background-color: #004d40;
     }
+
+    /* تأثير النبض */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
     #startBtn {
       font-size: 2rem;
       padding: 15px 30px;
+      animation: pulse 1.2s infinite;
     }
+
+    #stopBtn {
+      font-size: 2rem;
+      padding: 15px 30px;
+    }
+
     .firework {
       position: absolute;
       width: 200px;
@@ -65,6 +80,7 @@
       display: none;
       pointer-events: none;
     }
+
     #muteBtn {
       background: none;
       border: none;
@@ -135,6 +151,7 @@
       if (started) return;
       started = true;
       document.getElementById("startBtn").disabled = true;
+      document.getElementById("startBtn").style.animation = "none";
       startRolling();
     }
 
@@ -158,7 +175,11 @@
       }
 
       controls.style.display = "none";
-      document.getElementById("stopBtn").style.display = "inline-block";
+
+      const stopBtn = document.getElementById("stopBtn");
+      stopBtn.style.display = "inline-block";
+      stopBtn.style.animation = "pulse 1s infinite";
+
       if (!isMuted) document.getElementById("spinSound").play();
 
       interval = setInterval(() => {
@@ -172,8 +193,12 @@
     function stopRolling() {
       clearInterval(interval);
       interval = null;
+
+      const stopBtn = document.getElementById("stopBtn");
+      stopBtn.style.display = "none";
+      stopBtn.style.animation = "none";
+
       document.getElementById("resultControls").style.display = "block";
-      document.getElementById("stopBtn").style.display = "none";
       if (!isMuted) document.getElementById("selectSound").play();
       showFirework();
       canRemove = true;
