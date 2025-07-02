@@ -176,7 +176,14 @@
 
     function nextTurn() {
   clearInterval(timer);
-  document.getElementById('turnLabel').textContent = `الدور على: ${currentTurn === 1 ? document.getElementById('name1').textContent : document.getElementById('name2').textContent}`;
+  const name = currentTurn === 1 ? document.getElementById('name1').textContent : document.getElementById('name2').textContent;
+  document.getElementById('turnLabel').textContent = `الدور على: ${name}`;
+  timeLeft = parseInt(document.getElementById('duration').value);
+  shakeChallengeArea();
+  playSystemBeep();
+  startTimer();
+  currentTurn = currentTurn === 1 ? 2 : 1;
+}`;
   timeLeft = parseInt(document.getElementById('duration').value);
   shakeChallengeArea();
   playSystemBeep();
