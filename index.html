@@ -2,80 +2,80 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>برنامج حصص الاحتياط</title>
+  <title>الأنشطة الترفيهية</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css" />
   <style>
     body {
-      margin: 0;
       font-family: 'Cairo', sans-serif;
-      background: linear-gradient(to bottom right, #e0f7fa, #f3f4f6);
-      color: #333;
+      background: #f0f4f8;
       text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
+      padding: 50px;
     }
-    .school-logo {
-      width: 120px;
-      margin-bottom: 1rem;
+
+    .container {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      display: inline-block;
     }
-    .title {
-      font-size: 2.5rem;
-      margin-bottom: 0.5rem;
-    }
-    .subtitle {
-      font-size: 1.2rem;
-      margin-bottom: 2rem;
-      color: #00796B;
-    }
-    .clock {
-      font-size: 1.5rem;
-      margin-top: 1rem;
-    }
-    .start-btn {
-      margin-top: 2rem;
-      padding: 12px 24px;
-      font-size: 1.2rem;
-      border: none;
+
+    .start-button {
+      display: inline-block;
       background-color: #00796B;
       color: white;
+      padding: 1rem 2rem;
+      font-size: 1.5rem;
+      border: none;
       border-radius: 8px;
-      cursor: pointer;
+      text-decoration: none;
       transition: background-color 0.3s ease;
     }
-    .start-btn:hover {
-      background-color: #004d40;
+
+    .start-button:hover {
+      background-color: #004D40;
+    }
+
+    #digital-clock {
+      font-family: 'Courier New', monospace;
+      font-size: 2rem;
+      color: #00ff00;
+      text-shadow: 0 0 10px #00ff00;
+      margin-bottom: 1rem;
+    }
+
+    #current-day-index {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: #333;
     }
   </style>
 </head>
 <body>
-  <img src="assets/media/images/school-logo.png" alt="شعار المدرسة" class="school-logo" />
-  <div class="title" id="schoolName">جارٍ التحميل...</div>
-  <div class="subtitle" id="programTitle"></div>
-  <div class="clock" id="clock"></div>
-  <button class="start-btn" onclick="location.href='main.html'">ابدأ البرنامج 🚀</button>
+
+  <div class="container">
+    <div id="current-day-index"></div>
+    <div id="digital-clock"></div>
+    <a href="main.html" class="start-button">ابدأ البرنامج</a>
+  </div>
 
   <script>
-    async function loadConfig() {
-      const schoolRes = await fetch('config/school.json');
-      const school = await schoolRes.json();
-      document.getElementById('schoolName').textContent = school.schoolName;
-      document.getElementById('programTitle').textContent = school.programTitle;
-    }
+    // عرض اليوم باللغة العربية
+    const arabicDays = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    const today = new Date().getDay();
+    document.getElementById('current-day-index').textContent = arabicDays[today];
 
+    // عرض الساعة الرقمية
     function updateClock() {
-      const now = new Date();
-      const options = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
-      document.getElementById('clock').textContent = now.toLocaleTimeString('ar-EG', options);
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        document.getElementById('digital-clock').textContent = `${hours}:${minutes}:${seconds}`;
     }
-
-    loadConfig();
-    updateClock();
     setInterval(updateClock, 1000);
+    updateClock();
   </script>
+
 </body>
 </html>
