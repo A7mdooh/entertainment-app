@@ -11,6 +11,7 @@
       margin: 0;
       padding: 20px;
       text-align: center;
+      position: relative;
     }
     .header {
       background-color: #00796B;
@@ -50,17 +51,19 @@
     .controls button:hover {
       background-color: #004d40;
     }
+    #startBtn {
+      font-size: 2rem;
+      padding: 15px 30px;
+    }
     .firework {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 100px;
-      height: 100px;
+      width: 200px;
+      height: 200px;
       background-image: url('../assets/media/sounds/firework.gif');
       background-size: cover;
       z-index: 1000;
       display: none;
+      pointer-events: none;
     }
     #muteBtn {
       background: none;
@@ -79,6 +82,7 @@
   <select id="classSelect">
     <option value="">-- اختر الصف --</option>
   </select>
+
   <div class="controls">
     <button id="startBtn" onclick="startRollingOnce()">🚀 ابدأ</button>
     <button onclick="muteToggle()" id="muteBtn">🔈</button>
@@ -91,6 +95,7 @@
     <button onclick="removeCurrentName()">🗑️</button>
     <button onclick="startRolling()">🔁 متابعة</button>
   </div>
+
   <div class="controls">
     <button onclick="stopRolling()" id="stopBtn" style="display:none">🖐️</button>
   </div>
@@ -108,6 +113,7 @@
     let currentName = "";
     let isMuted = false;
     let started = false;
+    let canRemove = false;
 
     async function loadStudents() {
       const res = await fetch('/entertainment-app/data/studentData.json');
@@ -170,14 +176,16 @@
       document.getElementById("stopBtn").style.display = "none";
       if (!isMuted) document.getElementById("selectSound").play();
       showFirework();
+      canRemove = true;
     }
 
     function removeCurrentName() {
+      if (!canRemove) return;
       if (currentIndex !== -1) {
         currentList.splice(currentIndex, 1);
         document.getElementById("randomNameDisplay").textContent = "تمت الإزالة: " + currentName;
-        document.getElementById("resultControls").style.display = "block";
         updateStudentCount();
+        canRemove = false;
       }
     }
 
@@ -188,8 +196,17 @@
 
     function showFirework() {
       const fw = document.getElementById("firework");
+      const display = document.getElementById("randomNameDisplay");
+      const rect = display.getBoundingClientRect();
+
+      fw.style.top = rect.top + window.scrollY + "px";
+      fw.style.left = rect.left + window.scrollX + "px";
+      fw.style.transform = "translate(0, 0)";
       fw.style.display = "block";
-      setTimeout(() => { fw.style.display = "none"; }, 2000);
+
+      setTimeout(() => {
+        fw.style.display = "none";
+      }, 2000);
     }
 
     function updateStudentCount() {
