@@ -13,6 +13,8 @@
       padding: 20px;
       text-align: center;
       position: relative;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
     .header {
@@ -31,15 +33,20 @@
       margin-bottom: 20px;
       width: 80%;
       max-width: 400px;
+      touch-action: manipulation;
     }
 
     #randomNameDisplay {
-      font-size: 3.5rem;
+      font-size: 3rem;
       font-weight: bold;
       color: #00796B;
-      margin: 40px 0;
-      min-height: 100px;
-      transition: transform 0.3s ease-in-out;
+      margin: 40px auto;
+      height: 100px;
+      line-height: 100px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      transition: none;
     }
 
     .controls {
@@ -165,7 +172,6 @@
 
     function startRollingOnce() {
       const selectedClass = document.getElementById("classSelect").value;
-
       if (!selectedClass || !studentData[selectedClass]) {
         document.getElementById("randomNameDisplay").textContent = "يرجى اختيار الصف أولاً";
         return;
@@ -209,7 +215,7 @@
         currentIndex = Math.floor(Math.random() * currentList.length);
         currentName = currentList[currentIndex];
         display.textContent = currentName;
-        display.style.transform = `scale(1.1)`; // ثابت بدون اهتزاز
+        display.style.transform = "scale(1.1)";
       }, 50);
     }
 
