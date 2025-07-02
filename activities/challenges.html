@@ -1,166 +1,60 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <title>تحدي الفرق - شامل</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
+<!-- بقية الصفحة مكتملة سابقاً -->
   <style>
-    body {
-      font-family: 'Cairo', sans-serif;
-      background-color: #f0f4f8;
-      margin: 0;
-      padding: 20px;
-      text-align: center;
+    body.flash {
+      animation: flash-bg 0.5s alternate 6;
     }
-    .header {
-      background-color: #00796B;
-      color: white;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-bottom: 2rem;
+    @keyframes flash-bg {
+      from { background-color: #f0f4f8; }
+      to { background-color: #ffebee; }
     }
-    select, button, input {
-      padding: 10px;
-      margin: 10px;
-      font-size: 1rem;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+
+    .shake {
+      animation: shake 0.4s ease-in-out 2;
     }
-    .teams, .scoreboard {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 30px;
-    }
-    .team {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      width: 45%;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    .team h3 {
-      color: #00796B;
-    }
-    .score {
-      font-size: 2rem;
-      color: #00796B;
-    }
-    #timer {
-      font-size: 3rem;
-      margin: 20px;
-      color: #FF5722;
-    }
-    #turnLabel {
-      font-size: 1.5rem;
-      margin: 20px;
-      color: red;
-    }
-    #winnerDisplay {
-      font-size: 2rem;
-      margin-top: 20px;
-      font-weight: bold;
-      color: green;
-    }
-    #fireworks {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: url('../assets/media/sounds/firework.gif') center center no-repeat;
-      background-size: cover;
-      z-index: 9999;
-    }
-    #timeUpPopup {
-      display: none;
-      position: fixed;
-      top: 30%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: white;
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.3);
-      font-size: 1.5rem;
-      color: #d32f2f;
-      z-index: 10000;
-    }
-    .pulse {
-      animation: pulse 1s infinite;
-    }
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      50% { transform: translateX(8px); }
+      75% { transform: translateX(-4px); }
+      100% { transform: translateX(0); }
     }
   </style>
-</head>
-<body>
-  <div class="header">
-    <h1>🎯 تحدي الفرق - شامل</h1>
-  </div>
-  <div>
-    <label>اختر الصف:</label>
-    <select id="classSelect"></select>
-
-    <label>نوع التحدي:</label>
-    <select id="mode" onchange="handleModeChange()">
-      <option value="random">طالب ضد طالب (عشوائي)</option>
-      <option value="manual">طالب ضد طالب (اختياري)</option>
-      <option value="teams">فريق ضد فريق</option>
-    </select>
-
-    <div id="manualSelection" style="display:none">
-      <label>اختر الطالب الأول:</label>
-      <select id="student1Select"></select>
-      <label>اختر الطالب الثاني:</label>
-      <select id="student2Select"></select>
-    </div>
-
-    <label>المدة:</label>
-    <select id="duration">
-      <option value="30">30 ثانية</option>
-      <option value="60">1 دقيقة</option>
-      <option value="120">2 دقائق</option>
-      <option value="180">3 دقائق</option>
-      <option value="240">4 دقائق</option>
-      <option value="300">5 دقائق</option>
-      <option value="600">10 دقائق</option>
-    </select>
-
-    <button onclick="prepareChallenge()">بدء التحدي</button>
-  </div>
-
-  <div id="challengeArea" style="display:none">
-    <div id="turnLabel"></div>
-    <div id="timer">00:00</div>
-    <div class="teams">
-      <div class="team">
-        <h3 id="name1">فريق 1</h3>
-        <div class="score" id="score1">0</div>
-        <button onclick="adjustScore(1, 1)">➕</button>
-        <button onclick="adjustScore(1, -1)">➖</button>
-      </div>
-      <div class="team">
-        <h3 id="name2">فريق 2</h3>
-        <div class="score" id="score2">0</div>
-        <button onclick="adjustScore(2, 1)">➕</button>
-        <button onclick="adjustScore(2, -1)">➖</button>
-      </div>
-    </div>
-    <button onclick="nextTurn()">🔁 التالي</button>
-    <button onclick="endChallenge()">🎉 إنهاء التحدي</button>
-    <div id="winnerDisplay"></div>
-  </div>
-
-  <div id="fireworks"></div>
-  <div id="timeUpPopup">⏰ انتهى الوقت!</div>
-  <audio id="countdownSound" src="/sounds/countdown.mp3"></audio>
-  <audio id="endSound" src="/sounds/end.mp3"></audio>
 
   <script>
     let studentData = {}, currentList = [], timer, timeLeft = 0;
     let currentTurn = 1, score1 = 0, score2 = 0;
     let usedStudents = [];
+
+    function playSystemBeep() {
+      try {
+        const context = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = context.createOscillator();
+        const gainNode = context.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(880, context.currentTime);
+        gainNode.gain.setValueAtTime(0.2, context.currentTime);
+        oscillator.connect(gainNode);
+        gainNode.connect(context.destination);
+        oscillator.start();
+        oscillator.stop(context.currentTime + 0.1);
+      } catch (e) {
+        console.warn("Beep not supported in this browser.");
+      }
+    }
+
+    function flashScreen() {
+      document.body.classList.add("flash");
+      setTimeout(() => {
+        document.body.classList.remove("flash");
+      }, 1000);
+    }
+
+    function shakeChallengeArea() {
+      const area = document.getElementById('challengeArea');
+      area.classList.add('shake');
+      setTimeout(() => area.classList.remove('shake'), 600);
+    }
 
     function populateStudentSelectors(cls) {
       const s1 = document.getElementById('student1Select');
@@ -232,6 +126,7 @@
 
       document.getElementById('challengeArea').style.display = 'block';
       document.getElementById('winnerDisplay').textContent = '';
+      shakeChallengeArea();
       nextTurn();
     }
 
@@ -243,7 +138,7 @@
 
       if (timeLeft <= 10 && timeLeft > 0) {
         timerEl.classList.add('pulse');
-        document.getElementById('countdownSound').play();
+        playSystemBeep();
       } else {
         timerEl.classList.remove('pulse');
       }
@@ -254,10 +149,12 @@
       timer = setInterval(() => {
         timeLeft--;
         updateTimer();
+        if (timeLeft === 10) playSystemBeep();
         if (timeLeft <= 0) {
           clearInterval(timer);
           document.getElementById('turnLabel').textContent += ' - انتهى الدور';
-          document.getElementById('endSound').play();
+          playSystemBeep();
+          flashScreen();
           showTimeUpPopup();
         }
       }, 1000);
@@ -278,8 +175,14 @@
     }
 
     function nextTurn() {
-      clearInterval(timer);
-      document.getElementById('turnLabel').textContent = `الدور على: ${currentTurn === 1 ? document.getElementById('name1').textContent : document.getElementById('name2').textContent}`;
+  clearInterval(timer);
+  document.getElementById('turnLabel').textContent = `الدور على: ${currentTurn === 1 ? document.getElementById('name1').textContent : document.getElementById('name2').textContent}`;
+  timeLeft = parseInt(document.getElementById('duration').value);
+  shakeChallengeArea();
+  playSystemBeep();
+  startTimer();
+  currentTurn = currentTurn === 1 ? 2 : 1;
+}`;
       timeLeft = parseInt(document.getElementById('duration').value);
       startTimer();
       currentTurn = currentTurn === 1 ? 2 : 1;
