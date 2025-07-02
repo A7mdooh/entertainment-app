@@ -1,14 +1,13 @@
 
 <!DOCTYPE html>
-
 <html dir="rtl" lang="ar">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>برنامج حصص الاحتياط</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo&amp;display=swap" rel="stylesheet"/>
-<link href="assets/css/style.css" rel="stylesheet"/>
-<style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>برنامج حصص الاحتياط</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet"/>
+  <link href="assets/css/style.css" rel="stylesheet"/>
+  <style>
     body {
       margin: 0;
       font-family: 'Cairo', sans-serif;
@@ -46,6 +45,11 @@
       text-shadow: 0 0 10px #ff0000;
       margin-bottom: 1rem;
     }
+    #current-class {
+      font-size: 1.3rem;
+      color: blue;
+      margin-top: 1rem;
+    }
     .start-btn {
       margin-top: 2rem;
       padding: 12px 24px;
@@ -63,17 +67,15 @@
   </style>
 </head>
 <body>
-<img alt="شعار المدرسة" class="school-logo" src="assets/media/images/school-logo.png"/>
-<div class="title" id="schoolName">جارٍ التحميل...</div>
-<div class="subtitle">برنامج الحصص الاحتياطية</div>
-<div id="current-day-index"></div>
-<div id="digital-clock"></div><div id="current-class" style="
-  font-size: 1.3rem;
-  color: blue;
-  margin-top: 1rem;
-"></div>
-<a class="start-btn" href="main.html">ابدأ البرنامج</a>
-<script>
+  <img alt="شعار المدرسة" class="school-logo" src="assets/media/images/school-logo.png"/>
+  <div class="title" id="schoolName">جارٍ التحميل...</div>
+  <div class="subtitle">برنامج الحصص الاحتياطية</div>
+  <div id="current-day-index"></div>
+  <div id="digital-clock"></div>
+  <div id="current-class"></div>
+  <a class="start-btn" href="main.html">ابدأ البرنامج</a>
+
+  <script>
     // عرض اليوم
     const arabicDays = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
     const today = new Date().getDay();
@@ -81,15 +83,15 @@
 
     // عرض الساعة الرقمية
     function updateClock() {
-        const now = new Date();
-        let hours = now.getHours();
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const seconds = String(now.getSeconds()).padStart(2, '0');
-        const ampm = hours >= 12 ? 'م' : 'ص';
-        hours = hours % 12;
-        hours = hours ? hours : 12;
-        hours = String(hours).padStart(2, '0');
-        document.getElementById('digital-clock').textContent = `${hours}:${minutes}:${seconds} ${ampm}`;
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      const ampm = hours >= 12 ? 'م' : 'ص';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      hours = String(hours).padStart(2, '0');
+      document.getElementById('digital-clock').textContent = `${hours}:${minutes}:${seconds} ${ampm}`;
     }
     setInterval(updateClock, 1000);
     updateClock();
@@ -103,32 +105,33 @@
       .catch(error => {
         console.error('خطأ في تحميل اسم المدرسة:', error);
       });
-  </script>
-<script>
-fetch('schedule.json')
-  .then(response => response.json())
-  .then(schedule => {
-    function updateCurrentClass() {
-      const now = new Date();
-      const currentTime = now.toTimeString().split(' ')[0];
 
-      const currentClass = schedule.find(period => {
-        return currentTime >= period.start && currentTime < period.end;
+    // تحميل الجدول الزمني وعرض الحصة الحالية
+    fetch('data/schedule.json')
+      .then(response => {
+        if (!response.ok) throw new Error('تعذر تحميل الجدول');
+        return response.json();
+      })
+      .then(schedule => {
+        function updateCurrentClass() {
+          const now = new Date();
+          const currentTime = now.toTimeString().split(' ')[0];
+          const currentClass = schedule.find(period => {
+            return currentTime >= period.start && currentTime < period.end;
+          });
+          const classDiv = document.getElementById('current-class');
+          if (currentClass) {
+            classDiv.textContent = `الآن: ${currentClass.label}`;
+          } else {
+            classDiv.textContent = '';
+          }
+        }
+        updateCurrentClass();
+        setInterval(updateCurrentClass, 60000);
+      })
+      .catch(error => {
+        console.error('فشل في تحميل الجدول:', error);
       });
-
-      const classDiv = document.getElementById('current-class');
-      if (currentClass) {
-        classDiv.textContent = `الآن: ${currentClass.label}`;
-      } else {
-        classDiv.textContent = '';
-      }
-    }
-
-    updateCurrentClass();
-    setInterval(updateCurrentClass, 60000); // update every minute
-  })
-  .catch(error => {
-    console.error('فشل في تحميل الجدول:', error);
-  });
-</script></body>
+  </script>
+</body>
 </html>
