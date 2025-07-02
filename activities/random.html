@@ -142,14 +142,21 @@
         updateStudentCount();
       });
     }
+function startRollingOnce() {
+  const selectedClass = document.getElementById("classSelect").value;
 
-    function startRollingOnce() {
-      if (started) return;
-      started = true;
-      document.getElementById("startBtn").disabled = true;
-      document.getElementById("startBtn").style.animation = "none";
-      startRolling();
-    }
+  if (!selectedClass || !studentData[selectedClass]) {
+    document.getElementById("randomNameDisplay").textContent = "يرجى اختيار الصف أولاً";
+    return;
+  }
+
+  if (started) return;
+  started = true;
+
+  document.getElementById("startBtn").disabled = true;
+  document.getElementById("startBtn").style.animation = "none";
+  startRolling();
+}
 
     function startRolling() {
       const selectedClass = document.getElementById("classSelect").value;
