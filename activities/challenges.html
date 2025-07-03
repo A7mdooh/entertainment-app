@@ -120,6 +120,7 @@
       <option value="manual">طالب ضد طالب (اختياري)</option>
       <option value="teams">فريق ضد فريق</option>
     </select>
+    <span onclick="showCurrentModeInstructions()" title="تعليمات التحدي" style="cursor:pointer; font-size: 1.5rem; margin-right: 8px;">❔</span>
 
     <div id="manualSelection" style="display:none">
       <label>اختر الطالب الأول:</label>
@@ -168,19 +169,27 @@
     </div>
     <button onclick="nextTurn()">🔁 التالي</button>
     <button onclick="endChallenge()">🎉 إنهاء التحدي</button>
-    <button onclick="startTimer()">▶️ تشغيل المؤقت</button>
     <div id="winnerDisplay"></div>
   </div>
 
   <div id="fireworks"></div>
   <div id="timeUpPopup">⏰ انتهى الوقت!</div>
+
+  <!-- نافذة التعليمات المنبثقة -->
+  <div id="instructionModal" style="display:none; position:fixed; top:0; right:0; bottom:0; left:0; background:rgba(0,0,0,0.6); z-index:10000; justify-content:center; align-items:center;">
+    <div style="background:white; padding:30px; border-radius:16px; max-width:500px; width:90%; text-align:center; box-shadow:0 0 20px rgba(0,0,0,0.3);">
+      <h2 id="instructionTitle" style="color:#00796B; margin-bottom:1rem;">📣 تعليمات التحدي</h2>
+      <p id="instructionText" style="font-size:1.2rem; line-height:1.6;"></p>
+      <button onclick="closeInstructionModal()" style="margin-top:20px; background-color:#00796B; color:white; padding:10px 20px; border:none; border-radius:8px; font-size:1rem;">فهمت ✅</button>
+    </div>
+  </div>
+
   <audio id="countdownSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/countdown-beep.mp3"></audio>
   <audio id="longBeepSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/long-beep.mp3"></audio>
   <audio id="winSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/win.mp3"></audio>
   <audio id="drawSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/draw.mp3"></audio>
 
   <script>
-    // جميع المتغيرات العامة
     let studentData = {}, currentList = [], timer, timeLeft = 0;
     let currentTurn = 1, score1 = 0, score2 = 0;
     let usedStudents = [];
@@ -224,7 +233,40 @@
       document.getElementById('manualSelection').style.display = (mode === 'manual') ? 'block' : 'none';
     }
 
+    function showInstructionModal(mode) {
+      const modal = document.getElementById('instructionModal');
+      const text = document.getElementById('instructionText');
+
+      let instructions = '';
+
+      if (mode === 'random') {
+        instructions = `سيتم اختيار طالبين بشكل عشوائي للتحدي. كل طالب له دور وزمن محدد. المعلم يسجل النقاط يدويًا.`;
+      } else if (mode === 'manual') {
+        instructions = `يمكن اختيار الطالبين يدويًا. كل طالب له وقت محدد للأداء. يتم تسجيل النقاط يدويًا.`;
+      } else if (mode === 'teams') {
+        instructions = `يتم التحدي بين فريقين. كل فريق يمكنه كسب أو خسارة نقاط. الهدف هو التفاعل الجماعي.`;
+      }
+
+      text.textContent = instructions;
+      modal.style.display = 'flex';
+    }
+
+    function showCurrentModeInstructions() {
+      const currentMode = document.getElementById('mode').value;
+      showInstructionModal(currentMode);
+    }
+
+    function closeInstructionModal() {
+      document.getElementById('instructionModal').style.display = 'none';
+      prepareChallengeContinue();
+    }
+
     function prepareChallenge() {
+      const mode = document.getElementById('mode').value;
+      showInstructionModal(mode);
+    }
+
+    function prepareChallengeContinue() {
       const cls = document.getElementById('classSelect').value;
       const mode = document.getElementById('mode').value;
       timeLeft = parseInt(document.getElementById('duration').value);
