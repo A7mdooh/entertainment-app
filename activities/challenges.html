@@ -168,15 +168,19 @@
     </div>
     <button onclick="nextTurn()">🔁 التالي</button>
     <button onclick="endChallenge()">🎉 إنهاء التحدي</button>
+    <button onclick="startTimer()">▶️ تشغيل المؤقت</button>
     <div id="winnerDisplay"></div>
   </div>
 
   <div id="fireworks"></div>
   <div id="timeUpPopup">⏰ انتهى الوقت!</div>
-  <audio id="countdownSound" src="/sounds/countdown-beep.mp3"></audio>
-  <audio id="longBeepSound" src="/sounds/long-beep.mp3"></audio>
+  <audio id="countdownSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/countdown-beep.mp3"></audio>
+  <audio id="longBeepSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/long-beep.mp3"></audio>
+  <audio id="winSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/win.mp3"></audio>
+  <audio id="drawSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/draw.mp3"></audio>
 
   <script>
+    // جميع المتغيرات العامة
     let studentData = {}, currentList = [], timer, timeLeft = 0;
     let currentTurn = 1, score1 = 0, score2 = 0;
     let usedStudents = [];
@@ -320,7 +324,19 @@
       clearInterval(timer);
       const name1 = document.getElementById('name1').textContent;
       const name2 = document.getElementById('name2').textContent;
-      const winner = score1 > score2 ? name1 : score2 > score1 ? name2 : 'تعادل';
+      let winner;
+
+      if (score1 > score2) {
+        winner = name1;
+        document.getElementById('winSound').play();
+      } else if (score2 > score1) {
+        winner = name2;
+        document.getElementById('winSound').play();
+      } else {
+        winner = 'تعادل';
+        document.getElementById('drawSound').play();
+      }
+
       document.getElementById('winnerDisplay').textContent = `🎉 الفائز: ${winner}`;
       document.getElementById('fireworks').style.display = 'block';
       setTimeout(() => {
