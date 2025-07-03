@@ -82,6 +82,31 @@
       background-color: #00796B;
       color: white;
     }
+    #thankYouModal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      z-index: 2000;
+      max-width: 90%;
+    }
+    #thankYouModal h2 {
+      color: #00796B;
+    }
+    #thankYouModal ul {
+      list-style: none;
+      padding: 0;
+    }
+    #thankYouModal li {
+      font-size: 1.2rem;
+      margin: 5px 0;
+      color: #333;
+    }
   </style>
 </head>
 <body>
@@ -114,6 +139,12 @@
       <button onclick="finishStory()">إنهاء</button>
     </div>
     <div id="celebration">🎉 أحسنت! 🎉</div>
+  </div>
+
+  <div id="thankYouModal">
+    <h2>شكرًا لمشاركتكم الرائعة! 🌟</h2>
+    <p>المشاركون في القصة:</p>
+    <ul id="participantList"></ul>
   </div>
 
   <audio id="clap" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/clap.mp3"></audio>
@@ -247,12 +278,25 @@
 
       setTimeout(() => {
         celebration.style.opacity = '0';
+        showThankYouModal();
       }, 5000);
 
       const clap = document.getElementById("clap");
       clap.currentTime = 0;
       clap.play().catch(e => console.warn("لم يتم تشغيل الصوت تلقائيًا:", e));
       triggerConfetti();
+    }
+
+    function showThankYouModal() {
+      const modal = document.getElementById("thankYouModal");
+      const list = document.getElementById("participantList");
+      list.innerHTML = '';
+      usedStudents.forEach(name => {
+        const li = document.createElement("li");
+        li.textContent = name;
+        list.appendChild(li);
+      });
+      modal.style.display = 'block';
     }
 
     function triggerConfetti() {
