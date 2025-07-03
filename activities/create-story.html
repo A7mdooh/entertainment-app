@@ -61,6 +61,26 @@
       color: #388e3c;
       margin-top: 20px;
     }
+    .student-cards {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .student-card {
+      background: #fff;
+      border: 2px solid #00796B;
+      border-radius: 10px;
+      padding: 10px 15px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .student-card:hover,
+    .student-card.selected {
+      background-color: #00796B;
+      color: white;
+    }
   </style>
 </head>
 <body>
@@ -73,13 +93,17 @@
     <select id="classSelect">
       <option value="">-- اختر الصف --</option>
     </select>
-    <select id="modeSelect">
+    <select id="modeSelect" onchange="handleModeChange()">
       <option value="">-- اختر نوع القصة --</option>
       <option value="single">فردية عشوائية</option>
       <option value="group">جماعية عشوائية</option>
+      <option value="select-single">فردية انتقائية</option>
+      <option value="select-group">جماعية انتقائية</option>
     </select>
     <button onclick="startStory()">ابدأ</button>
   </div>
+
+  <div id="studentSelection" class="student-cards"></div>
 
   <div id="storyContainer" style="display:none">
     <div id="studentName"></div>
@@ -91,14 +115,11 @@
     <div id="celebration">🎉 أحسنت! 🎉</div>
   </div>
 
-   <audio id="clap" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/clap.mp3"></audio>
+  <audio id="clap" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/clap.mp3"></audio>
 
   <script>
-    let studentData = {};
-    let currentList = [];
-    let usedStudents = [];
-    let timerInterval;
-    let secondsPassed = 0;
+    let studentData = {}, currentList = [], usedStudents = [], timerInterval;
+    let selectedManualStudents = [], secondsPassed = 0;
     const totalSeconds = 300;
 
     async function loadStudents() {
@@ -113,10 +134,19 @@
       });
     }
 
+    function handleModeChange() {
+      document.getElementById("studentSelection").innerHTML = '';
+    }
+
     function startStory() {
       const selectedClass = document.getElementById("classSelect").value;
       const mode = document.getElementById("modeSelect").value;
       if (!selectedClass || !mode) return alert("يرجى اختيار الصف والنوع.");
+
+      if (mode.includes("select")) {
+        showStudentSelection(selectedClass, mode);
+        return;
+      }
 
       currentList = [...studentData[selectedClass]];
       usedStudents = [];
@@ -126,11 +156,48 @@
       startTimer();
     }
 
+    function showStudentSelection(cls, mode) {
+      const container = document.getElementById("studentSelection");
+      container.innerHTML = '';
+      studentData[cls].forEach(name => {
+        const div = document.createElement("div");
+        div.className = "student-card";
+        div.textContent = name;
+        div.onclick = () => {
+          if (mode === 'select-single') {
+            selectedManualStudents = [name];
+            document.querySelectorAll('.student-card').forEach(el => el.classList.remove('selected'));
+            div.classList.add('selected');
+          } else {
+            if (selectedManualStudents.includes(name)) {
+              selectedManualStudents = selectedManualStudents.filter(n => n !== name);
+              div.classList.remove('selected');
+            } else {
+              selectedManualStudents.push(name);
+              div.classList.add('selected');
+            }
+          }
+        };
+        container.appendChild(div);
+      });
+
+      const confirmBtn = document.createElement("button");
+      confirmBtn.textContent = "بدء السرد";
+      confirmBtn.onclick = () => {
+        if (selectedManualStudents.length === 0) return alert("يرجى اختيار طالب/طلاب.");
+        currentList = [...selectedManualStudents];
+        usedStudents = [];
+        document.getElementById("storyContainer").style.display = "block";
+        document.getElementById("studentSelection").style.display = 'none';
+        document.getElementById("nextBtn").style.display = mode === 'select-group' ? "inline-block" : "none";
+        nextStudent();
+        startTimer();
+      };
+      container.appendChild(confirmBtn);
+    }
+
     function nextStudent() {
-      if (currentList.length === 0) {
-        alert("انتهى جميع الطلاب!");
-        return;
-      }
+      if (currentList.length === 0) return alert("انتهى جميع الطلاب!");
       const index = Math.floor(Math.random() * currentList.length);
       const student = currentList.splice(index, 1)[0];
       usedStudents.push(student);
@@ -140,8 +207,8 @@
     function startTimer() {
       const canvas = document.getElementById("timerCanvas");
       const ctx = canvas.getContext("2d");
-
-      function drawCircle(percent) {
+      secondsPassed = 0;
+      function draw(percent) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.beginPath();
         ctx.arc(75, 75, 65, 0, 2 * Math.PI);
@@ -159,33 +226,24 @@
         ctx.font = '20px Cairo';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        const minutes = String(Math.floor(secondsPassed / 60)).padStart(2, '0');
-        const seconds = String(secondsPassed % 60).padStart(2, '0');
-        ctx.fillText(`${minutes}:${seconds}`, 75, 75);
+        const m = String(Math.floor(secondsPassed / 60)).padStart(2, '0');
+        const s = String(secondsPassed % 60).padStart(2, '0');
+        ctx.fillText(`${m}:${s}`, 75, 75);
       }
-
-      secondsPassed = 0;
-      drawCircle(0);
+      draw(0);
       timerInterval = setInterval(() => {
         secondsPassed++;
-        const progress = Math.min(secondsPassed / totalSeconds, 1);
-        drawCircle(progress);
-        if (secondsPassed >= totalSeconds) {
-          finishStory();
-        }
+        draw(Math.min(secondsPassed / totalSeconds, 1));
+        if (secondsPassed >= totalSeconds) finishStory();
       }, 1000);
     }
 
     function finishStory() {
       clearInterval(timerInterval);
       document.getElementById("celebration").style.display = 'block';
-
       const clap = document.getElementById("clap");
       clap.currentTime = 0;
-      clap.play().catch(e => {
-        console.warn("لم يتم تشغيل الصوت تلقائيًا:", e);
-      });
-
+      clap.play().catch(e => console.warn("لم يتم تشغيل الصوت تلقائيًا:", e));
       triggerConfetti();
     }
 
@@ -193,21 +251,14 @@
       const duration = 3 * 1000;
       const animationEnd = Date.now() + duration;
       const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
-
-      function randomInRange(min, max) {
-        return Math.random() * (max - min) + min;
-      }
-
-      const interval = setInterval(function() {
+      const interval = setInterval(() => {
         const timeLeft = animationEnd - Date.now();
         if (timeLeft <= 0) return clearInterval(interval);
-
-        const particleCount = 50 * (timeLeft / duration);
         confetti({
           ...defaults,
-          particleCount,
+          particleCount: 50 * (timeLeft / duration),
           origin: {
-            x: randomInRange(0.1, 0.9),
+            x: Math.random(),
             y: Math.random() - 0.2
           }
         });
