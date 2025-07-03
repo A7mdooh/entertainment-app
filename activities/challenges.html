@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>تحدي الفرق - شامل</title>
+  <title>التحديات</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
   <style>
     body {
@@ -45,10 +45,30 @@
       font-size: 2rem;
       color: #00796B;
     }
-    #timer {
-      font-size: 3rem;
-      margin: 20px;
+    #timerWrapper {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin: 20px auto;
+    }
+    #timerTextSec {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.8rem;
+      font-weight: bold;
       color: #FF5722;
+    }
+    #timerWrapper.shake {
+      animation: shake 0.5s infinite;
+    }
+    @keyframes shake {
+      0% { transform: translate(0, 0); }
+      25% { transform: translate(2px, 0); }
+      50% { transform: translate(0, 2px); }
+      75% { transform: translate(-2px, 0); }
+      100% { transform: translate(0, -2px); }
     }
     #turnLabel {
       font-size: 1.5rem;
@@ -84,19 +104,11 @@
       color: #d32f2f;
       z-index: 10000;
     }
-    .pulse {
-      animation: pulse 1s infinite;
-    }
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
-    }
   </style>
 </head>
 <body>
   <div class="header">
-    <h1>🎯 تحدي الفرق - شامل</h1>
+    <h1>🔥 التحديات 🔥</h1>
   </div>
   <div>
     <label>اختر الصف:</label>
@@ -132,7 +144,14 @@
 
   <div id="challengeArea" style="display:none">
     <div id="turnLabel"></div>
-    <div id="timer">00:00</div>
+    <div id="timerWrapper">
+      <svg id="timerCircle" width="120" height="120">
+        <circle r="50" cx="60" cy="60" stroke="#eee" stroke-width="10" fill="none"/>
+        <circle id="progress" r="50" cx="60" cy="60" stroke="#FF5722" stroke-width="10" fill="none" stroke-dasharray="314" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
+      </svg>
+      <div id="timerTextSec">0s</div>
+    </div>
+
     <div class="teams">
       <div class="team">
         <h3 id="name1">فريق 1</h3>
@@ -154,8 +173,8 @@
 
   <div id="fireworks"></div>
   <div id="timeUpPopup">⏰ انتهى الوقت!</div>
-  <audio id="countdownSound" src="/sounds/countdown.mp3"></audio>
-  <audio id="endSound" src="/sounds/end.mp3"></audio>
+  <audio id="countdownSound" src="/sounds/countdown-beep.mp3"></audio>
+  <audio id="longBeepSound" src="/sounds/long-beep.mp3"></audio>
 
   <script>
     let studentData = {}, currentList = [], timer, timeLeft = 0;
@@ -236,16 +255,22 @@
     }
 
     function updateTimer() {
-      const timerEl = document.getElementById('timer');
-      const min = String(Math.floor(timeLeft / 60)).padStart(2, '0');
-      const sec = String(timeLeft % 60).padStart(2, '0');
-      timerEl.textContent = `${min}:${sec}`;
+      const secText = document.getElementById('timerTextSec');
+      const circle = document.getElementById('progress');
+      const wrapper = document.getElementById('timerWrapper');
+
+      const total = parseInt(document.getElementById('duration').value);
+      const percent = timeLeft / total;
+      const offset = 314 * (1 - percent);
+
+      circle.style.strokeDashoffset = offset;
+      secText.textContent = `${timeLeft}s`;
 
       if (timeLeft <= 10 && timeLeft > 0) {
-        timerEl.classList.add('pulse');
+        wrapper.classList.add('shake');
         document.getElementById('countdownSound').play();
       } else {
-        timerEl.classList.remove('pulse');
+        wrapper.classList.remove('shake');
       }
     }
 
@@ -257,7 +282,7 @@
         if (timeLeft <= 0) {
           clearInterval(timer);
           document.getElementById('turnLabel').textContent += ' - انتهى الدور';
-          document.getElementById('endSound').play();
+          document.getElementById('longBeepSound').play();
           showTimeUpPopup();
         }
       }, 1000);
