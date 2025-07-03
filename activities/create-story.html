@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="ar" dir="rtl">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -66,7 +67,9 @@
   <div class="header">
     <h1>📝 نشاط: كوّن قصة</h1>
     <p>اختر الصف ونوع القصة لبدء التفاعل</p>
-  </div>  <div>
+  </div>
+
+  <div>
     <select id="classSelect">
       <option value="">-- اختر الصف --</option>
     </select>
@@ -76,7 +79,9 @@
       <option value="group">جماعية عشوائية</option>
     </select>
     <button onclick="startStory()">ابدأ</button>
-  </div>  <div id="storyContainer" style="display:none">
+  </div>
+
+  <div id="storyContainer" style="display:none">
     <div id="studentName"></div>
     <canvas id="timerCanvas" width="150" height="150"></canvas>
     <div>
@@ -84,7 +89,9 @@
       <button onclick="finishStory()">إنهاء</button>
     </div>
     <div id="celebration">🎉 أحسنت! 🎉</div>
-  <audio id="clap" src="assets/media/sounds/clap.mp3"></audio>
+  </div>
+
+  <audio id="clap" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/clap.mp3"></audio>
 
   <script>
     let studentData = {};
@@ -172,7 +179,13 @@
     function finishStory() {
       clearInterval(timerInterval);
       document.getElementById("celebration").style.display = 'block';
-      document.getElementById("clap").play();
+
+      const clap = document.getElementById("clap");
+      clap.currentTime = 0;
+      clap.play().catch(e => {
+        console.warn("لم يتم تشغيل الصوت تلقائيًا:", e);
+      });
+
       triggerConfetti();
     }
 
@@ -187,10 +200,7 @@
 
       const interval = setInterval(function() {
         const timeLeft = animationEnd - Date.now();
-
-        if (timeLeft <= 0) {
-          return clearInterval(interval);
-        }
+        if (timeLeft <= 0) return clearInterval(interval);
 
         const particleCount = 50 * (timeLeft / duration);
         confetti({
@@ -205,5 +215,6 @@
     }
 
     window.onload = loadStudents;
-  </script></body>
+  </script>
+</body>
 </html>
