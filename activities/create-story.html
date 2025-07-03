@@ -60,6 +60,7 @@
       font-size: 2rem;
       color: #388e3c;
       margin-top: 20px;
+      transition: opacity 1s ease;
     }
     .student-cards {
       display: flex;
@@ -240,7 +241,14 @@
 
     function finishStory() {
       clearInterval(timerInterval);
-      document.getElementById("celebration").style.display = 'block';
+      const celebration = document.getElementById("celebration");
+      celebration.style.display = 'block';
+      celebration.style.opacity = '1';
+
+      setTimeout(() => {
+        celebration.style.opacity = '0';
+      }, 5000);
+
       const clap = document.getElementById("clap");
       clap.currentTime = 0;
       clap.play().catch(e => console.warn("لم يتم تشغيل الصوت تلقائيًا:", e));
