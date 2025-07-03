@@ -82,31 +82,45 @@
       background-color: #00796B;
       color: white;
     }
-    #thankYouModal {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-      z-index: 2000;
-      max-width: 90%;
-    }
-    #thankYouModal h2 {
-      color: #00796B;
-    }
-    #thankYouModal ul {
-      list-style: none;
-      padding: 0;
-    }
-    #thankYouModal li {
-      font-size: 1.2rem;
-      margin: 5px 0;
-      color: #333;
-    }
+#thankYouModal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  z-index: 2000;
+  max-width: 90%;
+  text-align: center;
+  opacity: 1;
+  transition: opacity 1s ease;
+}
+#thankYouModal h2 {
+  color: #00796B;
+}
+#thankYouModal ul {
+  list-style: none;
+  padding: 0;
+}
+#thankYouModal li {
+  font-size: 1.2rem;
+  margin: 5px 0;
+  color: #333;
+}
+#closeModalBtn {
+  font-size: 1.5rem;
+  color: #00796B;
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 15px;
+}
+
   </style>
 </head>
 <body>
@@ -140,12 +154,13 @@
     </div>
     <div id="celebration">🎉 أحسنت! 🎉</div>
   </div>
+<div id="thankYouModal">
+  <button id="closeModalBtn">✖️</button>
+  <h2>شكرًا لمشاركتكم الرائعة! 🌟</h2>
+  <p>المشاركون في القصة:</p>
+  <ul id="participantList"></ul>
+</div>
 
-  <div id="thankYouModal">
-    <h2>شكرًا لمشاركتكم الرائعة! 🌟</h2>
-    <p>المشاركون في القصة:</p>
-    <ul id="participantList"></ul>
-  </div>
 
   <audio id="clap" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/clap.mp3"></audio>
 
@@ -286,18 +301,29 @@
       clap.play().catch(e => console.warn("لم يتم تشغيل الصوت تلقائيًا:", e));
       triggerConfetti();
     }
+function showThankYouModal() {
+  const modal = document.getElementById("thankYouModal");
+  const list = document.getElementById("participantList");
+  list.innerHTML = '';
+  usedStudents.forEach(name => {
+    const li = document.createElement("li");
+    li.textContent = name;
+    list.appendChild(li);
+  });
+  modal.style.display = 'block';
+  modal.style.opacity = '1';
 
-    function showThankYouModal() {
-      const modal = document.getElementById("thankYouModal");
-      const list = document.getElementById("participantList");
-      list.innerHTML = '';
-      usedStudents.forEach(name => {
-        const li = document.createElement("li");
-        li.textContent = name;
-        list.appendChild(li);
-      });
-      modal.style.display = 'block';
-    }
+  const closeBtn = document.getElementById("closeModalBtn");
+  closeBtn.onclick = () => {
+    modal.style.transition = "opacity 1s ease";
+    modal.style.opacity = "0";
+    setTimeout(() => {
+      modal.style.display = 'none';
+      modal.style.opacity = "1";
+    }, 4000);
+  };
+}
+
 
     function triggerConfetti() {
       const duration = 3 * 1000;
