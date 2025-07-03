@@ -29,14 +29,16 @@
     }
     .teams {
       display: flex;
-      justify-content: space-around;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
       margin-top: 30px;
     }
     .team {
       background: white;
       padding: 20px;
       border-radius: 12px;
-      width: 45%;
+      width: 200px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
     .team h3 {
@@ -45,6 +47,9 @@
     .score {
       font-size: 2rem;
       color: #00796B;
+    }
+    #multiTeamOptions {
+      display: none;
     }
     #timerWrapper {
       position: relative;
@@ -129,93 +134,96 @@
   </style>
 </head>
 <body>
-<div class="header">
-  <h1>🔥 التحديات 🔥</h1>
-</div>
-<div>
-  <label>اختر الصف:</label>
-  <select id="classSelect"></select>
-
-  <label>نوع التحدي:</label>
-  <select id="mode" onchange="handleModeChange()">
-    <option value="random">طالب ضد طالب (عشوائي)</option>
-    <option value="manual">طالب ضد طالب (اختياري)</option>
-    <option value="teams">فريق ضد فريق</option>
-  </select>
-  <span onclick="showCurrentModeInstructions()" title="تعليمات التحدي" style="cursor:pointer; font-size: 1.5rem; margin-right: 8px;">❔</span>
-
-  <div id="manualSelection" style="display:none">
-    <label>اختر الطالب الأول:</label>
-    <select id="student1Select"></select>
-    <label>اختر الطالب الثاني:</label>
-    <select id="student2Select"></select>
+  <div class="header">
+    <h1>🔥 التحديات 🔥</h1>
   </div>
 
-  <label>المدة:</label>
-  <select id="duration">
-    <option value="30">30 ثانية</option>
-    <option value="60">1 دقيقة</option>
-    <option value="120">2 دقائق</option>
-    <option value="180">3 دقائق</option>
-    <option value="240">4 دقائق</option>
-    <option value="300">5 دقائق</option>
-    <option value="600">10 دقائق</option>
-  </select>
+  <div>
+    <label>اختر الصف:</label>
+    <select id="classSelect"></select>
 
-  <button onclick="prepareChallenge()">بدء التحدي</button>
-</div>
+    <label>نوع التحدي:</label>
+    <select id="mode" onchange="handleModeChange()">
+      <option value="random">طالب ضد طالب (عشوائي)</option>
+      <option value="manual">طالب ضد طالب (اختياري)</option>
+      <option value="teams">فريق ضد فريق</option>
+      <option value="multiTeams">تحدي بين فرق متعددة</option>
+    </select>
+
+    <div id="manualSelection" style="display:none">
+      <label>اختر الطالب الأول:</label>
+      <select id="student1Select"></select>
+      <label>اختر الطالب الثاني:</label>
+      <select id="student2Select"></select>
+    </div>
+
+    <div id="multiTeamOptions">
+      <label>عدد الفرق:</label>
+      <select id="teamCountSelect">
+        <option value="3">3 فرق</option>
+        <option value="4">4 فرق</option>
+        <option value="5">5 فرق</option>
+        <option value="6">6 فرق</option>
+        <option value="7">7 فرق</option>
+        <option value="8">8 فرق</option>
+      </select>
+    </div>
+
+    <label>المدة:</label>
+    <select id="duration">
+      <option value="30">30 ثانية</option>
+      <option value="60">1 دقيقة</option>
+      <option value="120">2 دقائق</option>
+      <option value="180">3 دقائق</option>
+      <option value="240">4 دقائق</option>
+      <option value="300">5 دقائق</option>
+      <option value="600">10 دقائق</option>
+    </select>
+
+    <button onclick="prepareChallenge()">بدء التحدي</button>
+  </div>
+  
 
 <div id="challengeArea" style="display:none">
-  <div id="turnLabel"></div>
-  <div id="timerWrapper">
-    <svg id="timerCircle" width="120" height="120">
-      <circle r="50" cx="60" cy="60" stroke="#eee" stroke-width="10" fill="none"/>
-      <circle id="progress" r="50" cx="60" cy="60" stroke="#FF5722" stroke-width="10" fill="none"
-              stroke-dasharray="314" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
-    </svg>
-    <div id="timerTextSec">0s</div>
-  </div>
-
-  <div class="teams">
-    <div class="team">
-      <h3 id="name1">فريق 1</h3>
-      <div class="score" id="score1">0</div>
-      <button onclick="adjustScore(1, 1)">➕</button>
-      <button onclick="adjustScore(1, -1)">➖</button>
+    <div id="turnLabel"></div>
+    <div id="timerWrapper">
+      <svg id="timerCircle" width="120" height="120">
+        <circle r="50" cx="60" cy="60" stroke="#eee" stroke-width="10" fill="none"/>
+        <circle id="progress" r="50" cx="60" cy="60" stroke="#FF5722" stroke-width="10" fill="none"
+                stroke-dasharray="314" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
+      </svg>
+      <div id="timerTextSec">0s</div>
     </div>
-    <div class="team">
-      <h3 id="name2">فريق 2</h3>
-      <div class="score" id="score2">0</div>
-      <button onclick="adjustScore(2, 1)">➕</button>
-      <button onclick="adjustScore(2, -1)">➖</button>
+
+    <div class="teams"></div>
+
+    <button onclick="nextTurn()">🔁 التالي</button>
+    <button onclick="endChallenge()">🎉 إنهاء التحدي</button>
+    <div id="winnerDisplay"></div>
+  </div>
+
+  <!-- نافذة التعليمات المنبثقة -->
+  <div id="instructionModal" style="display:none; position:fixed; top:0; right:0; bottom:0; left:0; background:rgba(0,0,0,0.6); z-index:10000; justify-content:center; align-items:center;">
+    <div style="background:white; padding:30px; border-radius:16px; max-width:500px; width:90%; text-align:center; box-shadow:0 0 20px rgba(0,0,0,0.3);">
+      <h2>📣 تعليمات التحدي</h2>
+      <p id="instructionText" style="font-size:1.2rem; line-height:1.6;"></p>
+      <button onclick="closeInstructionModal()" style="margin-top:20px; background-color:#00796B; color:white; padding:10px 20px; border:none; border-radius:8px;">فهمت ✅</button>
     </div>
   </div>
 
-  <button onclick="nextTurn()">🔁 التالي</button>
-  <button onclick="endChallenge()">🎉 إنهاء التحدي</button>
-  <div id="winnerDisplay"></div>
-</div>
+  <!-- مؤثرات بصرية -->
+  <div id="fireworks"></div>
+  <div id="timeUpPopup">⏰ انتهى الوقت!</div>
 
-<!-- النافذة المنبثقة للتعليمات -->
-<div id="instructionModal" style="display:none; position:fixed; top:0; right:0; bottom:0; left:0; background:rgba(0,0,0,0.6); z-index:10000; justify-content:center; align-items:center;">
-  <div style="background:white; padding:30px; border-radius:16px; max-width:500px; width:90%; text-align:center; box-shadow:0 0 20px rgba(0,0,0,0.3);">
-    <h2>📣 تعليمات التحدي</h2>
-    <p id="instructionText" style="font-size:1.2rem; line-height:1.6;"></p>
-    <button onclick="closeInstructionModal()" style="margin-top:20px; background-color:#00796B; color:white; padding:10px 20px; border:none; border-radius:8px;">فهمت ✅</button>
-  </div>
-</div>
-
-<!-- مؤثرات بصرية وصوتية -->
-<div id="fireworks"></div>
-<div id="timeUpPopup">⏰ انتهى الوقت!</div>
-
-<audio id="countdownSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/countdown-beep.mp3"></audio>
-<audio id="longBeepSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/long-beep.mp3"></audio>
-<audio id="winSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/win.mp3"></audio>
-<audio id="drawSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/draw.mp3"></audio>
+  <!-- المؤثرات الصوتية -->
+  <audio id="countdownSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/countdown-beep.mp3"></audio>
+  <audio id="longBeepSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/long-beep.mp3"></audio>
+  <audio id="winSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/win.mp3"></audio>
+  <audio id="drawSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/draw.mp3"></audio>
 
 
-<script>
+
+  <script>
   let studentData = {}, currentList = [], timer, timeLeft = 0;
   let currentTurn = 1, score1 = 0, score2 = 0;
   let usedStudents = [];
@@ -248,7 +256,6 @@
   function populateStudentSelectors(cls) {
     const s1 = document.getElementById('student1Select');
     const s2 = document.getElementById('student2Select');
-
     const students = studentData[cls] || [];
     const selected1 = s1.value;
     const selected2 = s2.value;
@@ -277,20 +284,13 @@
 
   function handleModeChange() {
     const mode = document.getElementById('mode').value;
-    const manualSection = document.getElementById('manualSelection');
+    document.getElementById('manualSelection').style.display = (mode === 'manual') ? 'block' : 'none';
+    document.getElementById('multiTeamOptions').style.display = (mode === 'multiTeams') ? 'block' : 'none';
 
     if (mode === 'manual') {
-      manualSection.style.display = 'block';
       const currentClass = document.getElementById('classSelect').value;
       populateStudentSelectors(currentClass);
-    } else {
-      manualSection.style.display = 'none';
     }
-  }
-
-  function prepareChallenge() {
-    const mode = document.getElementById('mode').value;
-    showInstructionModal(mode);
   }
 
   function showInstructionModal(mode) {
@@ -304,6 +304,8 @@
       instructions = `يمكن اختيار الطالبين يدويًا. كل طالب له وقت محدد للأداء. يتم تسجيل النقاط يدويًا.`;
     } else if (mode === 'teams') {
       instructions = `يتم التحدي بين فريقين. كل فريق يمكنه كسب أو خسارة نقاط. الهدف هو التفاعل الجماعي.`;
+    } else if (mode === 'multiTeams') {
+      instructions = `سيتم إنشاء عدة فرق (من 3 إلى 8) حسب اختيارك. كل فريق له دوره ونقاطه الخاصة.`;
     }
 
     text.textContent = instructions;
@@ -320,11 +322,41 @@
     prepareChallengeContinue();
   }
 
+  function prepareChallenge() {
+    const mode = document.getElementById('mode').value;
+    showInstructionModal(mode);
+  }
+
   function prepareChallengeContinue() {
     const cls = document.getElementById('classSelect').value;
     const mode = document.getElementById('mode').value;
     timeLeft = parseInt(document.getElementById('duration').value);
     currentList = [...(studentData[cls] || [])];
+
+    if (mode === 'multiTeams') {
+      const teamCount = parseInt(document.getElementById('teamCountSelect').value);
+      const container = document.querySelector('.teams');
+      container.innerHTML = '';
+
+      for (let i = 1; i <= teamCount; i++) {
+        const div = document.createElement('div');
+        div.className = 'team';
+        div.innerHTML = `
+          <h3 id="name${i}">فريق ${i}</h3>
+          <div class="score" id="score${i}">0</div>
+          <button onclick="adjustScore(${i}, 1)">➕</button>
+          <button onclick="adjustScore(${i}, -1)">➖</button>
+        `;
+        container.appendChild(div);
+        window[`score${i}`] = 0;
+      }
+
+      currentTurn = 1;
+      document.getElementById('challengeArea').style.display = 'block';
+      document.getElementById('winnerDisplay').textContent = '';
+      nextTurn();
+      return;
+    }
 
     if (currentList.length < 2) return alert('يجب اختيار صف به طلاب.');
 
@@ -332,7 +364,7 @@
 
     if (mode === 'random') {
       const remaining = currentList.filter(s => !usedStudents.includes(s));
-      if (remaining.length < 2) return alert("تم استخدام جميع الطلاب.");
+      if (remaining.length < 2) return alert('تم استخدام جميع الطلاب.');
       const shuffled = [...remaining].sort(() => 0.5 - Math.random());
       name1 = shuffled[0];
       name2 = shuffled[1];
@@ -343,11 +375,24 @@
       if (name1 === name2) return alert('اختر طالبين مختلفين.');
     }
 
-    document.getElementById('name1').textContent = name1;
-    document.getElementById('name2').textContent = name2;
-    document.getElementById('score1').textContent = '0';
-    document.getElementById('score2').textContent = '0';
-    score1 = 0; score2 = 0; currentTurn = 1;
+    document.querySelector('.teams').innerHTML = `
+      <div class="team">
+        <h3 id="name1">${name1}</h3>
+        <div class="score" id="score1">0</div>
+        <button onclick="adjustScore(1, 1)">➕</button>
+        <button onclick="adjustScore(1, -1)">➖</button>
+      </div>
+      <div class="team">
+        <h3 id="name2">${name2}</h3>
+        <div class="score" id="score2">0</div>
+        <button onclick="adjustScore(2, 1)">➕</button>
+        <button onclick="adjustScore(2, -1)">➖</button>
+      </div>
+    `;
+
+    score1 = 0;
+    score2 = 0;
+    currentTurn = 1;
 
     document.getElementById('challengeArea').style.display = 'block';
     document.getElementById('winnerDisplay').textContent = '';
@@ -381,8 +426,8 @@
       updateTimer();
       if (timeLeft <= 0) {
         clearInterval(timer);
-        document.getElementById('turnLabel').textContent += ' - انتهى الدور';
         document.getElementById('longBeepSound').play();
+        document.getElementById('turnLabel').textContent += ' - انتهى الدور';
         showTimeUpPopup();
       }
     }, 1000);
@@ -404,6 +449,17 @@
 
   function nextTurn() {
     clearInterval(timer);
+    const mode = document.getElementById('mode').value;
+
+    if (mode === 'multiTeams') {
+      const count = parseInt(document.getElementById('teamCountSelect').value);
+      document.getElementById('turnLabel').textContent = `الدور على: فريق ${currentTurn}`;
+      timeLeft = parseInt(document.getElementById('duration').value);
+      startTimer();
+      currentTurn = currentTurn >= count ? 1 : currentTurn + 1;
+      return;
+    }
+
     document.getElementById('turnLabel').textContent = `الدور على: ${currentTurn === 1 ? document.getElementById('name1').textContent : document.getElementById('name2').textContent}`;
     timeLeft = parseInt(document.getElementById('duration').value);
     startTimer();
@@ -411,15 +467,46 @@
   }
 
   function adjustScore(team, val) {
-    if (team === 1) score1 += val;
-    else score2 += val;
-    document.getElementById(`score${team}`).textContent = team === 1 ? score1 : score2;
+    const scoreElement = document.getElementById(`score${team}`);
+    let score = parseInt(scoreElement.textContent) + val;
+    score = Math.max(0, score);
+    scoreElement.textContent = score;
   }
 
   function endChallenge() {
     clearInterval(timer);
+    const mode = document.getElementById('mode').value;
+
+    if (mode === 'multiTeams') {
+      const count = parseInt(document.getElementById('teamCountSelect').value);
+      let maxScore = -1;
+      let winners = [];
+
+      for (let i = 1; i <= count; i++) {
+        const score = parseInt(document.getElementById(`score${i}`).textContent);
+        if (score > maxScore) {
+          maxScore = score;
+          winners = [`فريق ${i}`];
+        } else if (score === maxScore) {
+          winners.push(`فريق ${i}`);
+        }
+      }
+
+      const result = winners.length > 1 ? `تعادل بين: ${winners.join(' و ')}` : `🎉 الفائز: ${winners[0]}`;
+      document.getElementById('winnerDisplay').textContent = result;
+      document.getElementById('winSound').play();
+      document.getElementById('fireworks').style.display = 'block';
+      setTimeout(() => {
+        document.getElementById('fireworks').style.display = 'none';
+      }, 4000);
+      return;
+    }
+
+    // للأنواع الأخرى
     const name1 = document.getElementById('name1').textContent;
     const name2 = document.getElementById('name2').textContent;
+    const score1 = parseInt(document.getElementById('score1').textContent);
+    const score2 = parseInt(document.getElementById('score2').textContent);
     let winner;
 
     if (score1 > score2) {
@@ -444,5 +531,3 @@
 </script>
 </body>
 </html>
-  
-  
