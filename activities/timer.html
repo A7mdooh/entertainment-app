@@ -13,27 +13,64 @@
     }
     h1 {
       color: #00796B;
-      font-size: 2rem;
+      font-size: 3rem;
       margin-bottom: 2rem;
     }
+    #progress-container {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      margin: 0 auto 30px;
+    }
+    svg circle {
+      fill: none;
+      stroke-width: 20;
+    }
+    .bg {
+      stroke: #e0e0e0;
+    }
+    .progress {
+      stroke: #00796B;
+      stroke-linecap: round;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+      transition: stroke 0.5s;
+    }
+    .shake {
+      animation: shake 0.5s infinite;
+    }
+    @keyframes shake {
+      0% { transform: rotate(-90deg) translate(0, 0); }
+      25% { transform: rotate(-90deg) translate(2px, 2px); }
+      50% { transform: rotate(-90deg) translate(-2px, -2px); }
+      75% { transform: rotate(-90deg) translate(2px, -2px); }
+      100% { transform: rotate(-90deg) translate(-2px, 2px); }
+    }
     #timer {
-      font-size: 6rem;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 3rem;
       color: #00796B;
-      margin: 30px 0;
     }
     .controls, .settings {
       margin: 20px auto;
-      max-width: 500px;
+      max-width: 800px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
     }
     .controls button, .settings select {
-      font-size: 1.2rem;
-      padding: 10px 20px;
+      font-size: 2rem;
+      padding: 15px 30px;
       border: none;
-      border-radius: 10px;
-      margin: 5px;
+      border-radius: 12px;
       background-color: #00796B;
       color: white;
       cursor: pointer;
+      min-width: 180px;
     }
     .controls button:hover {
       background-color: #004d40;
@@ -55,11 +92,21 @@
     }
     .modal-content {
       background: white;
-      padding: 30px;
-      border-radius: 12px;
+      padding: 40px;
+      border-radius: 16px;
       text-align: center;
-      font-size: 1.5rem;
+      font-size: 3rem;
       color: #00796B;
+    }
+    label {
+      font-size: 1.5rem;
+      margin: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    select {
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -90,7 +137,13 @@
     </label>
   </div>
 
-  <div id="timer">00:00</div>
+  <div id="progress-container">
+    <svg width="300" height="300">
+      <circle class="bg" cx="150" cy="150" r="120" />
+      <circle class="progress" cx="150" cy="150" r="120" stroke-dasharray="754" stroke-dashoffset="0" />
+    </svg>
+    <div id="timer">00:00</div>
+  </div>
 
   <div class="controls">
     <button onclick="startTimer()">ابدأ</button>
@@ -117,6 +170,7 @@
     const beep = document.getElementById('beep');
     const endSound = document.getElementById('endSound');
     const modal = document.getElementById('modal');
+    const progressCircle = document.querySelector('.progress');
 
     function formatTime(seconds) {
       const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
@@ -126,6 +180,19 @@
 
     function updateDisplay() {
       timerDisplay.textContent = mode === 'countdown' ? formatTime(timeLeft) : formatTime(elapsed);
+      const total = duration;
+      const progress = mode === 'countdown' ? timeLeft : elapsed;
+      const percent = progress / total;
+      const offset = 754 * (1 - percent);
+      progressCircle.setAttribute('stroke-dashoffset', offset);
+
+      if (mode === 'countdown' && timeLeft <= 10) {
+        progressCircle.style.stroke = '#e53935';
+        progressCircle.classList.add('shake');
+      } else {
+        progressCircle.style.stroke = '#00796B';
+        progressCircle.classList.remove('shake');
+      }
     }
 
     function showModal() {
