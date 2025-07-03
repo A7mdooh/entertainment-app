@@ -1,57 +1,122 @@
-
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
 <head>
   <meta charset="UTF-8">
   <title>كوّن قصة – سرد</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <style>
-    body { font-family:'Cairo',sans-serif; background:#f0f4f8; text-align:center; padding:20px; }
-    .card { background:white; max-width:600px; margin: auto; padding:30px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); }
-    h1 { color:#2e7d32; }
-    #timer { font-size:2rem; margin:20px 0; }
-    #finish-btn { padding:12px 24px; font-size:1.2rem; background:#ffeb3b; border:none; border-radius:8px; cursor:pointer; }
-    #finish-btn:hover { background:#fdd835; }
-    .celebration { display:none; font-size:3rem; color:#d32f2f; animation: pop 0.6s ease-out forwards; }
-    @keyframes pop { 0% { transform: scale(0.3); opacity:0; } 100% { transform: scale(1); opacity:1; } }
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #f0f4f8;
+      text-align: center;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      max-width: 600px;
+      margin: auto;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #2e7d32;
+      font-size: 2rem;
+    }
+    #timer {
+      font-size: 2rem;
+      margin: 20px 0;
+      color: #d32f2f;
+    }
+    #finish-btn {
+      padding: 12px 24px;
+      font-size: 1.2rem;
+      background: #ffca28;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #finish-btn:hover {
+      background: #fbc02d;
+    }
+    .celebration {
+      display: none;
+      font-size: 2rem;
+      color: #388e3c;
+      margin-top: 20px;
+      animation: pop 0.6s ease-out forwards;
+    }
+    @keyframes pop {
+      0% { transform: scale(0.3); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+    }
   </style>
 </head>
 <body>
   <div class="card">
-    <h1 id="welcome">...تحميل البيانات</h1>
+    <h1 id="welcome">...جاري التحميل</h1>
     <div id="timer">00:00</div>
     <button id="finish-btn" onclick="finishStory()">إنهاء القصة</button>
     <div id="celebration" class="celebration">🎉 أحسنت، أنهيت القصة! 🎉</div>
+    <button id="next-student-btn" style="display:none;" onclick="nextStudent()">التالي</button>
   </div>
 
   <audio id="clap-sound">
     <source src="assets/clap.mp3" type="audio/mp3">
   </audio>
 
-  <script>
-    // 1. جلب المعطيات من عنوان الرابط
-    const params = new URLSearchParams(location.search);
-    const classId = params.get('class');
-    const mode = params.get('mode');
+  <canvas id="confetti-canvas"></canvas>
 
-    // 2. جلب بيانات الطلاب من JSON
+  <script>
+    let students = [];
+    let currentIndex = 0;
+    let selectedClass = '';
+    let selectedMode = '';
+    let studentName = '';
+    let timerInterval;
+    let finished = false;
+
+    // جلب المعطيات من عنوان الرابط
+    const params = new URLSearchParams(location.search);
+    selectedClass = params.get('class');
+    selectedMode = params.get('mode');
+
+    // جلب بيانات الطلاب من JSON
     fetch('data/studentData.json')
       .then(res => res.json())
       .then(data => {
-        let studentName = '';
-        if (mode === 'random') {
-          const list = data[classId] || [];
-          studentName = list[Math.floor(Math.random() * list.length)];
-        } else {
-          studentName = 'الفريق'; // لإنشاء القصة كتيمي
+        students = data[selectedClass];
+        if (students.length === 0) {
+          document.getElementById('welcome').innerText = 'لا يوجد طلاب في هذا الصف';
+          return;
         }
-        document.getElementById('welcome').innerText = `ابدأ السرد يا ${studentName}!`;
 
-        // 3. بدء العداد
-        startTimer(300); // مثلاً 5 دقائق
+        if (selectedMode === 'random') {
+          studentName = students[Math.floor(Math.random() * students.length)];
+          document.getElementById('welcome').innerText = `ابدأ السرد يا ${studentName}!`;
+          startTimer(300); // 5 دقائق
+        } else if (selectedMode === 'group') {
+          studentName = students[Math.floor(Math.random() * students.length)];
+          document.getElementById('welcome').innerText = `ابدأ السرد يا ${studentName}!`;
+          document.getElementById('next-student-btn').style.display = 'inline-block';
+          startTimer(300); // 5 دقائق
+        }
+      })
+      .catch(() => {
+        document.getElementById('welcome').innerText = 'حدث خطأ أثناء تحميل البيانات';
       });
 
-    let timerInterval;
+    // بدء العداد
     function startTimer(seconds) {
       const display = document.getElementById('timer');
       let remaining = seconds;
@@ -63,12 +128,27 @@
       }, 1000);
     }
 
+    // الانتقال للطالب التالي في الوضع الجماعي
+    function nextStudent() {
+      if (currentIndex < students.length - 1) {
+        currentIndex++;
+        studentName = students[currentIndex];
+        document.getElementById('welcome').innerText = `ابدأ السرد يا ${studentName}!`;
+      } else {
+        document.getElementById('next-student-btn').style.display = 'none';
+        finishStory();
+      }
+    }
+
+    // إنهاء القصة
     function finishStory() {
+      if (finished) return;
+      finished = true;
       clearInterval(timerInterval);
       document.getElementById('finish-btn').disabled = true;
       document.getElementById('celebration').style.display = 'block';
       document.getElementById('clap-sound').play();
-      // يمكنك إضافة مؤثرات مرئية إضافية لاحقًا
+      confetti({ particleCount: 200, spread: 100, origin: { y: 0.5 } });
     }
   </script>
 </body>
