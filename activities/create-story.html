@@ -250,7 +250,6 @@
       usedStudents.push(student);
       document.getElementById("studentName").textContent = `ابدأ السرد يا ${student}`;
     }
-
 function startTimer() {
   const canvas = document.getElementById("timerCanvas");
   const ctx = canvas.getContext("2d");
@@ -322,7 +321,12 @@ function showThankYouModal() {
     setTimeout(() => {
       modal.style.display = 'none';
       modal.style.opacity = "1";
-      window.history.back(); // العودة إلى الصفحة السابقة بعد إغلاق النافذة
+      const classSelect = document.getElementById("classSelect");
+      const selectedClass = classSelect.value;
+      classSelect.value = selectedClass;
+      document.getElementById("storyContainer").style.display = "none";
+      document.getElementById("studentSelection").style.display = "flex";
+      document.getElementById("studentName").textContent = "";
     }, 4000);
   };
 }
