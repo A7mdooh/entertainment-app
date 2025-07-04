@@ -242,6 +242,15 @@
       };
       container.appendChild(confirmBtn);
     }
+
+    function nextStudent() {
+      if (currentList.length === 0) return alert("انتهى جميع الطلاب!");
+      const index = Math.floor(Math.random() * currentList.length);
+      const student = currentList.splice(index, 1)[0];
+      usedStudents.push(student);
+      document.getElementById("studentName").textContent = `ابدأ السرد يا ${student}`;
+    }
+
 function startTimer() {
   const canvas = document.getElementById("timerCanvas");
   const ctx = canvas.getContext("2d");
@@ -275,57 +284,6 @@ function startTimer() {
     secondsPassed++;
     draw(1); // إبقاء العداد دائماً ممتلئاً بصريًا
   }, 1000);
-}
-
-function finishStory() {
-  clearInterval(timerInterval);
-  const celebration = document.getElementById("celebration");
-  celebration.style.display = 'block';
-  celebration.style.opacity = '1';
-
-  setTimeout(() => {
-    celebration.style.opacity = '0';
-    showThankYouModal();
-  }, 5000);
-
-  const clap = document.getElementById("clap");
-  clap.currentTime = 0;
-  clap.play().catch(e => console.warn("لم يتم تشغيل الصوت تلقائيًا:", e));
-  triggerConfetti();
-}
-
-function showThankYouModal() {
-  const modal = document.getElementById("thankYouModal");
-  const list = document.getElementById("participantList");
-  list.innerHTML = '';
-  usedStudents.forEach(name => {
-    const li = document.createElement("li");
-    li.textContent = name;
-    list.appendChild(li);
-  });
-  modal.style.display = 'block';
-  modal.style.opacity = '1';
-  modal.style.maxHeight = '80vh';
-  modal.style.overflowY = 'auto';
-  modal.style.position = 'fixed';
-
-  const closeBtn = document.getElementById("closeModalBtn");
-  closeBtn.style.zIndex = "2100";
-  closeBtn.onclick = () => {
-    modal.style.transition = "opacity 1s ease";
-    modal.style.opacity = "0";
-    setTimeout(() => {
-      modal.style.display = 'none';
-      modal.style.opacity = "1";
-      const classSelect = document.getElementById("classSelect");
-      const selectedClass = classSelect.value;
-      document.getElementById("modeSelect").value = "";
-      document.getElementById("studentSelection").innerHTML = '';
-      document.getElementById("studentSelection").style.display = "";
-      document.getElementById("storyContainer").style.display = "none";
-      document.getElementById("studentName").textContent = "";
-    }, 400);
-  };
 }
 
 
