@@ -251,39 +251,41 @@
       document.getElementById("studentName").textContent = `ابدأ السرد يا ${student}`;
     }
 
-    function startTimer() {
-      const canvas = document.getElementById("timerCanvas");
-      const ctx = canvas.getContext("2d");
-      secondsPassed = 0;
-      function draw(percent) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.beginPath();
-        ctx.arc(75, 75, 65, 0, 2 * Math.PI);
-        ctx.strokeStyle = '#eee';
-        ctx.lineWidth = 10;
-        ctx.stroke();
+function startTimer() {
+  const canvas = document.getElementById("timerCanvas");
+  const ctx = canvas.getContext("2d");
+  secondsPassed = 0;
 
-        ctx.beginPath();
-        ctx.arc(75, 75, 65, -Math.PI / 2, (2 * Math.PI * percent) - Math.PI / 2);
-        ctx.strokeStyle = '#00796B';
-        ctx.lineWidth = 10;
-        ctx.stroke();
+  function draw(percent) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.beginPath();
+    ctx.arc(75, 75, 65, 0, 2 * Math.PI);
+    ctx.strokeStyle = '#eee';
+    ctx.lineWidth = 10;
+    ctx.stroke();
 
-        ctx.fillStyle = '#333';
-        ctx.font = '20px Cairo';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        const m = String(Math.floor(secondsPassed / 60)).padStart(2, '0');
-        const s = String(secondsPassed % 60).padStart(2, '0');
-        ctx.fillText(`${m}:${s}`, 75, 75);
-      }
-      draw(0);
-      timerInterval = setInterval(() => {
-        secondsPassed++;
-        draw(Math.min(secondsPassed / totalSeconds, 1));
-        if (secondsPassed >= totalSeconds) finishStory();
-      }, 1000);
-    }
+    ctx.beginPath();
+    ctx.arc(75, 75, 65, -Math.PI / 2, (2 * Math.PI * percent) - Math.PI / 2);
+    ctx.strokeStyle = '#00796B';
+    ctx.lineWidth = 10;
+    ctx.stroke();
+
+    ctx.fillStyle = '#333';
+    ctx.font = '20px Cairo';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const m = String(Math.floor(secondsPassed / 60)).padStart(2, '0');
+    const s = String(secondsPassed % 60).padStart(2, '0');
+    ctx.fillText(`${m}:${s}`, 75, 75);
+  }
+
+  draw(0);
+  timerInterval = setInterval(() => {
+    secondsPassed++;
+    draw(1); // إبقاء العداد دائماً ممتلئاً بصريًا
+  }, 1000);
+}
+
 
     function finishStory() {
       clearInterval(timerInterval);
