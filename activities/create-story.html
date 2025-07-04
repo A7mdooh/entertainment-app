@@ -242,14 +242,7 @@
       };
       container.appendChild(confirmBtn);
     }
-
-    function nextStudent() {
-      if (currentList.length === 0) return alert("انتهى جميع الطلاب!");
-      const index = Math.floor(Math.random() * currentList.length);
-      const student = currentList.splice(index, 1)[0];
-      usedStudents.push(student);
-      document.getElementById("studentName").textContent = `ابدأ السرد يا ${student}`;
-    }function startTimer() {
+function startTimer() {
   const canvas = document.getElementById("timerCanvas");
   const ctx = canvas.getContext("2d");
   secondsPassed = 0;
@@ -312,8 +305,12 @@ function showThankYouModal() {
   });
   modal.style.display = 'block';
   modal.style.opacity = '1';
+  modal.style.maxHeight = '80vh';
+  modal.style.overflowY = 'auto';
+  modal.style.position = 'fixed';
 
   const closeBtn = document.getElementById("closeModalBtn");
+  closeBtn.style.zIndex = "2100";
   closeBtn.onclick = () => {
     modal.style.transition = "opacity 1s ease";
     modal.style.opacity = "0";
@@ -322,14 +319,14 @@ function showThankYouModal() {
       modal.style.opacity = "1";
       const classSelect = document.getElementById("classSelect");
       const selectedClass = classSelect.value;
-      classSelect.value = selectedClass;
+      document.getElementById("modeSelect").value = "";
+      document.getElementById("studentSelection").innerHTML = '';
+      document.getElementById("studentSelection").style.display = "";
       document.getElementById("storyContainer").style.display = "none";
-      document.getElementById("studentSelection").style.display = "flex";
       document.getElementById("studentName").textContent = "";
-    }, 4000);
+    }, 400);
   };
 }
-
 
 
     function finishStory() {
