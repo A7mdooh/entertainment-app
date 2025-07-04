@@ -286,6 +286,48 @@ function startTimer() {
   }, 1000);
 }
 
+function finishStory() {
+  clearInterval(timerInterval);
+  const celebration = document.getElementById("celebration");
+  celebration.style.display = 'block';
+  celebration.style.opacity = '1';
+
+  setTimeout(() => {
+    celebration.style.opacity = '0';
+    showThankYouModal();
+  }, 5000);
+
+  const clap = document.getElementById("clap");
+  clap.currentTime = 0;
+  clap.play().catch(e => console.warn("لم يتم تشغيل الصوت تلقائيًا:", e));
+  triggerConfetti();
+}
+
+function showThankYouModal() {
+  const modal = document.getElementById("thankYouModal");
+  const list = document.getElementById("participantList");
+  list.innerHTML = '';
+  usedStudents.forEach(name => {
+    const li = document.createElement("li");
+    li.textContent = name;
+    list.appendChild(li);
+  });
+  modal.style.display = 'block';
+  modal.style.opacity = '1';
+
+  const closeBtn = document.getElementById("closeModalBtn");
+  closeBtn.onclick = () => {
+    modal.style.transition = "opacity 1s ease";
+    modal.style.opacity = "0";
+    setTimeout(() => {
+      modal.style.display = 'none';
+      modal.style.opacity = "1";
+      window.history.back(); // العودة إلى الصفحة السابقة بعد إغلاق النافذة
+    }, 4000);
+  };
+}
+
+
 
     function finishStory() {
       clearInterval(timerInterval);
