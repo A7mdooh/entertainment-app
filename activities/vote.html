@@ -213,18 +213,27 @@
         const card = document.createElement("div");
         card.className = 'student-card';
         card.textContent = name;
-        card.onclick = () => {
-          if (voted.has(name)) return;
-          const choice = prompt(`لمن تريد ${name} أن يصوّت؟\n${candidateList.join(', ')}`);
-          if (candidateList.includes(choice)) {
-            voteCounts[choice]++;
-            document.getElementById(`votes-${choice}`).innerHTML += `<div class='student-card'>${name}</div>`;
+        const select = document.createElement('select');
+        select.innerHTML = `<option value="">اختر مرشح</option>`;
+        candidateList.forEach(candidate => {
+          const option = document.createElement('option');
+          option.value = candidate;
+          option.textContent = candidate;
+          select.appendChild(option);
+        });
+        const voteOption = document.createElement('option');
+        voteOption.value = 'no-vote';
+        voteOption.textContent = 'لا أصوّت';
+        select.appendChild(voteOption);
+        select.onchange = () => {
+          if (select.value !== 'no-vote') {
+            voteCounts[select.value]++;
+            document.getElementById(`votes-${select.value}`).innerHTML += `<div class='student-card'>${name}</div>`;
             card.remove();
             voted.add(name);
-          } else {
-            alert("الاختيار غير صحيح أو تم الإلغاء.");
           }
         };
+        card.appendChild(select);
         votersContainer.appendChild(card);
       });
 
