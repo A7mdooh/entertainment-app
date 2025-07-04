@@ -1,10 +1,12 @@
+بالطبع! إليك كود ملف main.html بعد إضافة نشاط "صوّت وقرر ✋🗳️" أسفل "كوّن قصة"، بنفس تنسيق البطاقات تمامًا:
+
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
 <head>
-<meta charset="utf-8"/>
-<title>الأنشطة الصفية</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo&amp;display=swap" rel="stylesheet"/>
-<style>
+  <meta charset="utf-8"/>
+  <title>الأنشطة الصفية</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo&amp;display=swap" rel="stylesheet"/>
+  <style>
     body {
       font-family: 'Cairo', sans-serif;
       background: #f0f4f8;
@@ -41,53 +43,64 @@
       color: #444;
       font-size: 1rem;
     }
-</style>
+  </style>
 </head>
 <body>
-<div class="header">
-  <h1>📚 الأنشطة الصفية</h1>
-  <p>اختر نشاطًا لبدء التفاعل مع الطلاب</p>
-</div>
+  <div class="header">
+    <h1>📚 الأنشطة الصفية</h1>
+    <p>اختر نشاطًا لبدء التفاعل مع الطلاب</p>
+  </div>
 
-<div class="activity-card" onclick="window.location.href='activities/random.html'">
-  <div class="activity-title">الاسم العشوائي</div>
-  <div class="activity-desc">يتم اختيار طالب عشوائي من الصف بطريقة ممتعة</div>
-</div>
+  <div class="activity-card" onclick="window.location.href='activities/random.html'">
+    <div class="activity-title">الاسم العشوائي</div>
+    <div class="activity-desc">يتم اختيار طالب عشوائي من الصف بطريقة ممتعة</div>
+  </div>
 
-<div class="activity-card" onclick="window.location.href='activities/timer.html'">
-  <div class="activity-title">المؤقت</div>
-  <div class="activity-desc">إدارة الوقت داخل الصف باستخدام مؤقت بصري</div>
-</div>
+  <div class="activity-card" onclick="window.location.href='activities/timer.html'">
+    <div class="activity-title">المؤقت</div>
+    <div class="activity-desc">إدارة الوقت داخل الصف باستخدام مؤقت بصري</div>
+  </div>
 
-<div class="activity-card" onclick="window.location.href='activities/challenges.html'">
-  <div class="activity-title">تحدي الفرق</div>
-  <div class="activity-desc">تحدي بين فريقين مع عداد ونقاط ومؤثرات</div>
-</div>
+  <div class="activity-card" onclick="window.location.href='activities/challenges.html'">
+    <div class="activity-title">تحدي الفرق</div>
+    <div class="activity-desc">تحدي بين فريقين مع عداد ونقاط ومؤثرات</div>
+  </div>
 
-<div class="activity-card" onclick="window.location.href='activities/create-story.html'">
-  <div class="activity-title">كوّن قصة</div>
-  <div class="activity-desc">استخدم كلمات أو صورًا لتأليف قصة جماعية أو فردية</div>
-</div>
+  <div class="activity-card" onclick="window.location.href='activities/create-story.html'">
+    <div class="activity-title">كوّن قصة</div>
+    <div class="activity-desc">استخدم كلمات أو صورًا لتأليف قصة جماعية أو فردية</div>
+  </div>
 
-<div class="activity-card" onclick="window.location.href='activities/whois.html'">
-  <div class="activity-title">من هو؟</div>
-  <div class="activity-desc">تحدي الوصف لمعرفة الطالب بناءً على تلميحات</div>
-</div>
+  <!-- ✅ النشاط الجديد: صوّت وقرر -->
+  <div class="activity-card" onclick="window.location.href='activities/vote.html'">
+    <div class="activity-title">صوّت وقرر ✋🗳️</div>
+    <div class="activity-desc">اختر طلابًا للتصويت واسحب أسماء المصوّتين ثم اعرض النتائج بشكل احترافي</div>
+  </div>
 
-<div class="activity-card" onclick="window.location.href='activities/story.html'">
-  <div class="activity-title">قصة تفاعلية</div>
-  <div class="activity-desc">تابع قصة قصيرة برسومات وتعليم أخلاقي</div>
-</div>
+  <div class="activity-card" onclick="window.location.href='activities/whois.html'">
+    <div class="activity-title">من هو؟</div>
+    <div class="activity-desc">تحدي الوصف لمعرفة الطالب بناءً على تلميحات</div>
+  </div>
 
-<div class="activity-card" onclick="window.location.href='activities/video.html'">
-  <div class="activity-title">فيديو تعليمي</div>
-  <div class="activity-desc">مشاهدة فيديو مفيد من اليوتيوب داخل الفصل</div>
-</div>
+  <div class="activity-card" onclick="window.location.href='activities/story.html'">
+    <div class="activity-title">قصة تفاعلية</div>
+    <div class="activity-desc">تابع قصة قصيرة برسومات وتعليم أخلاقي</div>
+  </div>
 
-<div class="activity-card" onclick="window.location.href='activities/gallery.html'">
-  <div class="activity-title">معرض الصور</div>
-  <div class="activity-desc">عرض صور تعليمية ممتعة للطلاب</div>
-</div>
+  <div class="activity-card" onclick="window.location.href='activities/video.html'">
+    <div class="activity-title">فيديو تعليمي</div>
+    <div class="activity-desc">مشاهدة فيديو مفيد من اليوتيوب داخل الفصل</div>
+  </div>
+
+  <div class="activity-card" onclick="window.location.href='activities/gallery.html'">
+    <div class="activity-title">معرض الصور</div>
+    <div class="activity-desc">عرض صور تعليمية ممتعة للطلاب</div>
+  </div>
 
 </body>
 </html>
+
+📁 ملاحظة: تأكّد من إنشاء ملف باسم vote.html داخل مجلد activities/ لكي يعمل الرابط بنجاح.
+
+هل ترغب الآن أن أبدأ ببناء محتوى vote.html وفق المنطق الذي حددته؟
+
