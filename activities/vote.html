@@ -1,10 +1,10 @@
-
 <!DOCTYPE html><html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>صوّت وقرر ✋🗳️</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <style>
     body {
       font-family: 'Cairo', sans-serif;
@@ -50,6 +50,10 @@
       cursor: grab;
       user-select: none;
     }
+    .student-card.selected {
+      background-color: #00796B;
+      color: white;
+    }
     .vote-box {
       border: 2px dashed #00796B;
       padding: 20px;
@@ -58,12 +62,23 @@
       margin: 30px auto;
       max-width: 600px;
       min-height: 150px;
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 15px;
     }
     .vote-target {
-      margin-bottom: 15px;
-      font-size: 1.4rem;
-      font-weight: bold;
-      color: #00796B;
+      border: 2px solid #00796B;
+      border-radius: 8px;
+      padding: 10px;
+      min-width: 120px;
+      min-height: 80px;
+      background-color: #e0f2f1;
+    }
+    .vote-target h3 {
+      margin: 5px 0;
+      font-size: 1.2rem;
+      color: #004d40;
     }
     .results-container {
       margin-top: 40px;
@@ -101,8 +116,160 @@
     <canvas id="resultsChart"></canvas>
     <br>
     <button onclick="location.reload()">🔁 عودة</button>
-  </div>  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  <script>
-    // سيُكمل لاحقًا - ربط البيانات، السحب، التصويت، عرض الرسم
-    document.getElementById("classSelect").innerHTML += `<option value="3-1">الصف 3/1</option>`;
+  </div><audio id="clapSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/clap.mp3"></audio>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  <script>
+    let studentData = {}, currentClass = '', candidateList = [], voterList = [], selectedManual = [], voteCounts = {};
+
+    async function loadStudents() {
+      const res = await fetch('https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/data/studentData.json');
+      studentData = await res.json();
+      const classSelect = document.getElementById("classSelect");
+      Object.keys(studentData).forEach(cls => {
+        const option = document.createElement("option");
+        option.value = cls;
+        option.textContent = `الصف ${cls}`;
+        classSelect.appendChild(option);
+      });
+    }
+
+    function startVotingSetup() {
+      currentClass = document.getElementById("classSelect").value;
+      const mode = document.getElementById("voteMode").value;
+      if (!currentClass || !mode) return alert("يرجى اختيار الصف ونوع التصويت.");
+
+      const fullList = [...studentData[currentClass]];
+      selectedManual = [];
+
+      if (mode === 'single') {
+        const index = Math.floor(Math.random() * fullList.length);
+        candidateList = [fullList.splice(index, 1)[0]];
+        voterList = fullList;
+        renderVotingUI();
+      } else if (mode === 'group') {
+        const shuffled = fullList.sort(() => 0.5 - Math.random());
+        candidateList = shuffled.slice(0, 3);
+        voterList = shuffled.slice(3);
+        renderVotingUI();
+      } else {
+        renderManualSelection(fullList, mode);
+      }
+    }
+
+    function renderManualSelection(fullList, mode) {
+      const container = document.getElementById("votersContainer");
+      container.innerHTML = '';
+      document.getElementById("candidateArea").style.display = 'none';
+      document.getElementById("votersArea").style.display = 'block';
+
+      fullList.forEach(name => {
+        const card = document.createElement("div");
+        card.className = 'student-card';
+        card.textContent = name;
+        card.onclick = () => {
+          if (mode === 'select-single') {
+            selectedManual = [name];
+            document.querySelectorAll('.student-card').forEach(el => el.classList.remove('selected'));
+            card.classList.add('selected');
+          } else {
+            if (selectedManual.includes(name)) {
+              selectedManual = selectedManual.filter(n => n !== name);
+              card.classList.remove('selected');
+            } else {
+              selectedManual.push(name);
+              card.classList.add('selected');
+            }
+          }
+        };
+        container.appendChild(card);
+      });
+
+      const confirmBtn = document.createElement("button");
+      confirmBtn.textContent = "بدء التصويت";
+      confirmBtn.onclick = () => {
+        if (selectedManual.length === 0) return alert("يرجى اختيار مرشح أو أكثر.");
+        candidateList = [...selectedManual];
+        voterList = fullList.filter(n => !candidateList.includes(n));
+        renderVotingUI();
+      };
+      container.appendChild(confirmBtn);
+    }
+
+    function renderVotingUI() {
+      const candidatesBox = document.getElementById("candidatesBox");
+      const votersContainer = document.getElementById("votersContainer");
+      candidatesBox.innerHTML = '';
+      votersContainer.innerHTML = '';
+      voteCounts = {};
+
+      candidateList.forEach(name => {
+        voteCounts[name] = 0;
+        const box = document.createElement("div");
+        box.className = 'vote-target';
+        box.innerHTML = `<h3>${name}</h3>`;
+        box.ondragover = e => e.preventDefault();
+        box.ondrop = e => {
+          const voter = e.dataTransfer.getData("text/plain");
+          if (voter && !box.querySelector(`[data-name='${voter}']`)) {
+            voteCounts[name]++;
+            const el = document.createElement("div");
+            el.textContent = voter;
+            el.setAttribute('data-name', voter);
+            el.className = 'student-card';
+            box.appendChild(el);
+            const dragged = document.querySelector(`.student-card[data-name='${voter}']`);
+            if (dragged) dragged.remove();
+          }
+        };
+        candidatesBox.appendChild(box);
+      });
+
+      voterList.forEach(name => {
+        const card = document.createElement("div");
+        card.className = 'student-card';
+        card.textContent = name;
+        card.setAttribute('draggable', true);
+        card.setAttribute('data-name', name);
+        card.ondragstart = e => e.dataTransfer.setData("text/plain", name);
+        votersContainer.appendChild(card);
+      });
+
+      document.getElementById("candidateArea").style.display = 'block';
+      document.getElementById("votersArea").style.display = 'block';
+    }
+
+    function showResults() {
+      document.getElementById("resultsArea").style.display = 'block';
+      const ctx = document.getElementById("resultsChart").getContext("2d");
+      const labels = Object.keys(voteCounts);
+      const data = Object.values(voteCounts);
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'عدد الأصوات',
+            data,
+            backgroundColor: '#00796B'
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } }
+        }
+      });
+
+      // تشغيل التصفيق والمؤثرات
+      const clap = document.getElementById("clapSound");
+      clap.currentTime = 0;
+      clap.play().catch(e => console.warn("لم يتم تشغيل الصوت تلقائيًا:", e));
+      confetti({
+        particleCount: 150,
+        spread: 100,
+        origin: { y: 0.6 }
+      });
+    }
+
+    window.onload = loadStudents;
   </script></body>
 </html>
