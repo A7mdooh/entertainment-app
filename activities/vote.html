@@ -1,1 +1,108 @@
 
+<!DOCTYPE html><html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>صوّت وقرر ✋🗳️</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    .header {
+      background-color: #00796B;
+      color: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+    }
+    select, button {
+      padding: 12px 16px;
+      font-size: 1.1rem;
+      margin: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #00796B;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #004d40;
+    }
+    .card-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .student-card {
+      background: white;
+      border: 2px solid #00796B;
+      border-radius: 8px;
+      padding: 10px 15px;
+      cursor: grab;
+      user-select: none;
+    }
+    .vote-box {
+      border: 2px dashed #00796B;
+      padding: 20px;
+      border-radius: 12px;
+      background: #ffffffc7;
+      margin: 30px auto;
+      max-width: 600px;
+      min-height: 150px;
+    }
+    .vote-target {
+      margin-bottom: 15px;
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #00796B;
+    }
+    .results-container {
+      margin-top: 40px;
+    }
+    canvas {
+      max-width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>✋🗳️ نشاط: صوّت وقرر</h1>
+    <p>اختر الصف ونوع التصويت، ثم رشّح الطلاب وابدأ التصويت التفاعلي</p>
+  </div>  <div>
+    <select id="classSelect">
+      <option value="">-- اختر الصف --</option>
+    </select>
+    <select id="voteMode">
+      <option value="">-- نوع التصويت --</option>
+      <option value="single">فردي عشوائي</option>
+      <option value="group">جماعي عشوائي</option>
+      <option value="select-single">فردي انتقائي</option>
+      <option value="select-group">جماعي انتقائي</option>
+    </select>
+    <button onclick="startVotingSetup()">ابدأ الترشيح</button>
+  </div>  <div id="candidateArea" style="display:none">
+    <h2>🔷 المرشحون</h2>
+    <div id="candidatesBox" class="vote-box"></div>
+  </div>  <div id="votersArea" style="display:none">
+    <h2>🧑‍🎓 المصوّتون</h2>
+    <div class="card-container" id="votersContainer"></div>
+    <button onclick="showResults()">فرز النتائج</button>
+  </div>  <div class="results-container" id="resultsArea" style="display:none">
+    <h2>📊 نتائج التصويت</h2>
+    <canvas id="resultsChart"></canvas>
+    <br>
+    <button onclick="location.reload()">🔁 عودة</button>
+  </div>  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  <script>
+    // سيُكمل لاحقًا - ربط البيانات، السحب، التصويت، عرض الرسم
+    document.getElementById("classSelect").innerHTML += `<option value="3-1">الصف 3/1</option>`;
+  </script></body>
+</html>
