@@ -47,7 +47,7 @@
       border: 2px solid #00796B;
       border-radius: 8px;
       padding: 10px 15px;
-      cursor: grab;
+      cursor: pointer;
       user-select: none;
     }
     .student-card.selected {
@@ -61,18 +61,16 @@
       background: #ffffffc7;
       margin: 30px auto;
       max-width: 600px;
-      min-height: 150px;
       display: flex;
-      justify-content: space-around;
       flex-wrap: wrap;
-      gap: 15px;
+      justify-content: center;
+      gap: 20px;
     }
     .vote-target {
       border: 2px solid #00796B;
       border-radius: 8px;
-      padding: 10px;
+      padding: 15px;
       min-width: 120px;
-      min-height: 80px;
       background-color: #e0f2f1;
     }
     .vote-target h3 {
@@ -118,8 +116,8 @@
     <button onclick="location.reload()">🔁 عودة</button>
   </div><audio id="clapSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/clap.mp3"></audio>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  <script>
-    let studentData = {}, currentClass = '', candidateList = [], voterList = [], selectedManual = [], voteCounts = {};
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti"></script>  <script>
+    let studentData = {}, currentClass = '', candidateList = [], voterList = [], selectedManual = [], voteCounts = {}, voted = new Set();
 
     async function loadStudents() {
       const res = await fetch('https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/data/studentData.json');
@@ -201,26 +199,13 @@
       candidatesBox.innerHTML = '';
       votersContainer.innerHTML = '';
       voteCounts = {};
+      voted.clear();
 
       candidateList.forEach(name => {
         voteCounts[name] = 0;
         const box = document.createElement("div");
         box.className = 'vote-target';
-        box.innerHTML = `<h3>${name}</h3>`;
-        box.ondragover = e => e.preventDefault();
-        box.ondrop = e => {
-          const voter = e.dataTransfer.getData("text/plain");
-          if (voter && !box.querySelector(`[data-name='${voter}']`)) {
-            voteCounts[name]++;
-            const el = document.createElement("div");
-            el.textContent = voter;
-            el.setAttribute('data-name', voter);
-            el.className = 'student-card';
-            box.appendChild(el);
-            const dragged = document.querySelector(`.student-card[data-name='${voter}']`);
-            if (dragged) dragged.remove();
-          }
-        };
+        box.innerHTML = `<h3>${name}</h3><div id="votes-${name}"></div>`;
         candidatesBox.appendChild(box);
       });
 
@@ -228,9 +213,18 @@
         const card = document.createElement("div");
         card.className = 'student-card';
         card.textContent = name;
-        card.setAttribute('draggable', true);
-        card.setAttribute('data-name', name);
-        card.ondragstart = e => e.dataTransfer.setData("text/plain", name);
+        card.onclick = () => {
+          if (voted.has(name)) return;
+          const choice = prompt(`لمن تريد ${name} أن يصوّت؟\n${candidateList.join(', ')}`);
+          if (candidateList.includes(choice)) {
+            voteCounts[choice]++;
+            document.getElementById(`votes-${choice}`).innerHTML += `<div class='student-card'>${name}</div>`;
+            card.remove();
+            voted.add(name);
+          } else {
+            alert("الاختيار غير صحيح أو تم الإلغاء.");
+          }
+        };
         votersContainer.appendChild(card);
       });
 
@@ -243,6 +237,10 @@
       const ctx = document.getElementById("resultsChart").getContext("2d");
       const labels = Object.keys(voteCounts);
       const data = Object.values(voteCounts);
+
+      const maxVotes = Math.max(...data);
+      const winners = labels.filter((name, i) => data[i] === maxVotes);
+
       new Chart(ctx, {
         type: 'bar',
         data: {
@@ -250,23 +248,29 @@
           datasets: [{
             label: 'عدد الأصوات',
             data,
-            backgroundColor: '#00796B'
+            backgroundColor: labels.map(name => winners.includes(name) ? '#FF9800' : '#00796B')
           }]
         },
         options: {
           responsive: true,
-          plugins: { legend: { display: false } }
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: context => `${context.label}: ${context.raw} صوت${winners.includes(context.label) ? ' 🏆' : ''}`
+              }
+            }
+          }
         }
       });
 
-      // تشغيل التصفيق والمؤثرات
-      const clap = document.getElementById("clapSound");
-      clap.currentTime = 0;
-      clap.play().catch(e => console.warn("لم يتم تشغيل الصوت تلقائيًا:", e));
-      confetti({
-        particleCount: 150,
-        spread: 100,
-        origin: { y: 0.6 }
+      document.getElementById("clapSound").play();
+      confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
+
+      document.querySelectorAll(".vote-target h3").forEach(h3 => {
+        if (winners.includes(h3.textContent)) {
+          h3.innerHTML += ' 🏆';
+        }
       });
     }
 
