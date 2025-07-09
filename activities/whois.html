@@ -7,6 +7,12 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js">function closeWinModal() {
   document.getElementById("winModal").style.display = 'none';
 }
+function nextRound() {
+  document.getElementById("winModal").style.display = 'none';
+  document.getElementById("hint").style.display = 'none';
+  document.getElementById("options").innerHTML = '';
+  document.getElementById("startHintBtn").style.display = 'inline-block';
+}
 </script>
   <style>
     body {
@@ -224,13 +230,16 @@
         confetti({ particleCount: 100, spread: 80 });
         feedback.textContent = "🎉 إجابة صحيحة!";
         feedback.style.color = '#388e3c';
+        document.getElementById("winnerName").textContent = targetName;
+        document.getElementById("winModal").style.display = 'block';
+      } else {
+        feedback.textContent = `❌ خطأ! حاول مرة أخرى بتلميح جديد...`;
+        feedback.style.color = '#c62828';
         setTimeout(() => {
           feedback.textContent = "";
-          document.getElementById("hint").style.display = 'none';
-          document.getElementById("options").innerHTML = '';
-          document.getElementById("startHintBtn").style.display = 'none';
-          document.getElementById("winModal").style.display = 'block';
+          showHint();
         }, 2000);
+      }
       } else {
         feedback.textContent = `❌ خطأ! حاول مرة أخرى بتلميح جديد...`;
         feedback.style.color = '#c62828';
@@ -256,6 +265,14 @@
     <h2 style="color:#00796B; font-size:2rem;">🎉 أحسنت!</h2>
     <p style="font-size:1.5rem;">لقد تم التعرف على الطالب بنجاح!</p>
     <button onclick="closeWinModal()" style="margin-top:15px; padding:10px 20px; font-size:1rem; background-color:#00796B; color:white; border:none; border-radius:10px; cursor:pointer;">إنهاء</button>
+  </div>
+</div>
+<div id="winModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.6); z-index:3000;">
+  <div style="background:white; padding:40px; border-radius:20px; max-width:400px; margin:100px auto; text-align:center; box-shadow:0 8px 24px rgba(0,0,0,0.3);">
+    <h2 style="color:#00796B; font-size:2rem;">🎉 أحسنت!</h2>
+    <p style="font-size:1.5rem; margin-top:10px;">الطالب هو:</p>
+    <div id="winnerName" style="font-size:2rem; color:#00796B; margin:10px 0;"></div>
+    <button onclick="nextRound()" style="margin-top:15px; padding:10px 20px; font-size:1rem; background-color:#00796B; color:white; border:none; border-radius:10px; cursor:pointer;">🔁 جولة جديدة</button>
   </div>
 </div>
 </body>
