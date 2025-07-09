@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="ar" dir="rtl">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -109,17 +110,24 @@
       <option value="manual">فردي انتقائي</option>
     </select>
     <button onclick="startGame()">ابدأ</button>
-  </div>  <div id="secretNamePopup"></div>
+  </div>
+
+  <div id="manualSelectContainer" style="margin-bottom: 1rem;"></div>
+  <div id="secretNamePopup"></div>
   <button id="startHintBtn" onclick="showHint()">ابدأ التحدي 🎯</button>
   <div class="hint-box" id="hint">...</div>
   <div class="options" id="options"></div>
-  <div id="feedback"></div>  <div id="instructionModal">
+  <div id="feedback"></div>
+
+  <div id="instructionModal">
     <div class="modal-content">
       <h2>📘 طريقة اللعب</h2>
       <p id="modalText"></p>
       <button onclick="closeInstructionModal()">فهمت ✅</button>
     </div>
-  </div><audio id="revealSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/reveal.mp3"></audio>
+  </div>
+
+  <audio id="revealSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/reveal.mp3"></audio>
 
   <script>
     let allStudents = [], usedNames = [], targetName = "";
@@ -141,7 +149,7 @@
 
     function showInstructions(mode) {
       document.getElementById("modalText").innerText = mode === 'manual'
-        ? "اختر طالبًا من القائمة المنسدلة وسيتم تغبيش اسمه تلقائيًا."
+        ? "اختر طالبًا من القائمة وسيتم تغبيش اسمه تلقائيًا."
         : "سيتم اختيار طالب عشوائي، وسيظهر الاسم في نافذة سرية للمعلم فقط";
       document.getElementById("instructionModal").style.display = "block";
     }
@@ -157,16 +165,22 @@
         usedNames.push(targetName);
         showSecretName(targetName);
       } else {
+        const container = document.getElementById("manualSelectContainer");
+        container.innerHTML = '';
+
         const select = document.createElement("select");
         select.innerHTML = '<option value="">-- اختر الطالب --</option>' +
           allStudents.map(n => `<option value="${n}">${n}</option>`).join('');
+
         select.onchange = () => {
           targetName = select.value;
-          select.selectedIndex = 0;
-          select.style.filter = 'blur(10px)';
-          document.getElementById("startHintBtn").style.display = 'inline-block';
+          if (targetName) {
+            select.style.filter = 'blur(10px)';
+            document.getElementById("startHintBtn").style.display = 'inline-block';
+          }
         };
-        document.body.appendChild(select);
+
+        container.appendChild(select);
       }
     }
 
@@ -177,7 +191,11 @@
       popup.innerText = `👀 اسم الطالب: ${name}`;
       popup.style.display = 'block';
       confetti({ particleCount: 120, spread: 100 });
-      document.getElementById("startHintBtn").style.display = 'inline-block';
+
+      setTimeout(() => {
+        popup.style.display = 'none';
+        document.getElementById("startHintBtn").style.display = 'inline-block';
+      }, 3000);
     }
 
     function showHint() {
@@ -240,5 +258,6 @@
         classSelect.appendChild(opt);
       }
     }
-  </script></body>
+  </script>
+</body>
 </html>
