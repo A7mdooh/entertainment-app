@@ -4,15 +4,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>من هو؟ ❓</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js">function closeWinModal() {
-  document.getElementById("winModal").style.display = 'none';
-}
-function nextRound() {
-  document.getElementById("winModal").style.display = 'none';
-  document.getElementById("hint").style.display = 'none';
-  document.getElementById("options").innerHTML = '';
-  document.getElementById("startHintBtn").style.display = 'none';const mode = document.getElementById("modeSelect").value; if (mode === 'random') { const remaining = allStudents.filter(n => !usedNames.includes(n)); if (remaining.length === 0) return alert("انتهى جميع الطلاب!"); targetName = remaining[Math.floor(Math.random() * remaining.length)]; usedNames.push(targetName); showSecretName(targetName); } else { const manualSelect = document.createElement("select"); manualSelect.innerHTML = '<option value="">-- اختر الطالب --</option>' + allStudents.map(n => <option value="${n}">${n}</option>).join(''); manualSelect.onchange = () => { targetName = manualSelect.value; manualSelect.selectedIndex = 0; manualSelect.style.filter = 'blur(10px)'; document.getElementById("startHintBtn").style.display = 'inline-block'; }; document.getElementById("options").appendChild(manualSelect); } } </script>
-
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <style>
     body {
       font-family: 'Cairo', sans-serif;
@@ -70,19 +62,12 @@ function nextRound() {
       z-index: 1000;
     }
     #instructionModal .modal-content, #secretNamePopup {
-      display: none;
-      position: fixed;
-      top: 30%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 2000;
-      font-size: 1.4rem;
-      background: #ffffff;
-      border-radius: 20px;
-      padding: 30px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-      animation: popFade 3s ease forwards;
-      border: 4px solid #00796B;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 400px;
+      margin: 100px auto;
+      text-align: center;
     }
     #secretNamePopup {
       display: none;
@@ -112,7 +97,8 @@ function nextRound() {
       border-radius: 8px;
       cursor: pointer;
     }
-  </style></head>
+  </style>
+</head>
 <body>
   <div class="header">
     <h1>❓ نشاط: من هو؟</h1>
@@ -188,7 +174,7 @@ function nextRound() {
       targetName = name;
       document.getElementById("revealSound").play();
       const popup = document.getElementById("secretNamePopup");
-      popup.innerHTML = `<div style='font-size: 2rem; font-weight: bold;'>🎯 الطالب المختار:</div><div style='font-size: 2.5rem; margin-top: 10px; color: #00796B;'>${name}</div>`;
+      popup.innerText = `👀 اسم الطالب: ${name}`;
       popup.style.display = 'block';
       confetti({ particleCount: 120, spread: 100 });
       document.getElementById("startHintBtn").style.display = 'inline-block';
@@ -228,16 +214,12 @@ function nextRound() {
         confetti({ particleCount: 100, spread: 80 });
         feedback.textContent = "🎉 إجابة صحيحة!";
         feedback.style.color = '#388e3c';
-        document.getElementById("winnerName").textContent = targetName;
-        document.getElementById("winModal").style.display = 'block';
-      } else {
-        feedback.textContent = `❌ خطأ! حاول مرة أخرى بتلميح جديد...`;
-        feedback.style.color = '#c62828';
         setTimeout(() => {
           feedback.textContent = "";
-          showHint();
+          document.getElementById("hint").style.display = 'none';
+          document.getElementById("options").innerHTML = '';
+          document.getElementById("startHintBtn").style.display = 'inline-block';
         }, 2000);
-      }
       } else {
         feedback.textContent = `❌ خطأ! حاول مرة أخرى بتلميح جديد...`;
         feedback.style.color = '#c62828';
@@ -258,20 +240,5 @@ function nextRound() {
         classSelect.appendChild(opt);
       }
     }
-  </script><div id="winModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.6); z-index:3000;">
-  <div style="background:white; padding:40px; border-radius:20px; max-width:400px; margin:100px auto; text-align:center; box-shadow:0 8px 24px rgba(0,0,0,0.3);">
-    <h2 style="color:#00796B; font-size:2rem;">🎉 أحسنت!</h2>
-    <p style="font-size:1.5rem;">لقد تم التعرف على الطالب بنجاح!</p>
-    <button onclick="closeWinModal()" style="margin-top:15px; padding:10px 20px; font-size:1rem; background-color:#00796B; color:white; border:none; border-radius:10px; cursor:pointer;">إنهاء</button>
-  </div>
-</div>
-<div id="winModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.6); z-index:3000;">
-  <div style="background:white; padding:40px; border-radius:20px; max-width:400px; margin:100px auto; text-align:center; box-shadow:0 8px 24px rgba(0,0,0,0.3);">
-    <h2 style="color:#00796B; font-size:2rem;">🎉 أحسنت!</h2>
-    <p style="font-size:1.5rem; margin-top:10px;">الطالب هو:</p>
-    <div id="winnerName" style="font-size:2rem; color:#00796B; margin:10px 0;"></div>
-    <button onclick="nextRound()" style="margin-top:15px; padding:10px 20px; font-size:1rem; background-color:#00796B; color:white; border:none; border-radius:10px; cursor:pointer;">🔁 جولة جديدة</button>
-  </div>
-</div>
-</body>
+  </script></body>
 </html>
