@@ -98,6 +98,17 @@
       border-radius: 8px;
       cursor: pointer;
     }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      20% { transform: translateX(-5px); }
+      40% { transform: translateX(5px); }
+      60% { transform: translateX(-5px); }
+      80% { transform: translateX(5px); }
+      100% { transform: translateX(0); }
+    }
+    .shake {
+      animation: shake 0.6s ease;
+    }
   </style>
 </head>
 <body>
@@ -115,6 +126,7 @@
   <div id="manualSelectContainer" style="margin-bottom: 1rem;"></div>
   <div id="secretNamePopup"></div>
   <button id="startHintBtn" onclick="showHint()">ابدأ التحدي 🎯</button>
+  <h2 id="revealedName" style="display:none; color:#00796B; margin-top:20px;"></h2>
   <div class="hint-box" id="hint">...</div>
   <div class="options" id="options"></div>
   <div id="feedback"></div>
@@ -144,6 +156,7 @@
       const data = await loadStudentData();
       allStudents = data[cls];
       usedNames = [];
+      document.getElementById("revealedName").style.display = 'none';
       showInstructions(mode);
     }
 
@@ -167,11 +180,10 @@
       } else {
         const container = document.getElementById("manualSelectContainer");
         container.innerHTML = '';
-
         const select = document.createElement("select");
+        select.id = "blurredName";
         select.innerHTML = '<option value="">-- اختر الطالب --</option>' +
           allStudents.map(n => `<option value="${n}">${n}</option>`).join('');
-
         select.onchange = () => {
           targetName = select.value;
           if (targetName) {
@@ -179,7 +191,6 @@
             document.getElementById("startHintBtn").style.display = 'inline-block';
           }
         };
-
         container.appendChild(select);
       }
     }
@@ -201,6 +212,7 @@
     function showHint() {
       document.getElementById("hint").style.display = 'block';
       document.getElementById("startHintBtn").style.display = 'none';
+      document.getElementById("revealedName").style.display = 'none';
       const hintList = [
         "يشجع ريال مدريد!", "يجلس في الصف الأمامي!", "كثير الضحك!", "يعشق برشلونة!",
         "ينسى كراسته دومًا!", "أسرع طالب عند سماع كلمة فسحة!", "ضحكته تُسمع من آخر الصف!",
@@ -232,6 +244,22 @@
         confetti({ particleCount: 100, spread: 80 });
         feedback.textContent = "🎉 إجابة صحيحة!";
         feedback.style.color = '#388e3c';
+
+        // إبراز الاسم في الأعلى + اهتزاز
+        const revealed = document.getElementById("revealedName");
+        revealed.textContent = `✅ الطالب هو: ${targetName}`;
+        revealed.style.display = 'block';
+        revealed.classList.add("shake");
+        setTimeout(() => revealed.classList.remove("shake"), 700);
+
+        // في النمط اليدوي، إزالة التمويه + الاهتزاز أيضًا
+        const blurred = document.getElementById("blurredName");
+        if (blurred) {
+          blurred.style.filter = 'none';
+          blurred.classList.add("shake");
+          setTimeout(() => blurred.classList.remove("shake"), 700);
+        }
+
         setTimeout(() => {
           feedback.textContent = "";
           document.getElementById("hint").style.display = 'none';
