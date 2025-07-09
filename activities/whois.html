@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="ar" dir="rtl">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -73,68 +74,127 @@
       font-size: 1rem;
       padding: 10px;
     }
+    .student-card {
+      display: inline-block;
+      padding: 10px 20px;
+      margin: 8px;
+      border: 2px solid #00796B;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .student-card.selected {
+      background-color: #00796B;
+      color: white;
+    }
+    .student-card:hover {
+      background-color: #e0f2f1;
+    }
   </style>
 </head>
 <body>
   <div class="header">
     <h1>❓ نشاط: من هو؟</h1>
-    <p>اقرأ التلميح واختر الشخصية المناسبة من بين الطلاب</p>
-  </div>  <select id="teamSelect">
+    <p>اختر الصف ونوع النمط لبدء التحدي</p>
+    <select id="classSelect"></select>
+    <select id="modeSelect">
+      <option value="random">فردي عشوائي</option>
+      <option value="manual">فردي انتقائي</option>
+    </select>
+    <button onclick="startGame()">ابدأ</button>
+  </div>
+
+  <select id="teamSelect">
     <option value="teamA">🔵 فريق أ</option>
     <option value="teamB">🟢 فريق ب</option>
-  </select>  <div class="hint-box" id="hint">...</div>
+  </select>
+
+  <div class="hint-box" id="hint">...</div>
   <div class="options" id="options"></div>
   <div id="feedback"></div>
   <div class="timer" id="timer"></div>
   <div class="score-board">
     نقاط فريق أ: <span id="scoreA">0</span> | نقاط فريق ب: <span id="scoreB">0</span>
   </div>
-  <div class="leaderboard" id="leaderboard"></div>  <script>
-    let allStudents = [];
-    let questions = [];
-    let currentIndex = 0;
-    let scoreA = 0;
-    let scoreB = 0;
-    let timerInterval;
-    let timeLeft = 15;
+  <div class="leaderboard" id="leaderboard"></div>
 
-    async function loadStudentsAndQuestions() {
+  <script>
+    let allStudents = [], selectedStudents = [], questions = [];
+    let currentIndex = 0;
+    let scoreA = 0, scoreB = 0;
+    let timerInterval, timeLeft = 15;
+
+    async function loadStudentData() {
       const res = await fetch('https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/data/studentData.json');
       const data = await res.json();
-      const firstClass = Object.keys(data)[0];
-      allStudents = data[firstClass];
+      const classSelect = document.getElementById("classSelect");
+      classSelect.innerHTML = "<option disabled selected>اختر الصف</option>";
+      for (const cls in data) {
+        const opt = document.createElement("option");
+        opt.value = cls;
+        opt.textContent = `الصف ${cls}`;
+        classSelect.appendChild(opt);
+      }
+      return data;
+    }
 
+    async function startGame() {
+      const data = await loadStudentData();
+      const selectedClass = document.getElementById("classSelect").value;
+      const mode = document.getElementById("modeSelect").value;
+      if (!selectedClass || !mode) return alert("يرجى اختيار الصف والنمط");
+
+      allStudents = data[selectedClass];
+      if (mode === 'manual') {
+        const selectionArea = document.createElement("div");
+        selectionArea.id = "manualSelection";
+        selectionArea.style.marginTop = "20px";
+        selectionArea.innerHTML = '<h3>اختر الطلاب للمشاركة:</h3>';
+        allStudents.forEach(name => {
+          const card = document.createElement("div");
+          card.textContent = name;
+          card.className = "student-card";
+          card.onclick = () => {
+            card.classList.toggle("selected");
+          };
+          selectionArea.appendChild(card);
+        });
+        const confirmBtn = document.createElement("button");
+        confirmBtn.textContent = "بدء النشاط";
+        confirmBtn.style.display = "block";
+        confirmBtn.style.marginTop = "15px";
+        confirmBtn.onclick = () => {
+          selectedStudents = Array.from(selectionArea.querySelectorAll(".selected")).map(d => d.textContent);
+          if (selectedStudents.length === 0) return alert("يرجى اختيار طالب واحد على الأقل");
+          document.body.removeChild(selectionArea);
+          generateQuestions();
+        };
+        selectionArea.appendChild(confirmBtn);
+        document.body.appendChild(selectionArea);
+        return;
+      } else {
+        selectedStudents = [...allStudents];
+        generateQuestions();
+      }
+    }
+
+    function generateQuestions() {
       const hintsBank = [
-        "يساعد زملاءه دائمًا.", "يشارك في جميع الأنشطة الصفية.", "يحب القراءة كثيرًا.", "يجلس في الصف الأول.",
-        "يرتدي نظارات جميلة.", "يعشق مادة العلوم.", "هادئ ومؤدب.", "يقود فريقه دومًا.", "يمتلك خطًا جميلًا.",
-        "يشارك في الإذاعة المدرسية.", "يتفاعل كثيرًا مع المعلم.", "يحب البرمجة والتقنية.", "دائمًا مبتسم.",
-        "موهوب في الرسم.", "سريع في حل المسائل.", "محبوب من الجميع.", "يحب التاريخ.", "يفضل العمل الجماعي.",
-        "يعشق الرياضة.", "يحب التحديات.", "يتميز بروح الدعابة.", "يشارك كثيرًا في الصف.", "منظم في أدواته.",
-        "ينهي واجباته باكرًا.", "ذو صوت مرتفع في القراءة.", "يساعد المعلم عند الحاجة.", "يتحدث بهدوء.",
-        "يحب الأرقام والرياضيات.", "موهوب في الحفظ.", "يطرح أسئلة ذكية دائمًا.",
-        "ينسى دائمًا حقيبته لكن لا ينسى ابتسامته!",
-        "إذا نسيت اسم الدرس، اسأله فهو يخترع اسمًا جديدًا!",
-        "يجلس في آخر الصف... لكن أول من يضحك!",
-        "يعرف الإجابة دائمًا... بعد أن يقولها زميله!",
-        "يسأل أسئلة لا علاقة لها بالدرس ولكنها ممتعة!",
-        "يحب الرياضة، خاصة الجري نحو الفسحة!",
-        "إذا سمع كلمة فسحة، يتحول إلى عدّاء محترف!",
-        "يضحك حتى قبل أن يسمع النكتة!",
-        "إذا رأيته يركض، اعرف أن جرس الفسحة رن!",
-        "موهوب في النسيان... لكنه لا ينسى الابتسامة!",
+        "يساعد زملاءه دائمًا.", "يشارك في جميع الأنشطة الصفية.", "يحب القراءة كثيرًا.",
+        "يجلس في الصف الأول.", "يرتدي نظارات جميلة.", "يعشق مادة العلوم.",
+        "هادئ ومؤدب.", "يقود فريقه دومًا.", "يمتلك خطًا جميلًا.",
+        "يشارك في الإذاعة المدرسية.", "يتفاعل كثيرًا مع المعلم.",
         "يشجع ريال مدريد ويظن نفسه فينيسيوس!",
-        "إذا خسر فريقه، لا يشارك في الحصة!",
-        "كل تمريراته دقيقة كأنه دي بروين!",
-        "يصرخ (هالا مدريد) عند كل إجابة صحيحة!",
-        "يريد أن يكون مدرب برشلونة يومًا ما.",
-        "إذا سجل ليفربول، يقفز من الكرسي!",
-        "يحسب النقاط وكأنها أهداف في الشامبيونز!",
         "يرتدي قميص باريس سان جيرمان في كل حصة!",
-        "يشرح الإجابات وكأنه معلق رياضي!",
-        "يفتتح كل صباح بتحليل مباريات الأمس!"
+        "كل تمريراته دقيقة كأنه دي بروين!",
+        "يحب الرياضة، خاصة الجري نحو الفسحة!",
+        "يفتتح كل صباح بتحليل مباريات الأمس!",
+        "إذا سمع كلمة فسحة، يتحول إلى عدّاء محترف!",
+        "يسأل أسئلة لا علاقة لها بالدرس ولكنها ممتعة!",
+        "دائمًا مبتسم.", "يطرح أسئلة ذكية دائمًا."
       ];
 
-      const shuffled = [...allStudents].sort(() => 0.5 - Math.random()).slice(0, 10);
+      const shuffled = [...selectedStudents].sort(() => 0.5 - Math.random()).slice(0, 10);
       questions = shuffled.map(name => {
         const randomOptions = allStudents.filter(n => n !== name).sort(() => 0.5 - Math.random()).slice(0, 3);
         const options = [...randomOptions, name].sort(() => 0.5 - Math.random());
@@ -148,7 +208,6 @@
     function loadQuestion() {
       timeLeft = 15;
       startTimer();
-
       const q = questions[currentIndex];
       document.getElementById("hint").textContent = q.hint;
       const optionsBox = document.getElementById("options");
@@ -186,11 +245,9 @@
         feedback.style.color = '#388e3c';
         confetti({ particleCount: 100, spread: 90 });
         if (team === 'teamA') {
-          scoreA++;
-          document.getElementById("scoreA").textContent = scoreA;
+          scoreA++; document.getElementById("scoreA").textContent = scoreA;
         } else {
-          scoreB++;
-          document.getElementById("scoreB").textContent = scoreB;
+          scoreB++; document.getElementById("scoreB").textContent = scoreB;
         }
       } else {
         feedback.textContent = "خطأ! الإجابة الصحيحة كانت: " + correct;
@@ -206,11 +263,11 @@
           document.getElementById("hint").textContent = "✅ انتهى النشاط!";
           document.getElementById("options").innerHTML = "";
           document.getElementById("timer").textContent = "";
-          document.getElementById("leaderboard").innerHTML = `<strong>النتيجة النهائية:</strong><br>🔵 فريق أ: ${scoreA} نقطة<br>🟢 فريق ب: ${scoreB} نقطة`;
+          document.getElementById("leaderboard").innerHTML =
+            `<strong>النتيجة النهائية:</strong><br>🔵 فريق أ: ${scoreA} نقطة<br>🟢 فريق ب: ${scoreB} نقطة`;
         }
       }, 2000);
     }
-
-    window.onload = loadStudentsAndQuestions;
-  </script></body>
+  </script>
+</body>
 </html>
