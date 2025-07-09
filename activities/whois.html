@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>من هو؟ ❓</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
@@ -90,9 +90,28 @@
     .student-card:hover {
       background-color: #e0f2f1;
     }
+    #instructionModal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.6);
+      z-index: 1000;
+    }
+    #instructionModal .modal-content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 500px;
+      margin: 100px auto;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
+  <audio id="popupSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_655a5b07a3.mp3" preload="auto"></audio>
+  <audio id="successSound" src="https://cdn.pixabay.com/download/audio/2021/08/04/audio_1efc695d3d.mp3" preload="auto"></audio>
+  <audio id="failSound" src="https://cdn.pixabay.com/download/audio/2021/09/15/audio_f5dffbaad5.mp3" preload="auto"></audio>
+
   <div class="header">
     <h1>❓ نشاط: من هو؟</h1>
     <p>اختر الصف ونوع النمط لبدء التحدي</p>
@@ -118,6 +137,14 @@
   </div>
   <div class="leaderboard" id="leaderboard"></div>
 
+  <div id="instructionModal">
+    <div class="modal-content">
+      <h2>📘 طريقة اللعب</h2>
+      <p id="modalText"></p>
+      <button onclick="closeInstructionModal()">فهمت ✅</button>
+    </div>
+  </div>
+
   <script>
     let allStudents = [], selectedStudents = [], questions = [];
     let currentIndex = 0;
@@ -126,52 +153,60 @@
 
     async function loadStudentData() {
       const res = await fetch('https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/data/studentData.json');
-      const data = await res.json();
-      const classSelect = document.getElementById("classSelect");
-      classSelect.innerHTML = "<option disabled selected>اختر الصف</option>";
-      for (const cls in data) {
-        const opt = document.createElement("option");
-        opt.value = cls;
-        opt.textContent = `الصف ${cls}`;
-        classSelect.appendChild(opt);
-      }
-      return data;
+      return await res.json();
     }
 
     async function startGame() {
-      const data = await loadStudentData();
-      const selectedClass = document.getElementById("classSelect").value;
+      const classSelect = document.getElementById("classSelect");
       const mode = document.getElementById("modeSelect").value;
+      const data = await loadStudentData();
+      const selectedClass = classSelect.value;
       if (!selectedClass || !mode) return alert("يرجى اختيار الصف والنمط");
 
       allStudents = data[selectedClass];
-      if (mode === 'manual') {
-        const selectionArea = document.createElement("div");
-        selectionArea.id = "manualSelection";
-        selectionArea.style.marginTop = "20px";
-        selectionArea.innerHTML = '<h3>اختر الطلاب للمشاركة:</h3>';
+      showInstructions(mode);
+    }
+
+    function showInstructions(mode) {
+      const modal = document.getElementById("instructionModal");
+      const popupSound = document.getElementById("popupSound");
+      const text = document.getElementById("modalText");
+      popupSound.play();
+
+      if (mode === "manual") {
+        text.innerHTML = "👥 سيتم عرض طلاب الصف، اختر المشاركين عبر الضغط على بطاقاتهم، ثم ابدأ النشاط.";
+      } else {
+        text.innerHTML = "🎲 سيتم اختيار الطلاب تلقائيًا بشكل عشوائي، ويظهر لك تلميح لتخمين من هو الطالب.";
+      }
+
+      modal.style.display = "block";
+    }
+
+    function closeInstructionModal() {
+      document.getElementById("instructionModal").style.display = "none";
+      const mode = document.getElementById("modeSelect").value;
+
+      if (mode === "manual") {
+        const container = document.createElement("div");
+        container.id = "manualSelection";
+        container.innerHTML = "<h3>اختر الطلاب للمشاركة:</h3>";
         allStudents.forEach(name => {
           const card = document.createElement("div");
           card.textContent = name;
           card.className = "student-card";
-          card.onclick = () => {
-            card.classList.toggle("selected");
-          };
-          selectionArea.appendChild(card);
+          card.onclick = () => card.classList.toggle("selected");
+          container.appendChild(card);
         });
-        const confirmBtn = document.createElement("button");
-        confirmBtn.textContent = "بدء النشاط";
-        confirmBtn.style.display = "block";
-        confirmBtn.style.marginTop = "15px";
-        confirmBtn.onclick = () => {
-          selectedStudents = Array.from(selectionArea.querySelectorAll(".selected")).map(d => d.textContent);
-          if (selectedStudents.length === 0) return alert("يرجى اختيار طالب واحد على الأقل");
-          document.body.removeChild(selectionArea);
+        const btn = document.createElement("button");
+        btn.textContent = "بدء النشاط";
+        btn.onclick = () => {
+          selectedStudents = Array.from(container.querySelectorAll(".selected")).map(el => el.textContent);
+          if (!selectedStudents.length) return alert("اختر طالبًا واحدًا على الأقل");
+          document.body.removeChild(container);
           generateQuestions();
         };
-        selectionArea.appendChild(confirmBtn);
-        document.body.appendChild(selectionArea);
-        return;
+        container.appendChild(btn);
+        document.body.appendChild(container);
       } else {
         selectedStudents = [...allStudents];
         generateQuestions();
@@ -179,46 +214,35 @@
     }
 
     function generateQuestions() {
-      const hintsBank = [
-        "يساعد زملاءه دائمًا.", "يشارك في جميع الأنشطة الصفية.", "يحب القراءة كثيرًا.",
-        "يجلس في الصف الأول.", "يرتدي نظارات جميلة.", "يعشق مادة العلوم.",
-        "هادئ ومؤدب.", "يقود فريقه دومًا.", "يمتلك خطًا جميلًا.",
-        "يشارك في الإذاعة المدرسية.", "يتفاعل كثيرًا مع المعلم.",
-        "يشجع ريال مدريد ويظن نفسه فينيسيوس!",
-        "يرتدي قميص باريس سان جيرمان في كل حصة!",
-        "كل تمريراته دقيقة كأنه دي بروين!",
-        "يحب الرياضة، خاصة الجري نحو الفسحة!",
-        "يفتتح كل صباح بتحليل مباريات الأمس!",
-        "إذا سمع كلمة فسحة، يتحول إلى عدّاء محترف!",
-        "يسأل أسئلة لا علاقة لها بالدرس ولكنها ممتعة!",
-        "دائمًا مبتسم.", "يطرح أسئلة ذكية دائمًا."
+      const hints = [
+        "يساعد زملاءه دائمًا", "يشجع ريال مدريد كأنه فينيسيوس", "يرتدي قميص باريس سان جيرمان",
+        "يفتتح يومه بتحليل مباريات الأمس", "إذا سمع كلمة فسحة صار عدّاء", "يسأل أسئلة عجيبة لكن ممتعة",
+        "دائمًا مبتسم", "يجلس في الصف الأول", "يرتدي نظارات أنيقة", "كأن تمريراته من دي بروين!"
       ];
-
       const shuffled = [...selectedStudents].sort(() => 0.5 - Math.random()).slice(0, 10);
       questions = shuffled.map(name => {
-        const randomOptions = allStudents.filter(n => n !== name).sort(() => 0.5 - Math.random()).slice(0, 3);
-        const options = [...randomOptions, name].sort(() => 0.5 - Math.random());
-        const hint = hintsBank[Math.floor(Math.random() * hintsBank.length)];
+        const randoms = allStudents.filter(n => n !== name).sort(() => 0.5 - Math.random()).slice(0, 3);
+        const options = [...randoms, name].sort(() => 0.5 - Math.random());
+        const hint = hints[Math.floor(Math.random() * hints.length)];
         return { hint, answer: name, options };
       });
-
       loadQuestion();
     }
 
     function loadQuestion() {
-      timeLeft = 15;
-      startTimer();
       const q = questions[currentIndex];
+      timeLeft = 15;
       document.getElementById("hint").textContent = q.hint;
-      const optionsBox = document.getElementById("options");
-      optionsBox.innerHTML = '';
+      const options = document.getElementById("options");
+      options.innerHTML = "";
       q.options.forEach(opt => {
         const div = document.createElement("div");
-        div.className = 'option';
+        div.className = "option";
         div.textContent = opt;
         div.onclick = () => selectAnswer(opt);
-        optionsBox.appendChild(div);
+        options.appendChild(div);
       });
+      startTimer();
     }
 
     function startTimer() {
@@ -236,38 +260,52 @@
 
     function selectAnswer(choice) {
       clearInterval(timerInterval);
-      const correct = questions[currentIndex].answer;
+      const q = questions[currentIndex];
       const feedback = document.getElementById("feedback");
       const team = document.getElementById("teamSelect").value;
 
-      if (choice === correct) {
-        feedback.textContent = "إجابة صحيحة! ✨";
-        feedback.style.color = '#388e3c';
-        confetti({ particleCount: 100, spread: 90 });
-        if (team === 'teamA') {
+      if (choice === q.answer) {
+        document.getElementById("successSound").play();
+        confetti({ particleCount: 100, spread: 80 });
+        feedback.textContent = "إجابة صحيحة! 🎉";
+        feedback.style.color = "#388e3c";
+        if (team === "teamA") {
           scoreA++; document.getElementById("scoreA").textContent = scoreA;
         } else {
           scoreB++; document.getElementById("scoreB").textContent = scoreB;
         }
       } else {
-        feedback.textContent = "خطأ! الإجابة الصحيحة كانت: " + correct;
-        feedback.style.color = '#c62828';
+        document.getElementById("failSound").play();
+        feedback.textContent = `❌ خطأ! الإجابة: ${q.answer}`;
+        feedback.style.color = "#c62828";
       }
 
       setTimeout(() => {
         feedback.textContent = "";
         currentIndex++;
-        if (currentIndex < questions.length) {
-          loadQuestion();
-        } else {
-          document.getElementById("hint").textContent = "✅ انتهى النشاط!";
-          document.getElementById("options").innerHTML = "";
-          document.getElementById("timer").textContent = "";
-          document.getElementById("leaderboard").innerHTML =
-            `<strong>النتيجة النهائية:</strong><br>🔵 فريق أ: ${scoreA} نقطة<br>🟢 فريق ب: ${scoreB} نقطة`;
-        }
+        if (currentIndex < questions.length) loadQuestion();
+        else showResults();
       }, 2000);
     }
+
+    function showResults() {
+      document.getElementById("hint").textContent = "✅ انتهى النشاط!";
+      document.getElementById("options").innerHTML = "";
+      document.getElementById("timer").textContent = "";
+      document.getElementById("leaderboard").innerHTML =
+        `النتائج النهائية:<br>🔵 فريق أ: ${scoreA} نقطة<br>🟢 فريق ب: ${scoreB} نقطة`;
+    }
+
+    window.onload = async () => {
+      const data = await loadStudentData();
+      const classSelect = document.getElementById("classSelect");
+      for (const cls in data) {
+        const opt = document.createElement("option");
+        opt.value = cls;
+        opt.textContent = `الصف ${cls}`;
+        classSelect.appendChild(opt);
+      }
+    };
   </script>
 </body>
 </html>
