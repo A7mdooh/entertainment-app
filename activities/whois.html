@@ -110,7 +110,7 @@
   <audio id="revealSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/reveal.mp3"></audio>
 
   <script>
-    let allStudents = [], selectedStudents = [], targetName = "";
+    let allStudents = [], usedNames = [], targetName = "";
 
     async function loadStudentData() {
       const res = await fetch('https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/data/studentData.json');
@@ -123,6 +123,7 @@
       if (!cls || !mode) return alert("يرجى اختيار الصف والنمط");
       const data = await loadStudentData();
       allStudents = data[cls];
+      usedNames = [];
       showInstructions(mode);
     }
 
@@ -138,8 +139,10 @@
       const mode = document.getElementById("modeSelect").value;
 
       if (mode === 'random') {
-        const index = Math.floor(Math.random() * allStudents.length);
-        targetName = allStudents[index];
+        const remaining = allStudents.filter(n => !usedNames.includes(n));
+        if (remaining.length === 0) return alert("انتهى جميع الطلاب!");
+        targetName = remaining[Math.floor(Math.random() * remaining.length)];
+        usedNames.push(targetName);
         showSecretName(targetName);
         setTimeout(() => showHint(), 3000);
       } else {
@@ -176,9 +179,9 @@
       const hint = hintList[Math.floor(Math.random() * hintList.length)];
       document.getElementById("hint").innerText = hint;
 
-      const shuffled = [...allStudents].sort(() => 0.5 - Math.random()).slice(0, 3);
-      if (!shuffled.includes(targetName)) shuffled[0] = targetName;
-      const options = [...shuffled].sort(() => 0.5 - Math.random());
+      const others = allStudents.filter(n => n !== targetName && !usedNames.includes(n));
+      let options = [...others.sort(() => 0.5 - Math.random()).slice(0, 2), targetName];
+      options = options.sort(() => 0.5 - Math.random());
 
       const container = document.getElementById("options");
       container.innerHTML = '';
@@ -197,14 +200,18 @@
         confetti({ particleCount: 100, spread: 80 });
         feedback.textContent = "🎉 إجابة صحيحة!";
         feedback.style.color = '#388e3c';
+        setTimeout(() => {
+          feedback.textContent = "";
+          closeInstructionModal();
+        }, 2000);
       } else {
-        feedback.textContent = `❌ خطأ! الإجابة الصحيحة هي: ${targetName}`;
+        feedback.textContent = `❌ خطأ! حاول مرة أخرى بتلميح جديد...`;
         feedback.style.color = '#c62828';
+        setTimeout(() => {
+          feedback.textContent = "";
+          showHint();
+        }, 2000);
       }
-      setTimeout(() => {
-        feedback.textContent = "";
-        startGame();
-      }, 3000);
     }
 
     window.onload = async () => {
