@@ -11,9 +11,8 @@ function nextRound() {
   document.getElementById("winModal").style.display = 'none';
   document.getElementById("hint").style.display = 'none';
   document.getElementById("options").innerHTML = '';
-  document.getElementById("startHintBtn").style.display = 'inline-block';
-}
-</script>
+  document.getElementById("startHintBtn").style.display = 'none';const mode = document.getElementById("modeSelect").value; if (mode === 'random') { const remaining = allStudents.filter(n => !usedNames.includes(n)); if (remaining.length === 0) return alert("انتهى جميع الطلاب!"); targetName = remaining[Math.floor(Math.random() * remaining.length)]; usedNames.push(targetName); showSecretName(targetName); } else { const manualSelect = document.createElement("select"); manualSelect.innerHTML = '<option value="">-- اختر الطالب --</option>' + allStudents.map(n => <option value="${n}">${n}</option>).join(''); manualSelect.onchange = () => { targetName = manualSelect.value; manualSelect.selectedIndex = 0; manualSelect.style.filter = 'blur(10px)'; document.getElementById("startHintBtn").style.display = 'inline-block'; }; document.getElementById("options").appendChild(manualSelect); } } </script>
+
   <style>
     body {
       font-family: 'Cairo', sans-serif;
@@ -113,8 +112,7 @@ function nextRound() {
       border-radius: 8px;
       cursor: pointer;
     }
-  </style>
-</head>
+  </style></head>
 <body>
   <div class="header">
     <h1>❓ نشاط: من هو؟</h1>
