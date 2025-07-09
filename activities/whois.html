@@ -4,7 +4,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>من هو؟ ❓</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js">function closeWinModal() {
+  document.getElementById("winModal").style.display = 'none';
+}
+</script>
   <style>
     body {
       font-family: 'Cairo', sans-serif;
@@ -62,12 +65,19 @@
       z-index: 1000;
     }
     #instructionModal .modal-content, #secretNamePopup {
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      max-width: 400px;
-      margin: 100px auto;
-      text-align: center;
+      display: none;
+      position: fixed;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2000;
+      font-size: 1.4rem;
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      animation: popFade 3s ease forwards;
+      border: 4px solid #00796B;
     }
     #secretNamePopup {
       display: none;
@@ -174,7 +184,7 @@
       targetName = name;
       document.getElementById("revealSound").play();
       const popup = document.getElementById("secretNamePopup");
-      popup.innerText = `👀 اسم الطالب: ${name}`;
+      popup.innerHTML = `<div style='font-size: 2rem; font-weight: bold;'>🎯 الطالب المختار:</div><div style='font-size: 2.5rem; margin-top: 10px; color: #00796B;'>${name}</div>`;
       popup.style.display = 'block';
       confetti({ particleCount: 120, spread: 100 });
       document.getElementById("startHintBtn").style.display = 'inline-block';
@@ -218,7 +228,8 @@
           feedback.textContent = "";
           document.getElementById("hint").style.display = 'none';
           document.getElementById("options").innerHTML = '';
-          document.getElementById("startHintBtn").style.display = 'inline-block';
+          document.getElementById("startHintBtn").style.display = 'none';
+          document.getElementById("winModal").style.display = 'block';
         }, 2000);
       } else {
         feedback.textContent = `❌ خطأ! حاول مرة أخرى بتلميح جديد...`;
@@ -240,5 +251,12 @@
         classSelect.appendChild(opt);
       }
     }
-  </script></body>
+  </script><div id="winModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.6); z-index:3000;">
+  <div style="background:white; padding:40px; border-radius:20px; max-width:400px; margin:100px auto; text-align:center; box-shadow:0 8px 24px rgba(0,0,0,0.3);">
+    <h2 style="color:#00796B; font-size:2rem;">🎉 أحسنت!</h2>
+    <p style="font-size:1.5rem;">لقد تم التعرف على الطالب بنجاح!</p>
+    <button onclick="closeWinModal()" style="margin-top:15px; padding:10px 20px; font-size:1rem; background-color:#00796B; color:white; border:none; border-radius:10px; cursor:pointer;">إنهاء</button>
+  </div>
+</div>
+</body>
 </html>
