@@ -1,124 +1,216 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<!DOCTYPE html><html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <title>من هو؟</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>من هو؟ ❓</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <style>
     body {
       font-family: 'Cairo', sans-serif;
-      background-color: #eef4f7;
-      padding: 2rem;
+      background: #f0f4f8;
+      margin: 0;
+      padding: 20px;
       text-align: center;
     }
-    .whois-card {
-      background: linear-gradient(135deg, #f3f4f6, #e0f7fa);
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      transition: all 0.3s ease-in-out;
-      max-width: 600px;
-      margin: auto;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 1rem;
+    .header {
+      background: #00796B;
+      color: white;
+      padding: 1rem;
       border-radius: 8px;
-      border: none;
+      margin-bottom: 2rem;
+    }
+    .hint-box {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+      color: #333;
+    }
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+    }
+    .option {
+      background: #fff;
+      padding: 15px 25px;
+      border: 2px solid #00796B;
+      border-radius: 8px;
+      font-size: 1.2rem;
       cursor: pointer;
-      margin: 10px;
+      transition: 0.3s;
     }
-    #revealBtn {
-      background-color: #4CAF50;
+    .option:hover {
+      background: #00796B;
       color: white;
     }
-    #nextBtn {
-      background-color: #2196F3;
-      color: white;
+    .score-board {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      color: #00796B;
     }
-    #resetBtn {
-      background-color: #FF9800;
-      color: white;
+    #feedback {
+      margin-top: 15px;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    .leaderboard {
+      margin-top: 30px;
+      font-size: 1.2rem;
+      color: #555;
+    }
+    .timer {
+      font-size: 1.2rem;
+      margin-top: 10px;
+      color: #c62828;
+    }
+    #teamSelect {
+      margin-bottom: 20px;
+      font-size: 1rem;
+      padding: 10px;
     }
   </style>
 </head>
 <body>
-  <h1>🤔 من هو؟</h1>
-  <label for="classSelect">اختر الصف:</label>
-  <select id="classSelect"></select>
-  <button onclick="startGame()">ابدأ</button>
+  <div class="header">
+    <h1>❓ نشاط: من هو؟</h1>
+    <p>اقرأ التلميح واختر الشخصية المناسبة من بين الطلاب</p>
+  </div>  <select id="teamSelect">
+    <option value="teamA">🔵 فريق أ</option>
+    <option value="teamB">🟢 فريق ب</option>
+  </select>  <div class="hint-box" id="hint">...</div>
+  <div class="options" id="options"></div>
+  <div id="feedback"></div>
+  <div class="timer" id="timer"></div>
+  <div class="score-board">
+    نقاط فريق أ: <span id="scoreA">0</span> | نقاط فريق ب: <span id="scoreB">0</span>
+  </div>
+  <div class="leaderboard" id="leaderboard"></div>  <script>
+    let allStudents = [];
+    let questions = [];
+    let currentIndex = 0;
+    let scoreA = 0;
+    let scoreB = 0;
+    let timerInterval;
+    let timeLeft = 15;
 
-  <div id="gameBox" style="margin-top: 2rem;"></div>
+    async function loadStudentsAndQuestions() {
+      const res = await fetch('https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/data/studentData.json');
+      const data = await res.json();
+      const firstClass = Object.keys(data)[0];
+      allStudents = data[firstClass];
 
-  <script type="module">
-    import students from '../data/studentData.json' assert {{ type: "json" }};
+      const hintsBank = [
+        "يساعد زملاءه دائمًا.", "يشارك في جميع الأنشطة الصفية.", "يحب القراءة كثيرًا.", "يجلس في الصف الأول.",
+        "يرتدي نظارات جميلة.", "يعشق مادة العلوم.", "هادئ ومؤدب.", "يقود فريقه دومًا.", "يمتلك خطًا جميلًا.",
+        "يشارك في الإذاعة المدرسية.", "يتفاعل كثيرًا مع المعلم.", "يحب البرمجة والتقنية.", "دائمًا مبتسم.",
+        "موهوب في الرسم.", "سريع في حل المسائل.", "محبوب من الجميع.", "يحب التاريخ.", "يفضل العمل الجماعي.",
+        "يعشق الرياضة.", "يحب التحديات.", "يتميز بروح الدعابة.", "يشارك كثيرًا في الصف.", "منظم في أدواته.",
+        "ينهي واجباته باكرًا.", "ذو صوت مرتفع في القراءة.", "يساعد المعلم عند الحاجة.", "يتحدث بهدوء.",
+        "يحب الأرقام والرياضيات.", "موهوب في الحفظ.", "يطرح أسئلة ذكية دائمًا.",
+        "ينسى دائمًا حقيبته لكن لا ينسى ابتسامته!",
+        "إذا نسيت اسم الدرس، اسأله فهو يخترع اسمًا جديدًا!",
+        "يجلس في آخر الصف... لكن أول من يضحك!",
+        "يعرف الإجابة دائمًا... بعد أن يقولها زميله!",
+        "يسأل أسئلة لا علاقة لها بالدرس ولكنها ممتعة!",
+        "يحب الرياضة، خاصة الجري نحو الفسحة!",
+        "إذا سمع كلمة فسحة، يتحول إلى عدّاء محترف!",
+        "يضحك حتى قبل أن يسمع النكتة!",
+        "إذا رأيته يركض، اعرف أن جرس الفسحة رن!",
+        "موهوب في النسيان... لكنه لا ينسى الابتسامة!",
+        "يشجع ريال مدريد ويظن نفسه فينيسيوس!",
+        "إذا خسر فريقه، لا يشارك في الحصة!",
+        "كل تمريراته دقيقة كأنه دي بروين!",
+        "يصرخ (هالا مدريد) عند كل إجابة صحيحة!",
+        "يريد أن يكون مدرب برشلونة يومًا ما.",
+        "إذا سجل ليفربول، يقفز من الكرسي!",
+        "يحسب النقاط وكأنها أهداف في الشامبيونز!",
+        "يرتدي قميص باريس سان جيرمان في كل حصة!",
+        "يشرح الإجابات وكأنه معلق رياضي!",
+        "يفتتح كل صباح بتحليل مباريات الأمس!"
+      ];
 
-    const select = document.getElementById("classSelect");
-    const gameBox = document.getElementById("gameBox");
+      const shuffled = [...allStudents].sort(() => 0.5 - Math.random()).slice(0, 10);
+      questions = shuffled.map(name => {
+        const randomOptions = allStudents.filter(n => n !== name).sort(() => 0.5 - Math.random()).slice(0, 3);
+        const options = [...randomOptions, name].sort(() => 0.5 - Math.random());
+        const hint = hintsBank[Math.floor(Math.random() * hintsBank.length)];
+        return { hint, answer: name, options };
+      });
 
-    const hints = [
-      "طالب محبوب في الفصل",
-      "يحب الرياضة",
-      "يساعد زملاءه",
-      "متفوق في مادة معينة",
-      "يبتسم كثيرًا"
-    ];
-
-    Object.keys(students).forEach(cls => {
-      const opt = document.createElement("option");
-      opt.value = cls;
-      opt.textContent = cls;
-      select.appendChild(opt);
-    });
-
-    let remaining = [];
-    let used = [];
-
-    function startGame() {
-      const selectedClass = select.value;
-      if (!selectedClass) return alert("يرجى اختيار الصف");
-      remaining = [...students[selectedClass]];
-      used = [];
-      gameBox.innerHTML = "";
-      pickStudent();
+      loadQuestion();
     }
 
-    function pickStudent() {
-      if (remaining.length === 0) {
-        gameBox.innerHTML = "<h2>✅ تم استخدام جميع الطلاب!</h2>";
-        return;
+    function loadQuestion() {
+      timeLeft = 15;
+      startTimer();
+
+      const q = questions[currentIndex];
+      document.getElementById("hint").textContent = q.hint;
+      const optionsBox = document.getElementById("options");
+      optionsBox.innerHTML = '';
+      q.options.forEach(opt => {
+        const div = document.createElement("div");
+        div.className = 'option';
+        div.textContent = opt;
+        div.onclick = () => selectAnswer(opt);
+        optionsBox.appendChild(div);
+      });
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      document.getElementById("timer").textContent = `⏳ الوقت المتبقي: ${timeLeft} ثانية`;
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById("timer").textContent = `⏳ الوقت المتبقي: ${timeLeft} ثانية`;
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          selectAnswer(null);
+        }
+      }, 1000);
+    }
+
+    function selectAnswer(choice) {
+      clearInterval(timerInterval);
+      const correct = questions[currentIndex].answer;
+      const feedback = document.getElementById("feedback");
+      const team = document.getElementById("teamSelect").value;
+
+      if (choice === correct) {
+        feedback.textContent = "إجابة صحيحة! ✨";
+        feedback.style.color = '#388e3c';
+        confetti({ particleCount: 100, spread: 90 });
+        if (team === 'teamA') {
+          scoreA++;
+          document.getElementById("scoreA").textContent = scoreA;
+        } else {
+          scoreB++;
+          document.getElementById("scoreB").textContent = scoreB;
+        }
+      } else {
+        feedback.textContent = "خطأ! الإجابة الصحيحة كانت: " + correct;
+        feedback.style.color = '#c62828';
       }
-      const i = Math.floor(Math.random() * remaining.length);
-      const name = remaining.splice(i, 1)[0];
-      used.push(name);
-      const hint = hints[Math.floor(Math.random() * hints.length)];
 
-      const box = document.createElement("div");
-      box.className = "whois-card";
-      box.innerHTML = `
-        <h2>من هو؟ 🤔</h2>
-        <p>${hint}</p>
-        <button id="revealBtn">إظهار الإجابة</button>
-        <h3 id="answerBox"></h3>
-        <div>
-          <button id="nextBtn">طالب آخر 🔄</button>
-          <button id="resetBtn">إعادة ♻️</button>
-        </div>
-      `;
-      box.querySelector("#revealBtn").onclick = () => {
-        box.querySelector("#answerBox").textContent = "👤 " + name;
-        const sound = new Audio("../assets/media/sounds/reveal.mp3");
-        sound.play();
-      };
-      box.querySelector("#nextBtn").onclick = () => {
-        gameBox.innerHTML = "";
-        pickStudent();
-      };
-      box.querySelector("#resetBtn").onclick = () => {
-        startGame();
-      };
-      gameBox.appendChild(box);
+      setTimeout(() => {
+        feedback.textContent = "";
+        currentIndex++;
+        if (currentIndex < questions.length) {
+          loadQuestion();
+        } else {
+          document.getElementById("hint").textContent = "✅ انتهى النشاط!";
+          document.getElementById("options").innerHTML = "";
+          document.getElementById("timer").textContent = "";
+          document.getElementById("leaderboard").innerHTML = `<strong>النتيجة النهائية:</strong><br>🔵 فريق أ: ${scoreA} نقطة<br>🟢 فريق ب: ${scoreB} نقطة`;
+        }
+      }, 2000);
     }
-  </script>
-</body>
+
+    window.onload = loadStudentsAndQuestions;
+  </script></body>
 </html>
