@@ -38,10 +38,10 @@
     }
     .option {
       background: #fff;
-      padding: 15px 25px;
+      padding: 10px 20px;
       border: 2px solid #00796B;
       border-radius: 8px;
-      font-size: 1.2rem;
+      font-size: 1rem;
       cursor: pointer;
       transition: 0.3s;
     }
@@ -179,8 +179,8 @@
       const hint = hintList[Math.floor(Math.random() * hintList.length)];
       document.getElementById("hint").innerText = hint;
 
-      const others = allStudents.filter(n => n !== targetName && !usedNames.includes(n));
-      let options = [...others.sort(() => 0.5 - Math.random()).slice(0, 2), targetName];
+      const others = allStudents.filter(n => n !== targetName);
+      let options = [...others.sort(() => 0.5 - Math.random()).slice(0, 19), targetName];
       options = options.sort(() => 0.5 - Math.random());
 
       const container = document.getElementById("options");
