@@ -171,6 +171,7 @@
     }
 
     function showSecretName(name) {
+      targetName = name;
       document.getElementById("revealSound").play();
       const popup = document.getElementById("secretNamePopup");
       popup.innerText = `👀 اسم الطالب: ${name}`;
