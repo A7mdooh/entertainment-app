@@ -4,90 +4,212 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>اختيار اسم عشوائي</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary-color: #00796B;
+      --primary-dark: #004D40;
+      --accent-color: #FF5722;
+      --text-color: #333;
+      --light-gray: #f5f5f5;
+      --shadow: 0 4px 12px rgba(0,0,0,0.1);
+      --transition: all 0.3s ease;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
     body {
       font-family: 'Cairo', sans-serif;
-      background: #f0f4f8;
+      background: linear-gradient(135deg, #e0f7fa, #f3f4f6);
       margin: 0;
       padding: 20px;
       text-align: center;
       position: relative;
+      min-height: 100vh;
+      color: var(--text-color);
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
     }
-
-    .header {
-      background-color: #00796B;
-      color: white;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-bottom: 2rem;
+    
+    /* أزرار التحكم الثابتة - تصميم محسن */
+    .control-btn {
+      position: fixed;
+      top: 20px;
+      width: 46px;
+      height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background-color: white;
+      box-shadow: var(--shadow);
+      border: none;
+      cursor: pointer;
+      z-index: 100;
+      transition: var(--transition);
+      font-size: 1.4rem;
     }
-
+    
+    .control-btn:hover {
+      transform: scale(1.15);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      background-color: var(--light-gray);
+    }
+    
+    .control-btn:active {
+      transform: scale(0.95);
+    }
+    
+    #muteBtn {
+      right: 25px;
+    }
+    
+    #backBtn {
+      right: 80px;
+    }
+    
+    #fullscreenBtn {
+      left: 25px;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin: 3rem 0 2rem;
+      box-shadow: var(--shadow);
+    }
+    
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+    
     #classSelect {
       padding: 15px;
-      font-size: 1.5rem;
-      border-radius: 6px;
-      border: 1px solid #ccc;
+      font-size: 1.2rem;
+      border-radius: 8px;
+      border: 2px solid #ddd;
       margin-bottom: 20px;
       width: 80%;
       max-width: 400px;
+      background: white;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
     }
-
+    
+    #classSelect:focus {
+      border-color: var(--primary-color);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(0,121,107,0.2);
+    }
+    
     #randomNameDisplay {
       display: inline-block;
       font-weight: bold;
-      color: #00796B;
+      color: var(--primary-dark);
       margin: 40px auto;
       max-width: 90%;
-      padding: 20px;
+      padding: 25px;
       background: white;
       border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      box-shadow: var(--shadow);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      font-size: clamp(1rem, 6vw, 2.8rem);
-      line-height: 1.5;
-      transition: transform 0.3s ease;
+      font-size: clamp(1.5rem, 8vw, 3.5rem);
+      line-height: 1.4;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      min-width: 250px;
+      border: 3px solid var(--light-gray);
     }
-
+    
+    #randomNameDisplay.highlight {
+      animation: highlight 0.5s ease;
+      background: linear-gradient(135deg, #e0f7fa, white);
+      border-color: var(--primary-color);
+    }
+    
+    @keyframes highlight {
+      0% { transform: scale(1); box-shadow: 0 0 0 rgba(0,121,107,0); }
+      50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(0,121,107,0.3); }
+      100% { transform: scale(1); box-shadow: var(--shadow); }
+    }
+    
     .controls {
-      margin-top: 20px;
+      margin: 30px auto;
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 15px;
+      gap: 20px;
+      max-width: 800px;
     }
-
+    
     .controls button {
-      font-size: 2rem;
-      padding: 20px 30px;
-      min-width: 150px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      padding: 18px 30px;
+      min-width: 180px;
       border: none;
-      border-radius: 8px;
-      background-color: #00796B;
+      border-radius: 12px;
+      background-color: var(--primary-color);
       color: white;
       cursor: pointer;
-      touch-action: manipulation;
-      transition: background 0.3s;
+      transition: var(--transition);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
     }
-
+    
     .controls button:hover {
-      background-color: #004d40;
+      background-color: var(--primary-dark);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
     }
-
+    
+    .controls button:active {
+      transform: translateY(1px);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    
+    .controls button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+    
     #startBtn {
       animation: pulse 1.2s infinite;
+      background-color: var(--accent-color);
     }
-
+    
+    #startBtn:hover {
+      background-color: #E64A19;
+    }
+    
     @keyframes pulse {
       0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
+      50% { transform: scale(1.05); }
       100% { transform: scale(1); }
     }
-
+    
     .firework {
       position: absolute;
       width: 200px;
@@ -97,76 +219,155 @@
       z-index: 1000;
       display: none;
       pointer-events: none;
+      border-radius: 50%;
+      opacity: 0;
+      transition: opacity 0.5s ease;
     }
-
+    
+    .firework.show {
+      opacity: 1;
+    }
+    
     #studentCount {
-      font-size: 1.5rem;
-      color: #444;
+      font-size: 1.3rem;
+      color: var(--primary-dark);
+      font-weight: 600;
+      margin: 20px 0;
+      padding: 10px;
+      background: rgba(255,255,255,0.7);
+      border-radius: 8px;
+      display: inline-block;
     }
-
-    .top-left, .top-center, .top-right {
-      position: fixed;
-      top: 15px;
-      font-size: 1.8rem;
-      background: none;
-      border: none;
-      cursor: pointer;
+    
+    /* تأثيرات خاصة للأزرار */
+    .btn-effect {
+      position: absolute;
+      background: white;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      transition: opacity 0.3s;
     }
-
-    .top-left {
-      left: 15px;
+    
+    .controls button:hover .btn-effect {
+      opacity: 0.1;
     }
-
-    .top-center {
-      left: 50%;
-      transform: translateX(-50%);
+    
+    /* تصميم متجاوب */
+    @media (max-width: 768px) {
+      .header {
+        padding: 1.2rem;
+        margin: 2rem 0;
+      }
+      
+      h1 {
+        font-size: 1.8rem;
+      }
+      
+      .control-btn {
+        width: 42px;
+        height: 42px;
+        top: 15px;
+        font-size: 1.2rem;
+      }
+      
+      #muteBtn {
+        right: 15px;
+      }
+      
+      #backBtn {
+        right: 65px;
+      }
+      
+      #fullscreenBtn {
+        left: 15px;
+      }
+      
+      #classSelect {
+        width: 90%;
+        font-size: 1.1rem;
+        padding: 12px;
+      }
+      
+      .controls button {
+        font-size: 1.3rem;
+        padding: 15px 20px;
+        min-width: 140px;
+      }
+      
+      #randomNameDisplay {
+        padding: 20px;
+        font-size: clamp(1.3rem, 7vw, 2.5rem);
+        min-width: 200px;
+      }
     }
-
-    .top-right {
-      right: 15px;
+    
+    @media (max-width: 480px) {
+      .controls {
+        gap: 12px;
+      }
+      
+      .controls button {
+        width: 100%;
+        max-width: 250px;
+      }
     }
   </style>
 </head>
 <body>
-  <button class="top-left" onclick="muteToggle()" id="muteBtn" title="تشغيل/كتم الصوت">🔊</button>
-  <button class="top-center" onclick="goBack()" title="الرجوع للأنشطة">📚</button>
-  <button class="top-right" onclick="toggleFullscreen()" title="ملء الشاشة">⛶</button>
-
-  <div class="header">
-    <h1>🎲 اختيار اسم عشوائي</h1>
-    <p>اختر الصف وابدأ الدوران لاختيار الطالب</p>
-  </div>
-
-  <select id="classSelect">
-    <option value="">-- اختر الصف --</option>
-  </select>
-
-  <div class="controls">
-    <button id="startBtn" onclick="startRollingOnce()">🚀 ابدأ</button>
-  </div>
-
-  <div id="randomNameDisplay"></div>
-  <p id="studentCount"></p>
-
-  <div class="controls" id="resultControls" style="display:none">
-    <button onclick="removeCurrentName()">🗑️ حذف</button>
-    <button onclick="startRolling()">🔁 متابعة</button>
-  </div>
-
-  <div class="controls">
-    <button onclick="stopRolling()" id="stopBtn" style="display:none">🖐️ إيقاف</button>
-  </div>
-
-  <div class="firework" id="firework"></div>
-
-  <!-- الأصوات -->
+  <!-- أصوات محسنة -->
   <audio id="spinSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/reveal.mp3"></audio>
   <audio id="selectSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/select.mp3"></audio>
   <audio id="clickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/Click.mp3"></audio>
   <audio id="nameStartSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/name-start.mp3" loop></audio>
   <audio id="nameStopSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/name-stop.mp3"></audio>
+  
+  <!-- أزرار التحكم المحسنة -->
+  <button class="control-btn" id="muteBtn" title="تشغيل/كتم الصوت">🔊</button>
+  <button class="control-btn" id="backBtn" title="الرجوع للأنشطة">📚</button>
+  <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">⛶</button>
+
+  <div class="container">
+    <div class="header">
+      <h1>🎲 اختيار اسم عشوائي</h1>
+      <p>اختر الصف وابدأ الدوران لاختيار الطالب</p>
+    </div>
+
+    <select id="classSelect">
+      <option value="">-- اختر الصف --</option>
+    </select>
+
+    <div id="randomNameDisplay"></div>
+    <p id="studentCount"></p>
+
+    <div class="controls">
+      <button id="startBtn" onclick="startRollingOnce()">
+        <span class="btn-content">🚀 ابدأ</span>
+      </button>
+    </div>
+
+    <div class="controls" id="resultControls" style="display:none">
+      <button onclick="removeCurrentName()">
+        <span class="btn-content">🗑️ حذف</span>
+      </button>
+      <button onclick="startRolling()">
+        <span class="btn-content">🔁 متابعة</span>
+      </button>
+    </div>
+
+    <div class="controls">
+      <button onclick="stopRolling()" id="stopBtn" style="display:none">
+        <span class="btn-content">🖐️ إيقاف</span>
+      </button>
+    </div>
+
+    <div class="firework" id="firework"></div>
+  </div>
 
   <script>
+    // تحسينات JavaScript
     let studentData = {};
     let currentList = [];
     let currentIndex = -1;
@@ -175,47 +376,87 @@
     let isMuted = false;
     let started = false;
     let canRemove = false;
+    let isFullscreen = false;
 
+    // عناصر الصوت
     const nameStartSound = document.getElementById("nameStartSound");
     const nameStopSound = document.getElementById("nameStopSound");
+    const clickSound = document.getElementById("clickSound");
+    const spinSound = document.getElementById("spinSound");
+    const selectSound = document.getElementById("selectSound");
 
+    // عناصر DOM
+    const randomNameDisplay = document.getElementById("randomNameDisplay");
+    const startBtn = document.getElementById("startBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const resultControls = document.getElementById("resultControls");
+    const classSelect = document.getElementById("classSelect");
+    const studentCount = document.getElementById("studentCount");
+    const firework = document.getElementById("firework");
+    const muteBtn = document.getElementById("muteBtn");
+    const backBtn = document.getElementById("backBtn");
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
+
+    // تحميل بيانات الطلاب
     async function loadStudents() {
-      const res = await fetch('/entertainment-app/data/studentData.json');
-      studentData = await res.json();
-      const classSelect = document.getElementById("classSelect");
-      Object.keys(studentData).forEach(cls => {
-        const option = document.createElement("option");
-        option.value = cls;
-        option.textContent = cls;
-        classSelect.appendChild(option);
-      });
-      classSelect.addEventListener('change', () => {
-        currentList = [...studentData[classSelect.value]];
-        updateStudentCount();
-      });
+      try {
+        const res = await fetch('/entertainment-app/data/studentData.json');
+        studentData = await res.json();
+        
+        // تعبئة خيارات الصفوف
+        Object.keys(studentData).forEach(cls => {
+          const option = document.createElement("option");
+          option.value = cls;
+          option.textContent = cls;
+          classSelect.appendChild(option);
+        });
+        
+        // حدث تغيير الصف
+        classSelect.addEventListener('change', () => {
+          playClick();
+          currentList = [...studentData[classSelect.value]];
+          updateStudentCount();
+        });
+        
+        // Precache الأصوات
+        window.addEventListener('load', () => {
+          [nameStartSound, nameStopSound, clickSound, spinSound, selectSound].forEach(audio => {
+            audio.load();
+          });
+        });
+      } catch (error) {
+        console.error('خطأ في تحميل بيانات الطلاب:', error);
+        randomNameDisplay.textContent = "حدث خطأ في تحميل البيانات";
+      }
     }
 
+    // بدء الدوران (مرة واحدة)
     function startRollingOnce() {
       playClick();
-      const selectedClass = document.getElementById("classSelect").value;
+      const selectedClass = classSelect.value;
+      
       if (!selectedClass || !studentData[selectedClass]) {
-        document.getElementById("randomNameDisplay").textContent = "يرجى اختيار الصف أولاً";
+        randomNameDisplay.textContent = "يرجى اختيار الصف أولاً";
+        randomNameDisplay.classList.add('highlight');
+        setTimeout(() => randomNameDisplay.classList.remove('highlight'), 1000);
         return;
       }
+      
       if (started) return;
+      
       started = true;
-      document.getElementById("startBtn").disabled = true;
-      document.getElementById("startBtn").style.animation = "none";
+      startBtn.disabled = true;
+      startBtn.style.animation = "none";
       startRolling();
     }
 
+    // بدء الدوران العشوائي
     function startRolling() {
       playClick();
-      const selectedClass = document.getElementById("classSelect").value;
-      const display = document.getElementById("randomNameDisplay");
+      const selectedClass = classSelect.value;
 
       if (!selectedClass || !studentData[selectedClass]) {
-        display.textContent = "يرجى اختيار الصف أولاً";
+        randomNameDisplay.textContent = "يرجى اختيار الصف أولاً";
         return;
       }
 
@@ -224,95 +465,150 @@
       }
 
       if (currentList.length === 0) {
-        display.textContent = "لا يوجد طلاب متبقين.";
+        randomNameDisplay.textContent = "لا يوجد طلاب متبقين.";
         return;
       }
 
-      document.getElementById("resultControls").style.display = "none";
-      document.getElementById("stopBtn").style.display = "inline-block";
+      resultControls.style.display = "none";
+      stopBtn.style.display = "inline-block";
 
-      if (!isMuted) nameStartSound.play();
+      if (!isMuted) {
+        nameStartSound.play().catch(e => console.log("تعذر تشغيل الصوت:", e));
+      }
 
       interval = setInterval(() => {
         currentIndex = Math.floor(Math.random() * currentList.length);
         currentName = currentList[currentIndex];
-        display.textContent = currentName;
-        display.style.transform = "scale(1.1)";
+        randomNameDisplay.textContent = currentName;
+        
+        // تأثير الحركة
+        randomNameDisplay.style.transform = "scale(1.1)";
         setTimeout(() => {
-          display.style.transform = "scale(1)";
+          randomNameDisplay.style.transform = "scale(1)";
         }, 150);
       }, 50);
     }
 
+    // إيقاف الدوران
     function stopRolling() {
       clearInterval(interval);
       interval = null;
+      
       if (!isMuted) {
         nameStartSound.pause();
         nameStartSound.currentTime = 0;
-        nameStopSound.play();
+        nameStopSound.play().catch(e => console.log("تعذر تشغيل الصوت:", e));
       }
-      document.getElementById("stopBtn").style.display = "none";
-      document.getElementById("resultControls").style.display = "flex";
+      
+      stopBtn.style.display = "none";
+      resultControls.style.display = "flex";
       showFirework();
       canRemove = true;
+      started = false;
+      startBtn.disabled = false;
     }
 
+    // حذف الاسم الحالي
     function removeCurrentName() {
       playClick();
       if (!canRemove) return;
+      
       if (currentIndex !== -1) {
         currentList.splice(currentIndex, 1);
-        document.getElementById("randomNameDisplay").textContent = "تمت الإزالة: " + currentName;
+        randomNameDisplay.textContent = "تمت الإزالة: " + currentName;
         updateStudentCount();
         canRemove = false;
+        
+        if (!isMuted) {
+          selectSound.play().catch(e => console.log("تعذر تشغيل الصوت:", e));
+        }
       }
     }
 
+    // كتم/تشغيل الصوت
     function muteToggle() {
       isMuted = !isMuted;
-      document.getElementById("muteBtn").textContent = isMuted ? "🔇" : "🔊";
+      muteBtn.textContent = isMuted ? "🔇" : "🔊";
+      muteBtn.title = isMuted ? "تشغيل الصوت" : "كتم الصوت";
       playClick();
     }
 
+    // عرض تأثير الألعاب النارية
     function showFirework() {
-      const fw = document.getElementById("firework");
-      const display = document.getElementById("randomNameDisplay");
-      const rect = display.getBoundingClientRect();
-
-      fw.style.top = rect.top + window.scrollY + "px";
-      fw.style.left = rect.left + window.scrollX + "px";
-      fw.style.transform = "translate(0, 0)";
-      fw.style.display = "block";
-
+      const rect = randomNameDisplay.getBoundingClientRect();
+      
+      firework.style.top = rect.top + window.scrollY - 50 + "px";
+      firework.style.left = rect.left + window.scrollX - 50 + "px";
+      firework.style.display = "block";
+      firework.classList.add('show');
+      
       setTimeout(() => {
-        fw.style.display = "none";
+        firework.classList.remove('show');
+        setTimeout(() => {
+          firework.style.display = "none";
+        }, 500);
       }, 2000);
     }
 
+    // تحديث عدد الطلاب المتبقين
     function updateStudentCount() {
       const count = currentList.length;
-      document.getElementById("studentCount").textContent = `عدد الطلاب المتبقين: ${count}`;
+      studentCount.textContent = `عدد الطلاب المتبقين: ${count}`;
     }
 
+    // تبديل وضع ملء الشاشة
     function toggleFullscreen() {
+      playClick();
       const doc = document.documentElement;
+      
       if (!document.fullscreenElement) {
-        doc.requestFullscreen();
+        doc.requestFullscreen().then(() => {
+          isFullscreen = true;
+          fullscreenBtn.textContent = "🗗";
+          fullscreenBtn.title = "خروج من ملء الشاشة";
+        }).catch(err => {
+          console.error('خطأ في ملء الشاشة:', err);
+        });
       } else {
         document.exitFullscreen();
+        isFullscreen = false;
+        fullscreenBtn.textContent = "⛶";
+        fullscreenBtn.title = "ملء الشاشة";
       }
     }
 
+    // العودة للصفحة الرئيسية
     function goBack() {
-      window.location.href = "https://a7mdooh.github.io/entertainment-app/main.html";
+      playClick();
+      setTimeout(() => {
+        window.location.href = "https://a7mdooh.github.io/entertainment-app/main.html";
+      }, 300);
     }
 
+    // تشغيل صوت النقر
     function playClick() {
-      if (!isMuted) document.getElementById("clickSound").play();
+      if (!isMuted) {
+        clickSound.currentTime = 0;
+        clickSound.play().catch(e => console.log("تعذر تشغيل صوت النقر:", e));
+      }
     }
 
+    // تهيئة الصفحة عند التحميل
     window.onload = loadStudents;
+
+    // كشف تغيير وضع الشاشة
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement && isFullscreen) {
+        isFullscreen = false;
+        fullscreenBtn.textContent = "⛶";
+        fullscreenBtn.title = "ملء الشاشة";
+      }
+    });
+
+    // أحداث الأزرار
+    muteBtn.addEventListener('click', muteToggle);
+    backBtn.addEventListener('click', goBack);
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
   </script>
 </body>
 </html>
