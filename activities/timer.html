@@ -117,10 +117,31 @@
       border: none;
       cursor: pointer;
     }
+    .top-buttons {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      gap: 10px;
+    }
+    .top-buttons button {
+      font-size: 2rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <h1>⏱️ المؤقت الصفي</h1>
+
+  <!-- أزرار الرجوع وملء الشاشة -->
+  <div class="top-buttons">
+    <button onclick="goBack()" title="الرجوع للأنشطة">📚</button>
+    <button onclick="toggleFullscreen()" title="ملء الشاشة">🖵</button>
+  </div>
+
+  <button id="toggle-sound" onclick="toggleSound()" title="تشغيل/كتم الصوت">🔊</button>
 
   <div class="settings">
     <label>نوع المؤقت:
@@ -171,9 +192,6 @@
   <audio id="endSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/end-timer.mp3"></audio>
   <audio id="clickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/select.mp3"></audio>
 
-  <!-- زر كتم الصوت -->
-  <button id="toggle-sound" onclick="toggleSound()">🔊</button>
-
   <script>
     let duration = 0;
     let timeLeft = 0;
@@ -215,7 +233,7 @@
     }
 
     function showModal() {
-      if (soundEnabled) endSound.play();  // تشغيل صوت الانتهاء فقط
+      if (soundEnabled) endSound.play();
       modal.classList.remove('fade-out');
       modal.style.display = 'flex';
       setTimeout(() => {
@@ -239,11 +257,9 @@
         if (mode === 'countdown') {
           if (timeLeft > 0) {
             timeLeft--;
-
             if (soundEnabled && (duration - timeLeft <= 10 || timeLeft <= 10)) {
               startSound.play();
             }
-
           } else {
             clearInterval(interval);
             showModal();
@@ -251,11 +267,9 @@
         } else {
           if (elapsed < duration) {
             elapsed++;
-
             if (soundEnabled && (elapsed <= 10 || duration - elapsed <= 10)) {
               startSound.play();
             }
-
           } else {
             clearInterval(interval);
             showModal();
@@ -282,7 +296,19 @@
       toggleBtn.textContent = soundEnabled ? '🔊' : '🔇';
     }
 
-    // تشغيل صوت عند النقر على الأزرار
+    function goBack() {
+      window.location.href = "https://a7mdooh.github.io/entertainment-app/main.html";
+    }
+
+    function toggleFullscreen() {
+      const doc = document.documentElement;
+      if (!document.fullscreenElement) {
+        doc.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
     document.querySelectorAll('.controls button').forEach(btn => {
       btn.addEventListener('click', () => {
         if (soundEnabled) clickSound.play();
