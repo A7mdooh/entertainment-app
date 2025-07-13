@@ -1,11 +1,12 @@
 
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+
+<html dir="rtl" lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <title>التحديات</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
-  <style>
+<meta charset="utf-8"/>
+<title>التحديات</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo&amp;display=swap" rel="stylesheet"/>
+<style>
     body {
       font-family: 'Cairo', sans-serif;
       background-color: #f0f4f8;
@@ -133,97 +134,86 @@
     }
   </style>
 </head>
-<body>
-  <div class="header">
-    <h1>🔥 التحديات 🔥</h1>
-  </div>
+<body style="padding-top: 60px;">
+<div class="fixed-controls" style="position: fixed; top: 0; left: 0; right: 0; height: 50px; z-index: 10000;">
+<button onclick="goBack()" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); padding: 8px 16px; font-size: 1.2rem; border-radius: 8px; background-color: #607D8B; color: white; border: none;" title="رجوع">📚 الرجوع</button>
+<button onclick="toggleFullScreen()" style="position: absolute; top: 10px; right: 10px; font-size: 1.5rem; background: none; border: none; cursor: pointer;" title="ملء الشاشة">⛶</button>
+<button id="soundButton" onclick="toggleSound()" style="position: absolute; top: 10px; left: 10px; font-size: 1.5rem; background: none; border: none; cursor: pointer;" title="كتم/تشغيل الصوت">🔊</button>
+</div>
 
-  <div>
-    <label>اختر الصف:</label>
-    <select id="classSelect"></select>
-
-    <label>نوع التحدي:</label>
-    <select id="mode" onchange="handleModeChange()">
-      <option value="random">طالب ضد طالب (عشوائي)</option>
-      <option value="manual">طالب ضد طالب (اختياري)</option>
-      <option value="teams">فريق ضد فريق</option>
-      <option value="multiTeams">تحدي بين فرق متعددة</option>
-    </select>
-
-    <div id="manualSelection" style="display:none">
-      <label>اختر الطالب الأول:</label>
-      <select id="student1Select"></select>
-      <label>اختر الطالب الثاني:</label>
-      <select id="student2Select"></select>
-    </div>
-
-    <div id="multiTeamOptions">
-      <label>عدد الفرق:</label>
-      <select id="teamCountSelect">
-        <option value="3">3 فرق</option>
-        <option value="4">4 فرق</option>
-        <option value="5">5 فرق</option>
-        <option value="6">6 فرق</option>
-        <option value="7">7 فرق</option>
-        <option value="8">8 فرق</option>
-      </select>
-    </div>
-
-    <label>المدة:</label>
-    <select id="duration">
-      <option value="30">30 ثانية</option>
-      <option value="60">1 دقيقة</option>
-      <option value="120">2 دقائق</option>
-      <option value="180">3 دقائق</option>
-      <option value="240">4 دقائق</option>
-      <option value="300">5 دقائق</option>
-      <option value="600">10 دقائق</option>
-    </select>
-
-    <button onclick="prepareChallenge()">بدء التحدي</button>
-  </div>
-  
-
+<div class="header">
+<h1>🔥 التحديات 🔥</h1>
+</div>
+<div>
+<label>اختر الصف:</label>
+<select id="classSelect"></select>
+<label>نوع التحدي:</label>
+<select id="mode" onchange="handleModeChange()">
+<option value="random">طالب ضد طالب (عشوائي)</option>
+<option value="manual">طالب ضد طالب (اختياري)</option>
+<option value="teams">فريق ضد فريق</option>
+<option value="multiTeams">تحدي بين فرق متعددة</option>
+</select>
+<div id="manualSelection" style="display:none">
+<label>اختر الطالب الأول:</label>
+<select id="student1Select"></select>
+<label>اختر الطالب الثاني:</label>
+<select id="student2Select"></select>
+</div>
+<div id="multiTeamOptions">
+<label>عدد الفرق:</label>
+<select id="teamCountSelect">
+<option value="3">3 فرق</option>
+<option value="4">4 فرق</option>
+<option value="5">5 فرق</option>
+<option value="6">6 فرق</option>
+<option value="7">7 فرق</option>
+<option value="8">8 فرق</option>
+</select>
+</div>
+<label>المدة:</label>
+<select id="duration">
+<option value="30">30 ثانية</option>
+<option value="60">1 دقيقة</option>
+<option value="120">2 دقائق</option>
+<option value="180">3 دقائق</option>
+<option value="240">4 دقائق</option>
+<option value="300">5 دقائق</option>
+<option value="600">10 دقائق</option>
+</select>
+<button onclick="prepareChallenge()">بدء التحدي</button>
+</div>
 <div id="challengeArea" style="display:none">
-    <div id="turnLabel"></div>
-    <div id="timerWrapper">
-      <svg id="timerCircle" width="120" height="120">
-        <circle r="50" cx="60" cy="60" stroke="#eee" stroke-width="10" fill="none"/>
-        <circle id="progress" r="50" cx="60" cy="60" stroke="#FF5722" stroke-width="10" fill="none"
-                stroke-dasharray="314" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
-      </svg>
-      <div id="timerTextSec">0s</div>
-    </div>
-
-    <div class="teams"></div>
-
-    <button onclick="nextTurn()">🔁 التالي</button>
-    <button onclick="endChallenge()">🎉 إنهاء التحدي</button>
-    <div id="winnerDisplay"></div>
-  </div>
-
-  <!-- نافذة التعليمات المنبثقة -->
-  <div id="instructionModal" style="display:none; position:fixed; top:0; right:0; bottom:0; left:0; background:rgba(0,0,0,0.6); z-index:10000; justify-content:center; align-items:center;">
-    <div style="background:white; padding:30px; border-radius:16px; max-width:500px; width:90%; text-align:center; box-shadow:0 0 20px rgba(0,0,0,0.3);">
-      <h2>📣 تعليمات التحدي</h2>
-      <p id="instructionText" style="font-size:1.2rem; line-height:1.6;"></p>
-      <button onclick="closeInstructionModal()" style="margin-top:20px; background-color:#00796B; color:white; padding:10px 20px; border:none; border-radius:8px;">فهمت ✅</button>
-    </div>
-  </div>
-
-  <!-- مؤثرات بصرية -->
-  <div id="fireworks"></div>
-  <div id="timeUpPopup">⏰ انتهى الوقت!</div>
-
-  <!-- المؤثرات الصوتية -->
-  <audio id="countdownSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/countdown-beep.mp3"></audio>
-  <audio id="longBeepSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/long-beep.mp3"></audio>
-  <audio id="winSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/win.mp3"></audio>
-  <audio id="drawSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/draw.mp3"></audio>
-
-
-
-  <script>
+<div id="turnLabel"></div>
+<div id="timerWrapper">
+<svg height="120" id="timerCircle" width="120">
+<circle cx="60" cy="60" fill="none" r="50" stroke="#eee" stroke-width="10"></circle>
+<circle cx="60" cy="60" fill="none" id="progress" r="50" stroke="#FF5722" stroke-dasharray="314" stroke-dashoffset="0" stroke-width="10" transform="rotate(-90 60 60)"></circle>
+</svg>
+<div id="timerTextSec">0s</div>
+</div>
+<div class="teams"></div>
+<button onclick="nextTurn()">🔁 التالي</button>
+<button onclick="endChallenge()">🎉 إنهاء التحدي</button>
+<div id="winnerDisplay"></div>
+</div>
+<!-- نافذة التعليمات المنبثقة -->
+<div id="instructionModal" style="display:none; position:fixed; top:0; right:0; bottom:0; left:0; background:rgba(0,0,0,0.6); z-index:10000; justify-content:center; align-items:center;">
+<div style="background:white; padding:30px; border-radius:16px; max-width:500px; width:90%; text-align:center; box-shadow:0 0 20px rgba(0,0,0,0.3);">
+<h2>📣 تعليمات التحدي</h2>
+<p id="instructionText" style="font-size:1.2rem; line-height:1.6;"></p>
+<button onclick="closeInstructionModal()" style="margin-top:20px; background-color:#00796B; color:white; padding:10px 20px; border:none; border-radius:8px;">فهمت ✅</button>
+</div>
+</div>
+<!-- مؤثرات بصرية -->
+<div id="fireworks"></div>
+<div id="timeUpPopup">⏰ انتهى الوقت!</div>
+<!-- المؤثرات الصوتية -->
+<audio id="countdownSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/countdown-beep.mp3"></audio>
+<audio id="longBeepSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/long-beep.mp3"></audio>
+<audio id="winSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/win.mp3"></audio>
+<audio id="drawSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/draw.mp3"></audio>
+<script>
   let studentData = {}, currentList = [], timer, timeLeft = 0;
   let currentTurn = 1, score1 = 0, score2 = 0;
   let usedStudents = [];
@@ -528,6 +518,31 @@
   }
 
   window.onload = loadStudents;
+
+function goBack() {
+  window.history.back();
+}
+
+function toggleFullScreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+  }
+}
+
+let isMuted = false;
+function toggleSound() {
+  isMuted = !isMuted;
+  const soundButton = document.getElementById('soundButton');
+  const audios = document.querySelectorAll('audio');
+  audios.forEach(audio => {
+    audio.muted = isMuted;
+  });
+  soundButton.textContent = isMuted ? '🔇' : '🔊';
+}
 </script>
 </body>
 </html>
