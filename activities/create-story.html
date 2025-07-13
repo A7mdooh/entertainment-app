@@ -168,7 +168,7 @@
   <!-- زر العودة للصفحة الرئيسية (على اليمين) -->
   <button class="control-btn" id="homeBtn" title="العودة لصفحة الأنشطة">📚</button>
   
-  <!-- زر ملء الشاشة (على اليسار) -->
+  <!-- زر ملء الشاشة (على اليسار) - يتغير تلقائيا -->
   <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">⛶</button>
 
   <div class="header">
@@ -217,30 +217,32 @@
     let selectedManualStudents = [], secondsPassed = 0;
     const totalSeconds = 300;
 
-    // وظيفة ملء الشاشة
+    // وظيفة ملء الشاشة مع تغيير الأيقونة تلقائياً
     function toggleFullScreen() {
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(err => {
           console.log('خطأ في ملء الشاشة:', err);
         });
+        document.getElementById('fullscreenBtn').textContent = '🗙';
+        document.getElementById('fullscreenBtn').title = 'خروج من ملء الشاشة';
       } else {
         if (document.exitFullscreen) {
           document.exitFullscreen();
+          document.getElementById('fullscreenBtn').textContent = '⛶';
+          document.getElementById('fullscreenBtn').title = 'ملء الشاشة';
         }
       }
     }
 
-    // إخفاء الأزرار عند الدخول في وضع ملء الشاشة
+    // تحديث حالة الأيقونة عند تغيير وضع الشاشة
     document.addEventListener('fullscreenchange', function() {
-      const homeBtn = document.getElementById('homeBtn');
       const fullscreenBtn = document.getElementById('fullscreenBtn');
-      
       if (document.fullscreenElement) {
-        homeBtn.style.display = 'none';
-        fullscreenBtn.style.display = 'none';
+        fullscreenBtn.textContent = '🗙';
+        fullscreenBtn.title = 'خروج من ملء الشاشة';
       } else {
-        homeBtn.style.display = 'block';
-        fullscreenBtn.style.display = 'block';
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.title = 'ملء الشاشة';
       }
     });
 
