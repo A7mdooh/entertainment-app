@@ -42,31 +42,34 @@
       color: #444;
       font-size: 1rem;
     }
-    /* زر ملء الشاشة */
-    .fullscreen-btn {
+    /* أزرار التحكم */
+    .control-btns {
       position: fixed;
       top: 15px;
       left: 15px;
+      display: flex;
+      gap: 10px;
+      z-index: 100;
+    }
+    .control-btn {
       font-size: 24px;
       background: none;
       border: none;
       cursor: pointer;
-      z-index: 100;
       transition: transform 0.3s;
       padding: 5px;
-      border-radius: 50%;
-      background-color: rgba(255,255,255,0.7);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
-    .fullscreen-btn:hover {
+    .control-btn:hover {
       transform: scale(1.1);
-      background-color: rgba(255,255,255,0.9);
     }
   </style>
 </head>
 <body>
-  <!-- زر ملء الشاشة -->
-  <button class="fullscreen-btn" id="fullscreenBtn" title="ملء الشاشة">⛶</button>
+  <!-- أزرار التحكم -->
+  <div class="control-btns">
+    <button class="control-btn" id="homeBtn" title="العودة للصفحة الرئيسية">🏠</button>
+    <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">⛶</button>
+  </div>
 
   <div class="header">
     <h1>📚 الأنشطة الصفية</h1>
@@ -98,7 +101,6 @@
     <div class="activity-desc">تصويت فصلي تفاعلي مع مرشحين ورسوم نتائج مباشرة</div>
   </div>
 
-  <!-- ✅ النسخة المعدّلة من "من هو؟" -->
   <div class="activity-card" onclick="window.location.href='activities/whois.html'">
     <div class="activity-title">🕵️‍♂️ من هو؟</div>
     <div class="activity-desc">تحدٍّ تفاعلي يختبر ذكاءك في كشف هوية الطالب من خلال تلميحات ممتعة! 🎯</div>
@@ -135,13 +137,18 @@
       }
     }
 
-    // إخفاء زر ملء الشاشة عند الدخول في وضع ملء الشاشة
+    // وظيفة العودة للصفحة الرئيسية
+    document.getElementById('homeBtn').addEventListener('click', function() {
+      window.location.href = 'https://a7mdooh.github.io/entertainment-app/';
+    });
+
+    // إخفاء الأزرار عند الدخول في وضع ملء الشاشة
     document.addEventListener('fullscreenchange', function() {
-      const btn = document.getElementById('fullscreenBtn');
+      const btns = document.querySelector('.control-btns');
       if (document.fullscreenElement) {
-        btn.style.display = 'none';
+        btns.style.display = 'none';
       } else {
-        btn.style.display = 'block';
+        btns.style.display = 'flex';
       }
     });
   </script>
