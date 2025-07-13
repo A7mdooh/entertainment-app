@@ -108,6 +108,15 @@
     select {
       margin-top: 10px;
     }
+    #toggle-sound {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      font-size: 2rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -157,8 +166,13 @@
     </div>
   </div>
 
-  <audio id="beep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
-  <audio id="endSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
+  <!-- الأصوات -->
+  <audio id="startSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/start-timer.mp3"></audio>
+  <audio id="endSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/end-timer.mp3"></audio>
+  <audio id="clickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/select.mp3"></audio>
+
+  <!-- زر كتم الصوت -->
+  <button id="toggle-sound" onclick="toggleSound()">🔊</button>
 
   <script>
     let duration = 0;
@@ -166,11 +180,16 @@
     let elapsed = 0;
     let mode = 'countdown';
     let interval = null;
+    let soundEnabled = true;
+
     const timerDisplay = document.getElementById('timer');
-    const beep = document.getElementById('beep');
-    const endSound = document.getElementById('endSound');
     const modal = document.getElementById('modal');
     const progressCircle = document.querySelector('.progress');
+
+    const startSound = document.getElementById('startSound');
+    const endSound = document.getElementById('endSound');
+    const clickSound = document.getElementById('clickSound');
+    const toggleBtn = document.getElementById('toggle-sound');
 
     function formatTime(seconds) {
       const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
@@ -196,9 +215,9 @@
     }
 
     function showModal() {
+      if (soundEnabled) endSound.play();
       modal.classList.remove('fade-out');
       modal.style.display = 'flex';
-      endSound.play();
       setTimeout(() => {
         modal.classList.add('fade-out');
         setTimeout(() => {
@@ -210,6 +229,7 @@
 
     function startTimer() {
       pauseTimer();
+      if (soundEnabled) startSound.play();
       duration = parseInt(document.getElementById('time').value);
       mode = document.getElementById('mode').value;
       timeLeft = duration;
@@ -219,7 +239,6 @@
         if (mode === 'countdown') {
           if (timeLeft > 0) {
             timeLeft--;
-            if (timeLeft <= 10) beep.play();
           } else {
             clearInterval(interval);
             showModal();
@@ -227,7 +246,6 @@
         } else {
           if (elapsed < duration) {
             elapsed++;
-            if (duration - elapsed <= 10) beep.play();
           } else {
             clearInterval(interval);
             showModal();
@@ -248,6 +266,18 @@
       timeLeft = duration;
       updateDisplay();
     }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      toggleBtn.textContent = soundEnabled ? '🔊' : '🔇';
+    }
+
+    // تشغيل صوت النقر عند الضغط على الأزرار
+    document.querySelectorAll('.controls button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (soundEnabled) clickSound.play();
+      });
+    });
 
     updateDisplay();
   </script>
