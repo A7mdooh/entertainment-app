@@ -215,7 +215,7 @@
     }
 
     function showModal() {
-      if (soundEnabled) endSound.play();
+      if (soundEnabled) endSound.play();  // تشغيل صوت الانتهاء فقط
       modal.classList.remove('fade-out');
       modal.style.display = 'flex';
       setTimeout(() => {
@@ -240,14 +240,8 @@
           if (timeLeft > 0) {
             timeLeft--;
 
-            // صوت أول 10 ثوانٍ من البداية
-            if (duration - timeLeft <= 10 && soundEnabled) {
-              clickSound.play();
-            }
-
-            // صوت آخر 10 ثوانٍ قبل النهاية
-            if (timeLeft <= 10 && soundEnabled) {
-              clickSound.play();
+            if (soundEnabled && (duration - timeLeft <= 10 || timeLeft <= 10)) {
+              startSound.play();
             }
 
           } else {
@@ -258,14 +252,8 @@
           if (elapsed < duration) {
             elapsed++;
 
-            // صوت أول 10 ثوانٍ من البداية
-            if (elapsed <= 10 && soundEnabled) {
-              clickSound.play();
-            }
-
-            // صوت آخر 10 ثوانٍ قبل النهاية
-            if (duration - elapsed <= 10 && soundEnabled) {
-              clickSound.play();
+            if (soundEnabled && (elapsed <= 10 || duration - elapsed <= 10)) {
+              startSound.play();
             }
 
           } else {
@@ -294,7 +282,7 @@
       toggleBtn.textContent = soundEnabled ? '🔊' : '🔇';
     }
 
-    // صوت عند النقر على الأزرار
+    // تشغيل صوت عند النقر على الأزرار
     document.querySelectorAll('.controls button').forEach(btn => {
       btn.addEventListener('click', () => {
         if (soundEnabled) clickSound.play();
