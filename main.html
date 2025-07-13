@@ -11,6 +11,7 @@
       margin: 0;
       padding: 20px;
       text-align: center;
+      position: relative;
     }
     .header {
       background-color: #00796B;
@@ -41,9 +42,32 @@
       color: #444;
       font-size: 1rem;
     }
+    /* زر ملء الشاشة */
+    .fullscreen-btn {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      font-size: 24px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      z-index: 100;
+      transition: transform 0.3s;
+      padding: 5px;
+      border-radius: 50%;
+      background-color: rgba(255,255,255,0.7);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .fullscreen-btn:hover {
+      transform: scale(1.1);
+      background-color: rgba(255,255,255,0.9);
+    }
   </style>
 </head>
 <body>
+  <!-- زر ملء الشاشة -->
+  <button class="fullscreen-btn" id="fullscreenBtn" title="ملء الشاشة">⛶</button>
+
   <div class="header">
     <h1>📚 الأنشطة الصفية</h1>
     <p>اختر نشاطًا لبدء التفاعل مع الطلاب</p>
@@ -95,5 +119,31 @@
     <div class="activity-desc">عرض صور تعليمية ممتعة للطلاب</div>
   </div>
 
+  <script>
+    // وظيفة ملء الشاشة
+    document.getElementById('fullscreenBtn').addEventListener('click', toggleFullScreen);
+    
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.log('خطأ في ملء الشاشة:', err);
+        });
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    // إخفاء زر ملء الشاشة عند الدخول في وضع ملء الشاشة
+    document.addEventListener('fullscreenchange', function() {
+      const btn = document.getElementById('fullscreenBtn');
+      if (document.fullscreenElement) {
+        btn.style.display = 'none';
+      } else {
+        btn.style.display = 'block';
+      }
+    });
+  </script>
 </body>
 </html>
