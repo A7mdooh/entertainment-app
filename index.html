@@ -72,21 +72,38 @@
       color: white;
       border-radius: 8px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
 
     .start-btn:hover {
       background-color: #004d40;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
     }
 
-    .designer-btn {
+    .start-btn:active {
+      transform: translateY(1px);
+    }
+
+    .control-btns {
       position: fixed;
-      bottom: 15px;
-      left: 15px;
+      bottom: 20px;
+      left: 20px;
+      display: flex;
+      gap: 15px;
+    }
+
+    .control-btn {
       font-size: 24px;
       cursor: pointer;
       background: none;
       border: none;
+      transition: transform 0.3s ease;
+    }
+
+    .control-btn:hover {
+      transform: scale(1.2);
     }
 
     .modal {
@@ -124,6 +141,11 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .close-btn:hover {
+      background-color: #004d40;
     }
 
     @keyframes fadeIn {
@@ -157,6 +179,22 @@
         transform: scale(0.7);
       }
     }
+
+    /* تأثير الطيران للانتقال بين الصفحات */
+    .fly-out {
+      animation: flyOut 0.7s ease forwards;
+    }
+
+    @keyframes flyOut {
+      0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100vh) scale(0.8);
+        opacity: 0;
+      }
+    }
   </style>
 </head>
 <body>
@@ -167,10 +205,13 @@
   <div id="current-date"></div>
   <div id="digital-clock"></div>
   <div id="current-class"></div>
-  <a class="start-btn" href="main.html">ابدأ البرنامج</a>
+  <a class="start-btn" id="startBtn" href="main.html">ابدأ البرنامج</a>
 
-  <!-- زر الإيموجي -->
-  <button class="designer-btn" id="openDesigner">⚙️</button>
+  <!-- أزرار التحكم -->
+  <div class="control-btns">
+    <button class="control-btn" id="openDesigner" title="معلومات المصمم">⚙️</button>
+    <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">⛶</button>
+  </div>
 
   <!-- النافذة المنبثقة -->
   <div id="designerModal" class="modal">
@@ -264,6 +305,30 @@
       setTimeout(() => {
         modal.style.display = 'none';
       }, 300);
+    });
+
+    // وظيفة ملء الشاشة
+    document.getElementById('fullscreenBtn').addEventListener('click', toggleFullScreen);
+    
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.log(`خطأ في ملء الشاشة: ${err.message}`);
+        });
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    // تأثير الانتقال عند الضغط على زر ابدأ البرنامج
+    document.getElementById('startBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      document.body.classList.add('fly-out');
+      setTimeout(() => {
+        window.location.href = this.getAttribute('href');
+      }, 700);
     });
   </script>
 </body>
