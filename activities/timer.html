@@ -311,9 +311,9 @@
   </div>
 
   <div class="controls">
-    <button onclick="startTimer()">ابدأ</button>
-    <button id="pauseResumeBtn" onclick="togglePause()">إيقاف</button>
-    <button onclick="resetTimer()">إعادة</button>
+    <button id="startBtn">ابدأ</button>
+    <button id="pauseResumeBtn">إيقاف</button>
+    <button id="resetBtn">إعادة</button>
   </div>
 
   <div class="modal" id="modal">
@@ -342,25 +342,27 @@
     const timerDisplay = document.getElementById('timer');
     const modal = document.getElementById('modal');
     const progressCircle = document.querySelector('.progress');
+    const startBtn = document.getElementById('startBtn');
     const pauseResumeBtn = document.getElementById('pauseResumeBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const modeSelect = document.getElementById('mode');
+    const timeSelect = document.getElementById('time');
+    const muteBtn = document.getElementById('muteBtn');
+    const backBtn = document.getElementById('backBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
 
     // عناصر الصوت
     const startSound = document.getElementById('startSound');
     const endSound = document.getElementById('endSound');
     const clickSound = document.getElementById('clickSound');
     const tickSound = document.getElementById('tickSound');
-    const muteBtn = document.getElementById('muteBtn');
-    const backBtn = document.getElementById('backBtn');
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
 
     // تهيئة الصفحة
-    window.addEventListener('load', () => {
-      // تحميل مسبق للأصوات
-      [startSound, endSound, clickSound, tickSound].forEach(audio => {
-        audio.load();
-      });
-      
-      // ربط أحداث الأزرار
+    function init() {
+      // تعيين مستمعي الأحداث
+      startBtn.addEventListener('click', startTimer);
+      pauseResumeBtn.addEventListener('click', togglePause);
+      resetBtn.addEventListener('click', resetTimer);
       muteBtn.addEventListener('click', toggleSound);
       backBtn.addEventListener('click', goBack);
       fullscreenBtn.addEventListener('click', toggleFullscreen);
@@ -370,8 +372,16 @@
         btn.addEventListener('click', playClick);
       });
       
+      // تحميل مسبق للأصوات
+      [startSound, endSound, clickSound, tickSound].forEach(audio => {
+        audio.load().catch(e => console.log("تعذر تحميل الصوت:", e));
+      });
+      
+      // تعيين القيم الافتراضية
+      duration = parseInt(timeSelect.value);
+      timeLeft = duration;
       updateDisplay();
-    });
+    }
 
     // تنسيق الوقت
     function formatTime(seconds) {
@@ -391,11 +401,11 @@
 
       // تغيير لون المؤقت عند الاقتراب من النهاية
       if (mode === 'countdown' && timeLeft <= 10) {
-        progressCircle.style.stroke = var(--warning-color);
+        progressCircle.style.stroke = "var(--warning-color)";
         progressCircle.classList.add('shake');
         playTick();
       } else {
-        progressCircle.style.stroke = var(--primary-color);
+        progressCircle.style.stroke = "var(--primary-color)";
         progressCircle.classList.remove('shake');
       }
     }
@@ -431,8 +441,9 @@
     // عرض نافذة التنبيه
     function showModal() {
       playEnd();
-      modal.classList.remove('fade-out');
       modal.style.display = 'flex';
+      modal.classList.remove('fade-out');
+      
       setTimeout(() => {
         modal.classList.add('fade-out');
         setTimeout(() => {
@@ -446,8 +457,8 @@
     function startTimer() {
       stopTimer();
       playStart();
-      duration = parseInt(document.getElementById('time').value);
-      mode = document.getElementById('mode').value;
+      duration = parseInt(timeSelect.value);
+      mode = modeSelect.value;
       timeLeft = duration;
       elapsed = 0;
       isPaused = false;
@@ -565,6 +576,9 @@
         fullscreenBtn.title = "ملء الشاشة";
       }
     });
+
+    // بدء التطبيق
+    window.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
 </html>
