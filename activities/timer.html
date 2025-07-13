@@ -239,7 +239,7 @@
       if (mode === 'countdown') {
         if (timeLeft > 0) {
           timeLeft--;
-          if (soundEnabled && (duration - timeLeft <= 10 || timeLeft <= 10)) {
+          if (soundEnabled && !isPaused && (duration - timeLeft <= 10 || timeLeft <= 10)) {
             startSound.play();
           }
         } else {
@@ -250,7 +250,7 @@
       } else {
         if (elapsed < duration) {
           elapsed++;
-          if (soundEnabled && (elapsed <= 10 || duration - elapsed <= 10)) {
+          if (soundEnabled && !isPaused && (elapsed <= 10 || duration - elapsed <= 10)) {
             startSound.play();
           }
         } else {
@@ -276,7 +276,7 @@
     }
 
     function startTimer() {
-      pauseTimer(); // Reset any running interval
+      pauseTimer();
       if (soundEnabled) startSound.play();
       duration = parseInt(document.getElementById('time').value);
       mode = document.getElementById('mode').value;
@@ -336,7 +336,6 @@
       }
     }
 
-    // صوت نقر لكل الأزرار
     document.querySelectorAll('button').forEach(btn => {
       btn.addEventListener('click', () => {
         if (soundEnabled) clickSound.play();
