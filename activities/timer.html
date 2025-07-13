@@ -300,6 +300,9 @@
         interval = null;
         document.getElementById('pauseResumeBtn').textContent = 'استئناف';
         isPaused = true;
+        // ✅ أوقف الصوت فورًا
+        startSound.pause();
+        startSound.currentTime = 0;
       }
     }
 
