@@ -13,6 +13,7 @@
       margin: 0;
       padding: 20px;
       text-align: center;
+      position: relative;
     }
     .header {
       background-color: #00796B;
@@ -128,9 +129,48 @@
       background-color: #e0f2f1;
       color: #00796B;
     }
+    
+    /* أزرار التحكم الثابتة */
+    .control-btn {
+      position: fixed;
+      top: 15px;
+      font-size: 24px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.3s;
+      padding: 5px;
+      z-index: 100;
+    }
+    #homeBtn {
+      right: 15px;
+    }
+    #fullscreenBtn {
+      left: 15px;
+    }
+    .control-btn:hover {
+      transform: scale(1.1);
+    }
+    @media (max-width: 480px) {
+      .control-btn {
+        font-size: 20px;
+      }
+      #homeBtn {
+        right: 10px;
+      }
+      #fullscreenBtn {
+        left: 10px;
+      }
+    }
   </style>
 </head>
 <body>
+  <!-- زر العودة للصفحة الرئيسية (على اليمين) -->
+  <button class="control-btn" id="homeBtn" title="العودة لصفحة الأنشطة">📚</button>
+  
+  <!-- زر ملء الشاشة (على اليسار) -->
+  <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">⛶</button>
+
   <div class="header">
     <h1>📝 نشاط: كوّن قصة</h1>
     <p>اختر الصف ونوع القصة لبدء التفاعل</p>
@@ -176,6 +216,39 @@
     let studentData = {}, currentList = [], usedStudents = [], timerInterval;
     let selectedManualStudents = [], secondsPassed = 0;
     const totalSeconds = 300;
+
+    // وظيفة ملء الشاشة
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.log('خطأ في ملء الشاشة:', err);
+        });
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    // إخفاء الأزرار عند الدخول في وضع ملء الشاشة
+    document.addEventListener('fullscreenchange', function() {
+      const homeBtn = document.getElementById('homeBtn');
+      const fullscreenBtn = document.getElementById('fullscreenBtn');
+      
+      if (document.fullscreenElement) {
+        homeBtn.style.display = 'none';
+        fullscreenBtn.style.display = 'none';
+      } else {
+        homeBtn.style.display = 'block';
+        fullscreenBtn.style.display = 'block';
+      }
+    });
+
+    // تعيين أحداث الأزرار
+    document.getElementById('fullscreenBtn').addEventListener('click', toggleFullScreen);
+    document.getElementById('homeBtn').addEventListener('click', function() {
+      window.location.href = 'https://a7mdooh.github.io/entertainment-app/main.html';
+    });
 
     async function loadStudents() {
       const res = await fetch('https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/data/studentData.json');
