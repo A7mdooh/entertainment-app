@@ -108,7 +108,6 @@
     select {
       margin-top: 10px;
     }
-
     #toggle-sound {
       position: fixed;
       top: 20px;
@@ -118,7 +117,6 @@
       border: none;
       cursor: pointer;
     }
-
     .top-center {
       position: fixed;
       top: 20px;
@@ -129,7 +127,6 @@
       border: none;
       cursor: pointer;
     }
-
     .top-right {
       position: fixed;
       top: 20px;
@@ -144,7 +141,6 @@
 <body>
   <h1>⏱️ المؤقت الصفي</h1>
 
-  <!-- أيقونات الرأس -->
   <button class="top-center" onclick="goBack()" title="الرجوع للأنشطة">📚</button>
   <button class="top-right" onclick="toggleFullscreen()" title="ملء الشاشة">⛶</button>
   <button id="toggle-sound" onclick="toggleSound()" title="تشغيل/كتم الصوت">🔊</button>
@@ -183,7 +179,7 @@
 
   <div class="controls">
     <button onclick="startTimer()">ابدأ</button>
-    <button onclick="pauseTimer()">إيقاف</button>
+    <button id="pauseResumeBtn" onclick="togglePause()">إيقاف</button>
     <button onclick="resetTimer()">إعادة</button>
   </div>
 
@@ -204,6 +200,7 @@
     let elapsed = 0;
     let mode = 'countdown';
     let interval = null;
+    let isPaused = false;
     let soundEnabled = true;
 
     const timerDisplay = document.getElementById('timer');
@@ -238,6 +235,33 @@
       }
     }
 
+    function timerTick() {
+      if (mode === 'countdown') {
+        if (timeLeft > 0) {
+          timeLeft--;
+          if (soundEnabled && (duration - timeLeft <= 10 || timeLeft <= 10)) {
+            startSound.play();
+          }
+        } else {
+          clearInterval(interval);
+          interval = null;
+          showModal();
+        }
+      } else {
+        if (elapsed < duration) {
+          elapsed++;
+          if (soundEnabled && (elapsed <= 10 || duration - elapsed <= 10)) {
+            startSound.play();
+          }
+        } else {
+          clearInterval(interval);
+          interval = null;
+          showModal();
+        }
+      }
+      updateDisplay();
+    }
+
     function showModal() {
       if (soundEnabled) endSound.play();
       modal.classList.remove('fade-out');
@@ -252,41 +276,36 @@
     }
 
     function startTimer() {
-      pauseTimer();
+      pauseTimer(); // Reset any running interval
       if (soundEnabled) startSound.play();
       duration = parseInt(document.getElementById('time').value);
       mode = document.getElementById('mode').value;
       timeLeft = duration;
       elapsed = 0;
+      isPaused = false;
+      interval = setInterval(timerTick, 1000);
+      document.getElementById('pauseResumeBtn').textContent = 'إيقاف';
       updateDisplay();
-      interval = setInterval(() => {
-        if (mode === 'countdown') {
-          if (timeLeft > 0) {
-            timeLeft--;
-            if (soundEnabled && (duration - timeLeft <= 10 || timeLeft <= 10)) {
-              startSound.play();
-            }
-          } else {
-            clearInterval(interval);
-            showModal();
-          }
-        } else {
-          if (elapsed < duration) {
-            elapsed++;
-            if (soundEnabled && (elapsed <= 10 || duration - elapsed <= 10)) {
-              startSound.play();
-            }
-          } else {
-            clearInterval(interval);
-            showModal();
-          }
-        }
-        updateDisplay();
-      }, 1000);
+    }
+
+    function togglePause() {
+      if (!interval && !isPaused) return;
+
+      if (isPaused) {
+        interval = setInterval(timerTick, 1000);
+        document.getElementById('pauseResumeBtn').textContent = 'إيقاف';
+        isPaused = false;
+      } else {
+        clearInterval(interval);
+        interval = null;
+        document.getElementById('pauseResumeBtn').textContent = 'استئناف';
+        isPaused = true;
+      }
     }
 
     function pauseTimer() {
       clearInterval(interval);
+      interval = null;
     }
 
     function resetTimer() {
@@ -294,6 +313,8 @@
       modal.style.display = 'none';
       elapsed = 0;
       timeLeft = duration;
+      isPaused = false;
+      document.getElementById('pauseResumeBtn').textContent = 'إيقاف';
       updateDisplay();
     }
 
@@ -315,7 +336,7 @@
       }
     }
 
-    // ✅ صوت نقر لجميع الأزرار والأيقونات
+    // صوت نقر لكل الأزرار
     document.querySelectorAll('button').forEach(btn => {
       btn.addEventListener('click', () => {
         if (soundEnabled) clickSound.play();
