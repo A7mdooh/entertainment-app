@@ -130,7 +130,7 @@
       color: #00796B;
     }
     
-    /* أزرار التحكم الثابتة */
+    /* أزرار التحكم الثابتة - بدون خلفية أو ظل */
     .control-btn {
       position: fixed;
       top: 15px;
@@ -141,6 +141,7 @@
       transition: transform 0.3s;
       padding: 5px;
       z-index: 100;
+      color: #00796B; /* لون الأيقونة */
     }
     #homeBtn {
       right: 15px;
@@ -150,6 +151,7 @@
     }
     .control-btn:hover {
       transform: scale(1.1);
+      color: #004d40; /* لون الأيقونة عند التحويم */
     }
     @media (max-width: 480px) {
       .control-btn {
@@ -171,11 +173,13 @@
   <!-- زر ملء الشاشة (على اليسار) - يتغير تلقائيا -->
   <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">⛶</button>
 
+  <!-- باقي المحتوى كما هو -->
   <div class="header">
     <h1>📝 نشاط: كوّن قصة</h1>
     <p>اختر الصف ونوع القصة لبدء التفاعل</p>
   </div>
 
+  <!-- باقي عناصر الصفحة -->
   <div>
     <select id="classSelect">
       <option value="">-- اختر الصف --</option>
@@ -213,10 +217,6 @@
   <audio id="clap" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/clap.mp3"></audio>
 
   <script>
-    let studentData = {}, currentList = [], usedStudents = [], timerInterval;
-    let selectedManualStudents = [], secondsPassed = 0;
-    const totalSeconds = 300;
-
     // وظيفة ملء الشاشة مع تغيير الأيقونة تلقائياً
     function toggleFullScreen() {
       if (!document.fullscreenElement) {
@@ -251,6 +251,11 @@
     document.getElementById('homeBtn').addEventListener('click', function() {
       window.location.href = 'https://a7mdooh.github.io/entertainment-app/main.html';
     });
+
+    // باقي الدوال كما هي
+    let studentData = {}, currentList = [], usedStudents = [], timerInterval;
+    let selectedManualStudents = [], secondsPassed = 0;
+    const totalSeconds = 300;
 
     async function loadStudents() {
       const res = await fetch('https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/data/studentData.json');
