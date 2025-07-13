@@ -332,6 +332,7 @@
     let soundEnabled = true;
     let isFirst10Seconds = false;
     let isLast10Seconds = false;
+    let tickSoundInterval = null;
 
     // عناصر واجهة المستخدم
     const timerDisplay = document.getElementById('timer');
@@ -400,13 +401,20 @@
       if (isFirst10Seconds || isLast10Seconds) {
         progressCircle.style.stroke = "var(--warning-color)";
         progressCircle.classList.add('shake');
-        if (!isPaused) {
-          playTick();
-        }
       } else {
         progressCircle.style.stroke = "var(--primary-color)";
         progressCircle.classList.remove('shake');
       }
+    }
+
+    function startTickSound() {
+      if (tickSoundInterval) clearInterval(tickSoundInterval);
+      
+      tickSoundInterval = setInterval(() => {
+        if (!isPaused && soundEnabled && (isFirst10Seconds || isLast10Seconds)) {
+          playTick();
+        }
+      }, 1000);
     }
 
     function timerTick() {
@@ -426,6 +434,7 @@
         }
       }
       updateDisplay();
+      startTickSound();
     }
 
     function showModal() {
@@ -453,34 +462,39 @@
       interval = setInterval(timerTick, 1000);
       pauseResumeBtn.textContent = 'إيقاف';
       updateDisplay();
+      startTickSound();
     }
 
     function togglePause() {
       if (!interval && !isPaused) return;
 
       if (isPaused) {
+        // استئناف المؤقت
         interval = setInterval(timerTick, 1000);
         pauseResumeBtn.textContent = 'إيقاف';
         isPaused = false;
-        // إعادة تشغيل الصوت إذا كنا في أول أو آخر 10 ثواني
-        if (isFirst10Seconds || isLast10Seconds) {
-          playTick();
-        }
+        startTickSound();
       } else {
-        stopTimer();
-        pauseResumeBtn.textContent = 'استئناف';
-        isPaused = true;
-        // إيقاف صوت المؤقت فورًا
+        // إيقاف المؤقت
+        clearInterval(interval);
+        clearInterval(tickSoundInterval);
+        interval = null;
+        tickSoundInterval = null;
         tickSound.pause();
         tickSound.currentTime = 0;
+        pauseResumeBtn.textContent = 'استئناف';
+        isPaused = true;
       }
     }
 
     function stopTimer() {
       clearInterval(interval);
+      clearInterval(tickSoundInterval);
       interval = null;
+      tickSoundInterval = null;
       tickSound.pause();
       tickSound.currentTime = 0;
+      isPaused = false;
     }
 
     function resetTimer() {
@@ -522,7 +536,7 @@
     }
 
     function playTick() {
-      if (soundEnabled && !isPaused) {
+      if (soundEnabled) {
         tickSound.currentTime = 0;
         tickSound.play().catch(e => console.log("تعذر تشغيل صوت المؤقت:", e));
       }
