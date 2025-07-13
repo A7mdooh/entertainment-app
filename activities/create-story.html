@@ -61,12 +61,18 @@
       cursor: pointer;
       border: none;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: all 0.2s ease;
     }
     
     button:hover {
       background-color: var(--primary-dark);
       transform: translateY(-2px);
       box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    button:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
     
     #storyContainer {
@@ -219,6 +225,10 @@
       background-color: var(--light-gray);
     }
     
+    .control-btn:active {
+      transform: scale(1.05);
+    }
+    
     .control-btn svg {
       width: 22px;
       height: 22px;
@@ -272,14 +282,17 @@
   </style>
 </head>
 <body>
-  <!-- زر العودة - تصميم محسن -->
+  <!-- صوت النقر -->
+  <audio id="clickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/Click.mp3"></audio>
+  
+  <!-- زر العودة -->
   <button class="control-btn" id="homeBtn" title="العودة لصفحة الأنشطة">
     <svg viewBox="0 0 24 24">
       <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
     </svg>
   </button>
   
-  <!-- زر ملء الشاشة - تصميم محسن -->
+  <!-- زر ملء الشاشة -->
   <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">
     <svg viewBox="0 0 24 24" id="fullscreen-svg">
       <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
@@ -303,7 +316,7 @@
         <option value="select-single">فردية انتقائية</option>
         <option value="select-group">جماعية انتقائية</option>
       </select>
-      <button onclick="startStory()">ابدأ</button>
+      <button id="startBtn">ابدأ</button>
     </div>
 
     <div id="studentSelection" class="student-cards"></div>
@@ -312,8 +325,8 @@
       <div id="studentName"></div>
       <canvas id="timerCanvas" width="150" height="150"></canvas>
       <div>
-        <button id="nextBtn" onclick="nextStudent()" style="display:none">التالي</button>
-        <button onclick="finishStory()">إنهاء</button>
+        <button id="nextBtn" style="display:none">التالي</button>
+        <button id="finishBtn">إنهاء</button>
       </div>
       <div id="celebration">🎉 أحسنت! 🎉</div>
     </div>
@@ -333,12 +346,23 @@
     // تحسينات كود JavaScript
     const fullscreenBtn = document.getElementById('fullscreenBtn');
     const fullscreenSvg = document.getElementById('fullscreen-svg');
+    const clickSound = document.getElementById('clickSound');
     
     // أيقونات SVG للدخول والخروج من وضع ملء الشاشة
     const fullscreenEnterPath = 'M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z';
     const fullscreenExitPath = 'M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z';
 
+    // تشغيل صوت النقر
+    function playClickSound() {
+      clickSound.currentTime = 0;
+      clickSound.play().catch(e => {
+        console.log("تعذر تشغيل صوت النقر:", e);
+      });
+    }
+
     function toggleFullScreen() {
+      playClickSound();
+      
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen()
           .then(() => {
@@ -363,10 +387,52 @@
       }
     });
 
-    // تعيين الأحداث
+    // تعيين أحداث الأزرار مع إضافة صوت النقر
     fullscreenBtn.addEventListener('click', toggleFullScreen);
+    
     document.getElementById('homeBtn').addEventListener('click', () => {
-      window.location.href = 'https://a7mdooh.github.io/entertainment-app/main.html';
+      playClickSound();
+      setTimeout(() => {
+        window.location.href = 'https://a7mdooh.github.io/entertainment-app/main.html';
+      }, 300);
+    });
+    
+    document.getElementById('startBtn').addEventListener('click', function() {
+      playClickSound();
+      startStory();
+    });
+    
+    document.getElementById('finishBtn').addEventListener('click', function() {
+      playClickSound();
+      finishStory();
+    });
+    
+    document.getElementById('nextBtn').addEventListener('click', function() {
+      playClickSound();
+      nextStudent();
+    });
+    
+    document.getElementById('closeModalBtn').addEventListener('click', function() {
+      playClickSound();
+      const modal = document.getElementById("thankYouModal");
+      modal.style.opacity = '0';
+      setTimeout(() => {
+        modal.style.display = 'none';
+        modal.style.opacity = '1';
+      }, 400);
+    });
+    
+    document.getElementById('backBtn').addEventListener('click', function() {
+      playClickSound();
+      const modal = document.getElementById("thankYouModal");
+      modal.style.display = 'none';
+      document.getElementById("storyContainer").style.display = "none";
+      document.getElementById("studentSelection").style.display = "block";
+    });
+    
+    // إضافة صوت النقر لجميع الأزرار
+    document.querySelectorAll('button').forEach(button => {
+      button.addEventListener('click', playClickSound);
     });
 
     // باقي الدوال كما هي
@@ -387,6 +453,7 @@
     }
 
     function handleModeChange() {
+      playClickSound();
       document.getElementById("studentSelection").innerHTML = '';
     }
 
@@ -417,6 +484,7 @@
         div.className = "student-card";
         div.textContent = name;
         div.onclick = () => {
+          playClickSound();
           if (mode === 'select-single') {
             selectedManualStudents = [name];
             document.querySelectorAll('.student-card').forEach(el => el.classList.remove('selected'));
@@ -437,6 +505,7 @@
       const confirmBtn = document.createElement("button");
       confirmBtn.textContent = "بدء السرد";
       confirmBtn.onclick = () => {
+        playClickSound();
         if (selectedManualStudents.length === 0) return alert("يرجى اختيار طالب/طلاب.");
         currentList = [...selectedManualStudents];
         usedStudents = [];
@@ -520,20 +589,6 @@
       });
       modal.style.display = 'block';
       modal.style.opacity = '1';
-
-      document.getElementById("closeModalBtn").onclick = () => {
-        modal.style.opacity = '0';
-        setTimeout(() => {
-          modal.style.display = 'none';
-          modal.style.opacity = '1';
-        }, 400);
-      };
-
-      document.getElementById("backBtn").onclick = () => {
-        modal.style.display = 'none';
-        document.getElementById("storyContainer").style.display = "none";
-        document.getElementById("studentSelection").style.display = "block";
-      };
     }
 
     function triggerConfetti() {
