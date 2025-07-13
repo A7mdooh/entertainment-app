@@ -104,32 +104,33 @@
       color: #444;
     }
 
-    .top-bar {
+    .top-left, .top-center, .top-right {
       position: fixed;
       top: 15px;
-      left: 15px;
-      right: 15px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 100;
-    }
-
-    .top-bar button {
+      font-size: 1.8rem;
       background: none;
       border: none;
-      font-size: 1.8rem;
       cursor: pointer;
-      margin: 0 8px;
+    }
+
+    .top-left {
+      left: 15px;
+    }
+
+    .top-center {
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .top-right {
+      right: 15px;
     }
   </style>
 </head>
 <body>
-  <div class="top-bar">
-    <button onclick="goBack()" title="الرجوع للأنشطة">📚</button>
-    <button onclick="toggleFullscreen()" title="ملء الشاشة">⛶</button>
-    <button onclick="muteToggle()" id="muteBtn" title="تشغيل/كتم الصوت">🔊</button>
-  </div>
+  <button class="top-left" onclick="muteToggle()" id="muteBtn" title="تشغيل/كتم الصوت">🔊</button>
+  <button class="top-center" onclick="goBack()" title="الرجوع للأنشطة">📚</button>
+  <button class="top-right" onclick="toggleFullscreen()" title="ملء الشاشة">⛶</button>
 
   <div class="header">
     <h1>🎲 اختيار اسم عشوائي</h1>
