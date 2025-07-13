@@ -108,6 +108,8 @@
     select {
       margin-top: 10px;
     }
+
+    /* زر الصوت */
     #toggle-sound {
       position: fixed;
       top: 20px;
@@ -117,14 +119,24 @@
       border: none;
       cursor: pointer;
     }
-    .top-buttons {
+
+    /* زر الرجوع في الأعلى بالمنتصف */
+    .top-center {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* زر ملء الشاشة */
+    .top-right {
       position: fixed;
       top: 20px;
       right: 20px;
-      display: flex;
-      gap: 10px;
-    }
-    .top-buttons button {
       font-size: 2rem;
       background: none;
       border: none;
@@ -135,12 +147,13 @@
 <body>
   <h1>⏱️ المؤقت الصفي</h1>
 
-  <!-- أزرار الرجوع وملء الشاشة -->
-  <div class="top-buttons">
-    <button onclick="goBack()" title="الرجوع للأنشطة">📚</button>
-    <button onclick="toggleFullscreen()" title="ملء الشاشة">🖵</button>
-  </div>
+  <!-- زر الرجوع 📚 -->
+  <button class="top-center" onclick="goBack()" title="الرجوع للأنشطة">📚</button>
 
+  <!-- زر ملء الشاشة ⛶ -->
+  <button class="top-right" onclick="toggleFullscreen()" title="ملء الشاشة">⛶</button>
+
+  <!-- زر كتم الصوت 🔊 -->
   <button id="toggle-sound" onclick="toggleSound()" title="تشغيل/كتم الصوت">🔊</button>
 
   <div class="settings">
