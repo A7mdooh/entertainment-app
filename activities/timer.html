@@ -33,7 +33,6 @@
       margin: 4rem 0 2rem;
     }
     
-    /* أزرار التحكم العلوية */
     .control-btn {
       position: fixed;
       top: 20px;
@@ -71,7 +70,6 @@
       left: 25px;
     }
     
-    /* تصميم المؤقت */
     #progress-container {
       position: relative;
       width: 280px;
@@ -118,7 +116,6 @@
       font-weight: bold;
     }
     
-    /* عناصر التحكم */
     .controls, .settings {
       margin: 20px auto;
       max-width: 800px;
@@ -160,7 +157,6 @@
       border: 2px solid #ddd;
     }
     
-    /* نافذة التنبيه */
     .modal {
       position: fixed;
       top: 0; left: 0;
@@ -197,7 +193,6 @@
       align-items: center;
     }
     
-    /* تصميم متجاوب */
     @media (max-width: 768px) {
       h1 {
         font-size: 2rem;
@@ -271,7 +266,6 @@
   </style>
 </head>
 <body>
-  <!-- أزرار التحكم العلوية -->
   <button class="control-btn" id="muteBtn" title="تشغيل/كتم الصوت">🔊</button>
   <button class="control-btn" id="backBtn" title="الرجوع للأنشطة">📚</button>
   <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">⛶</button>
@@ -322,7 +316,6 @@
     </div>
   </div>
 
-  <!-- الأصوات -->
   <audio id="startSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/start-timer.mp3"></audio>
   <audio id="endSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/end-timer.mp3"></audio>
   <audio id="clickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/Click.mp3"></audio>
@@ -337,6 +330,8 @@
     let interval = null;
     let isPaused = false;
     let soundEnabled = true;
+    let isFirst10Seconds = false;
+    let isLast10Seconds = false;
 
     // عناصر واجهة المستخدم
     const timerDisplay = document.getElementById('timer');
@@ -359,7 +354,6 @@
 
     // تهيئة الصفحة
     function init() {
-      // تعيين مستمعي الأحداث
       startBtn.addEventListener('click', startTimer);
       pauseResumeBtn.addEventListener('click', togglePause);
       resetBtn.addEventListener('click', resetTimer);
@@ -367,30 +361,25 @@
       backBtn.addEventListener('click', goBack);
       fullscreenBtn.addEventListener('click', toggleFullscreen);
       
-      // ربط أصوات النقر بجميع الأزرار
       document.querySelectorAll('button').forEach(btn => {
         btn.addEventListener('click', playClick);
       });
       
-      // تحميل مسبق للأصوات
       [startSound, endSound, clickSound, tickSound].forEach(audio => {
         audio.load().catch(e => console.log("تعذر تحميل الصوت:", e));
       });
       
-      // تعيين القيم الافتراضية
       duration = parseInt(timeSelect.value);
       timeLeft = duration;
       updateDisplay();
     }
 
-    // تنسيق الوقت
     function formatTime(seconds) {
       const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
       const secs = String(seconds % 60).padStart(2, '0');
       return `${mins}:${secs}`;
     }
 
-    // تحديث العرض
     function updateDisplay() {
       timerDisplay.textContent = mode === 'countdown' ? formatTime(timeLeft) : formatTime(elapsed);
       const total = duration;
@@ -399,26 +388,31 @@
       const offset = 754 * (1 - percent);
       progressCircle.setAttribute('stroke-dashoffset', offset);
 
-      // تغيير لون المؤقت عند الاقتراب من النهاية
-      if (mode === 'countdown' && timeLeft <= 10) {
+      // تحديد إذا كنا في أول أو آخر 10 ثواني
+      if (mode === 'countdown') {
+        isFirst10Seconds = (duration - timeLeft) <= 10 && timeLeft !== duration;
+        isLast10Seconds = timeLeft <= 10 && timeLeft !== 0;
+      } else {
+        isFirst10Seconds = elapsed <= 10 && elapsed !== 0;
+        isLast10Seconds = (duration - elapsed) <= 10 && elapsed !== duration;
+      }
+
+      if (isFirst10Seconds || isLast10Seconds) {
         progressCircle.style.stroke = "var(--warning-color)";
         progressCircle.classList.add('shake');
-        playTick();
+        if (!isPaused) {
+          playTick();
+        }
       } else {
         progressCircle.style.stroke = "var(--primary-color)";
         progressCircle.classList.remove('shake');
       }
     }
 
-    // دورة المؤقت
     function timerTick() {
       if (mode === 'countdown') {
         if (timeLeft > 0) {
           timeLeft--;
-          // تشغيل صوت المؤقت عند الاقتراب من النهاية
-          if (timeLeft <= 10) {
-            playTick();
-          }
         } else {
           stopTimer();
           showModal();
@@ -426,10 +420,6 @@
       } else {
         if (elapsed < duration) {
           elapsed++;
-          // تشغيل صوت المؤقت عند الاقتراب من النهاية
-          if (duration - elapsed <= 10) {
-            playTick();
-          }
         } else {
           stopTimer();
           showModal();
@@ -438,7 +428,6 @@
       updateDisplay();
     }
 
-    // عرض نافذة التنبيه
     function showModal() {
       playEnd();
       modal.style.display = 'flex';
@@ -453,7 +442,6 @@
       }, 8000);
     }
 
-    // بدء المؤقت
     function startTimer() {
       stopTimer();
       playStart();
@@ -467,7 +455,6 @@
       updateDisplay();
     }
 
-    // إيقاف/استئناف المؤقت
     function togglePause() {
       if (!interval && !isPaused) return;
 
@@ -475,23 +462,27 @@
         interval = setInterval(timerTick, 1000);
         pauseResumeBtn.textContent = 'إيقاف';
         isPaused = false;
+        // إعادة تشغيل الصوت إذا كنا في أول أو آخر 10 ثواني
+        if (isFirst10Seconds || isLast10Seconds) {
+          playTick();
+        }
       } else {
         stopTimer();
         pauseResumeBtn.textContent = 'استئناف';
         isPaused = true;
+        // إيقاف صوت المؤقت فورًا
+        tickSound.pause();
+        tickSound.currentTime = 0;
       }
     }
 
-    // إيقاف المؤقت
     function stopTimer() {
       clearInterval(interval);
       interval = null;
-      // إيقاف صوت المؤقت
       tickSound.pause();
       tickSound.currentTime = 0;
     }
 
-    // إعادة تعيين المؤقت
     function resetTimer() {
       stopTimer();
       modal.style.display = 'none';
@@ -502,7 +493,6 @@
       updateDisplay();
     }
 
-    // التحكم بالصوت
     function toggleSound() {
       soundEnabled = !soundEnabled;
       muteBtn.textContent = soundEnabled ? '🔊' : '🔇';
@@ -510,7 +500,6 @@
       playClick();
     }
 
-    // تشغيل صوت النقر
     function playClick() {
       if (soundEnabled) {
         clickSound.currentTime = 0;
@@ -518,7 +507,6 @@
       }
     }
 
-    // تشغيل صوت البدء
     function playStart() {
       if (soundEnabled) {
         startSound.currentTime = 0;
@@ -526,7 +514,6 @@
       }
     }
 
-    // تشغيل صوت النهاية
     function playEnd() {
       if (soundEnabled) {
         endSound.currentTime = 0;
@@ -534,7 +521,6 @@
       }
     }
 
-    // تشغيل صوت المؤقت
     function playTick() {
       if (soundEnabled && !isPaused) {
         tickSound.currentTime = 0;
@@ -542,7 +528,6 @@
       }
     }
 
-    // العودة للصفحة الرئيسية
     function goBack() {
       playClick();
       setTimeout(() => {
@@ -550,7 +535,6 @@
       }, 300);
     }
 
-    // ملء الشاشة/الخروج منه
     function toggleFullscreen() {
       playClick();
       const doc = document.documentElement;
@@ -569,7 +553,6 @@
       }
     }
 
-    // كشف تغيير وضع الشاشة
     document.addEventListener('fullscreenchange', () => {
       if (!document.fullscreenElement) {
         fullscreenBtn.textContent = "⛶";
@@ -577,7 +560,6 @@
       }
     });
 
-    // بدء التطبيق
     window.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
