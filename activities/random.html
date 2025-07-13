@@ -163,6 +163,8 @@
   <audio id="spinSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/reveal.mp3"></audio>
   <audio id="selectSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/select.mp3"></audio>
   <audio id="clickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/Click.mp3"></audio>
+  <audio id="nameStartSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/name-start.mp3" loop></audio>
+  <audio id="nameStopSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/name-stop.mp3"></audio>
 
   <script>
     let studentData = {};
@@ -173,6 +175,9 @@
     let isMuted = false;
     let started = false;
     let canRemove = false;
+
+    const nameStartSound = document.getElementById("nameStartSound");
+    const nameStopSound = document.getElementById("nameStopSound");
 
     async function loadStudents() {
       const res = await fetch('/entertainment-app/data/studentData.json');
@@ -226,7 +231,7 @@
       document.getElementById("resultControls").style.display = "none";
       document.getElementById("stopBtn").style.display = "inline-block";
 
-      if (!isMuted) document.getElementById("spinSound").play();
+      if (!isMuted) nameStartSound.play();
 
       interval = setInterval(() => {
         currentIndex = Math.floor(Math.random() * currentList.length);
@@ -242,11 +247,13 @@
     function stopRolling() {
       clearInterval(interval);
       interval = null;
-
+      if (!isMuted) {
+        nameStartSound.pause();
+        nameStartSound.currentTime = 0;
+        nameStopSound.play();
+      }
       document.getElementById("stopBtn").style.display = "none";
       document.getElementById("resultControls").style.display = "flex";
-
-      if (!isMuted) document.getElementById("selectSound").play();
       showFirework();
       canRemove = true;
     }
