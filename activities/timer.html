@@ -239,6 +239,17 @@
         if (mode === 'countdown') {
           if (timeLeft > 0) {
             timeLeft--;
+
+            // صوت أول 10 ثوانٍ من البداية
+            if (duration - timeLeft <= 10 && soundEnabled) {
+              clickSound.play();
+            }
+
+            // صوت آخر 10 ثوانٍ قبل النهاية
+            if (timeLeft <= 10 && soundEnabled) {
+              clickSound.play();
+            }
+
           } else {
             clearInterval(interval);
             showModal();
@@ -246,6 +257,17 @@
         } else {
           if (elapsed < duration) {
             elapsed++;
+
+            // صوت أول 10 ثوانٍ من البداية
+            if (elapsed <= 10 && soundEnabled) {
+              clickSound.play();
+            }
+
+            // صوت آخر 10 ثوانٍ قبل النهاية
+            if (duration - elapsed <= 10 && soundEnabled) {
+              clickSound.play();
+            }
+
           } else {
             clearInterval(interval);
             showModal();
@@ -272,7 +294,7 @@
       toggleBtn.textContent = soundEnabled ? '🔊' : '🔇';
     }
 
-    // تشغيل صوت النقر عند الضغط على الأزرار
+    // صوت عند النقر على الأزرار
     document.querySelectorAll('.controls button').forEach(btn => {
       btn.addEventListener('click', () => {
         if (soundEnabled) clickSound.play();
