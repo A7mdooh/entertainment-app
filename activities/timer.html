@@ -109,7 +109,6 @@
       margin-top: 10px;
     }
 
-    /* زر الصوت */
     #toggle-sound {
       position: fixed;
       top: 20px;
@@ -120,7 +119,6 @@
       cursor: pointer;
     }
 
-    /* زر الرجوع في الأعلى بالمنتصف */
     .top-center {
       position: fixed;
       top: 20px;
@@ -132,7 +130,6 @@
       cursor: pointer;
     }
 
-    /* زر ملء الشاشة */
     .top-right {
       position: fixed;
       top: 20px;
@@ -147,13 +144,9 @@
 <body>
   <h1>⏱️ المؤقت الصفي</h1>
 
-  <!-- زر الرجوع 📚 -->
+  <!-- أيقونات الرأس -->
   <button class="top-center" onclick="goBack()" title="الرجوع للأنشطة">📚</button>
-
-  <!-- زر ملء الشاشة ⛶ -->
   <button class="top-right" onclick="toggleFullscreen()" title="ملء الشاشة">⛶</button>
-
-  <!-- زر كتم الصوت 🔊 -->
   <button id="toggle-sound" onclick="toggleSound()" title="تشغيل/كتم الصوت">🔊</button>
 
   <div class="settings">
@@ -203,7 +196,7 @@
   <!-- الأصوات -->
   <audio id="startSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/start-timer.mp3"></audio>
   <audio id="endSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/end-timer.mp3"></audio>
-  <audio id="clickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/select.mp3"></audio>
+  <audio id="clickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/Click.mp3"></audio>
 
   <script>
     let duration = 0;
@@ -322,7 +315,8 @@
       }
     }
 
-    document.querySelectorAll('.controls button').forEach(btn => {
+    // ✅ صوت نقر لجميع الأزرار والأيقونات
+    document.querySelectorAll('button').forEach(btn => {
       btn.addEventListener('click', () => {
         if (soundEnabled) clickSound.play();
       });
