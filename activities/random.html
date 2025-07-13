@@ -35,7 +35,7 @@
       touch-action: manipulation;
     }
     
-    /* أزرار التحكم الثابتة - تصميم محسن */
+    /* أزرار التحكم الثابتة */
     .control-btn {
       position: fixed;
       top: 20px;
@@ -142,7 +142,7 @@
       text-align: center;
     }
     
-    /* تحسين عرض الاسم ليتناسب مع الشاشات الصغيرة */
+    /* تصميم للهواتف */
     @media (max-width: 480px) {
       #randomNameDisplay {
         font-size: clamp(1.2rem, 6vw, 2.5rem);
@@ -308,14 +308,14 @@
   </style>
 </head>
 <body>
-  <!-- أصوات محسنة -->
+  <!-- أصوات التطبيق -->
   <audio id="spinSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/reveal.mp3"></audio>
   <audio id="selectSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/select.mp3"></audio>
   <audio id="clickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/Click.mp3"></audio>
   <audio id="nameStartSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/name-start.mp3" loop></audio>
   <audio id="nameStopSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/name-stop.mp3"></audio>
   
-  <!-- أزرار التحكم المحسنة -->
+  <!-- أزرار التحكم العلوية -->
   <button class="control-btn" id="muteBtn" title="تشغيل/كتم الصوت">🔊</button>
   <button class="control-btn" id="backBtn" title="الرجوع للأنشطة">📚</button>
   <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">⛶</button>
@@ -358,17 +358,16 @@
   </div>
 
   <script>
-    // تحسينات JavaScript
+    // متغيرات التطبيق
     let studentData = {};
     let currentList = [];
     let currentIndex = -1;
     let interval = null;
     let currentName = "";
     let isMuted = false;
-    let started = false;
+    let isRolling = false;
     let canRemove = false;
     let isFullscreen = false;
-    let isRolling = false; // متغير جديد لتتبع حالة الدوران
 
     // عناصر الصوت
     const nameStartSound = document.getElementById("nameStartSound");
@@ -377,7 +376,7 @@
     const spinSound = document.getElementById("spinSound");
     const selectSound = document.getElementById("selectSound");
 
-    // عناصر DOM
+    // عناصر واجهة المستخدم
     const randomNameDisplay = document.getElementById("randomNameDisplay");
     const startBtn = document.getElementById("startBtn");
     const stopBtn = document.getElementById("stopBtn");
@@ -411,7 +410,7 @@
           resetSelection();
         });
         
-        // Precache الأصوات
+        // تحميل مسبق للأصوات
         window.addEventListener('load', () => {
           [nameStartSound, nameStopSound, clickSound, spinSound, selectSound].forEach(audio => {
             audio.load();
@@ -428,17 +427,18 @@
       clearInterval(interval);
       interval = null;
       isRolling = false;
-      started = false;
       startBtn.disabled = false;
       startBtn.style.animation = "pulse 1.2s infinite";
       stopBtn.style.display = "none";
       resultControls.style.display = "none";
       randomNameDisplay.textContent = "";
+      currentName = "";
+      currentIndex = -1;
     }
 
     // بدء الدوران (مرة واحدة)
     function startRollingOnce() {
-      if (isRolling) return; // منع بدء جديد إذا كان هناك دوران بالفعل
+      if (isRolling) return;
       playClick();
       const selectedClass = classSelect.value;
       
@@ -449,10 +449,6 @@
         return;
       }
       
-      if (started) return;
-      
-      isRolling = true;
-      started = true;
       startBtn.disabled = true;
       startBtn.style.animation = "none";
       startRolling();
@@ -460,6 +456,8 @@
 
     // بدء الدوران العشوائي
     function startRolling() {
+      if (isRolling) return;
+      
       playClick();
       const selectedClass = classSelect.value;
 
@@ -477,6 +475,7 @@
         return;
       }
 
+      isRolling = true;
       resultControls.style.display = "none";
       stopBtn.style.display = "inline-block";
 
@@ -489,7 +488,6 @@
         currentName = currentList[currentIndex];
         randomNameDisplay.textContent = currentName;
         
-        // تأثير الحركة
         randomNameDisplay.style.transform = "scale(1.1)";
         setTimeout(() => {
           randomNameDisplay.style.transform = "scale(1)";
@@ -499,7 +497,7 @@
 
     // إيقاف الدوران
     function stopRolling() {
-      if (!isRolling) return; // تأكيد أن هناك دوران قبل الإيقاف
+      if (!isRolling) return;
       
       clearInterval(interval);
       interval = null;
@@ -515,16 +513,23 @@
       resultControls.style.display = "flex";
       showFirework();
       canRemove = true;
-      started = false;
-      startBtn.disabled = false;
     }
 
     // حذف الاسم الحالي
     function removeCurrentName() {
-      playClick();
-      if (!canRemove) return;
+      if (!canRemove || isRolling) return;
       
-      if (currentIndex !== -1) {
+      playClick();
+      
+      if (interval) {
+        clearInterval(interval);
+        interval = null;
+        isRolling = false;
+        nameStartSound.pause();
+        nameStartSound.currentTime = 0;
+      }
+      
+      if (currentIndex !== -1 && currentList.length > 0) {
         currentList.splice(currentIndex, 1);
         randomNameDisplay.textContent = "تمت الإزالة: " + currentName;
         updateStudentCount();
@@ -533,15 +538,11 @@
         if (!isMuted) {
           selectSound.play().catch(e => console.log("تعذر تشغيل الصوت:", e));
         }
+        
+        startBtn.disabled = false;
+        startBtn.style.animation = "pulse 1.2s infinite";
+        resultControls.style.display = "none";
       }
-    }
-
-    // كتم/تشغيل الصوت
-    function muteToggle() {
-      isMuted = !isMuted;
-      muteBtn.textContent = isMuted ? "🔇" : "🔊";
-      muteBtn.title = isMuted ? "تشغيل الصوت" : "كتم الصوت";
-      playClick();
     }
 
     // عرض تأثير الألعاب النارية
@@ -602,6 +603,14 @@
         clickSound.currentTime = 0;
         clickSound.play().catch(e => console.log("تعذر تشغيل صوت النقر:", e));
       }
+    }
+
+    // كتم/تشغيل الصوت
+    function muteToggle() {
+      isMuted = !isMuted;
+      muteBtn.textContent = isMuted ? "🔇" : "🔊";
+      muteBtn.title = isMuted ? "تشغيل الصوت" : "كتم الصوت";
+      playClick();
     }
 
     // تهيئة الصفحة عند التحميل
