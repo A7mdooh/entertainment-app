@@ -43,33 +43,45 @@
       font-size: 1rem;
     }
     /* أزرار التحكم */
-    .control-btns {
+    .control-btn {
       position: fixed;
       top: 15px;
-      left: 15px;
-      display: flex;
-      gap: 10px;
-      z-index: 100;
-    }
-    .control-btn {
       font-size: 24px;
       background: none;
       border: none;
       cursor: pointer;
       transition: transform 0.3s;
       padding: 5px;
+      z-index: 100;
     }
     .control-btn:hover {
       transform: scale(1.1);
     }
+    #homeBtn {
+      right: 15px;
+    }
+    #fullscreenBtn {
+      left: 15px;
+    }
+    @media (max-width: 480px) {
+      .control-btn {
+        font-size: 20px;
+      }
+      #homeBtn {
+        right: 10px;
+      }
+      #fullscreenBtn {
+        left: 10px;
+      }
+    }
   </style>
 </head>
 <body>
-  <!-- أزرار التحكم -->
-  <div class="control-btns">
-    <button class="control-btn" id="homeBtn" title="العودة للصفحة الرئيسية">🏠</button>
-    <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">⛶</button>
-  </div>
+  <!-- زر العودة للصفحة الرئيسية (على اليمين) -->
+  <button class="control-btn" id="homeBtn" title="العودة للصفحة الرئيسية">🏠</button>
+  
+  <!-- زر ملء الشاشة (على اليسار) -->
+  <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">⛶</button>
 
   <div class="header">
     <h1>📚 الأنشطة الصفية</h1>
@@ -144,11 +156,15 @@
 
     // إخفاء الأزرار عند الدخول في وضع ملء الشاشة
     document.addEventListener('fullscreenchange', function() {
-      const btns = document.querySelector('.control-btns');
+      const homeBtn = document.getElementById('homeBtn');
+      const fullscreenBtn = document.getElementById('fullscreenBtn');
+      
       if (document.fullscreenElement) {
-        btns.style.display = 'none';
+        homeBtn.style.display = 'none';
+        fullscreenBtn.style.display = 'none';
       } else {
-        btns.style.display = 'flex';
+        homeBtn.style.display = 'block';
+        fullscreenBtn.style.display = 'block';
       }
     });
   </script>
