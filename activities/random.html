@@ -69,7 +69,8 @@
     }
     
     #backBtn {
-      right: 80px;
+      left: 50%;
+      transform: translateX(-50%);
     }
     
     #fullscreenBtn {
@@ -130,14 +131,25 @@
       background: white;
       border-radius: 16px;
       box-shadow: var(--shadow);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
       font-size: clamp(1.5rem, 8vw, 3.5rem);
       line-height: 1.4;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       min-width: 250px;
       border: 3px solid var(--light-gray);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: center;
+    }
+    
+    /* تحسين عرض الاسم ليتناسب مع الشاشات الصغيرة */
+    @media (max-width: 480px) {
+      #randomNameDisplay {
+        font-size: clamp(1.2rem, 6vw, 2.5rem);
+        padding: 15px 20px;
+        min-width: 200px;
+        max-width: 95%;
+      }
     }
     
     #randomNameDisplay.highlight {
@@ -239,22 +251,6 @@
       display: inline-block;
     }
     
-    /* تأثيرات خاصة للأزرار */
-    .btn-effect {
-      position: absolute;
-      background: white;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    
-    .controls button:hover .btn-effect {
-      opacity: 0.1;
-    }
-    
     /* تصميم متجاوب */
     @media (max-width: 768px) {
       .header {
@@ -278,7 +274,8 @@
       }
       
       #backBtn {
-        right: 65px;
+        left: 50%;
+        transform: translateX(-50%);
       }
       
       #fullscreenBtn {
@@ -295,12 +292,6 @@
         font-size: 1.3rem;
         padding: 15px 20px;
         min-width: 140px;
-      }
-      
-      #randomNameDisplay {
-        padding: 20px;
-        font-size: clamp(1.3rem, 7vw, 2.5rem);
-        min-width: 200px;
       }
     }
     
@@ -377,6 +368,7 @@
     let started = false;
     let canRemove = false;
     let isFullscreen = false;
+    let isRolling = false; // متغير جديد لتتبع حالة الدوران
 
     // عناصر الصوت
     const nameStartSound = document.getElementById("nameStartSound");
@@ -416,6 +408,7 @@
           playClick();
           currentList = [...studentData[classSelect.value]];
           updateStudentCount();
+          resetSelection();
         });
         
         // Precache الأصوات
@@ -430,8 +423,22 @@
       }
     }
 
+    // إعادة تعيين حالة الاختيار
+    function resetSelection() {
+      clearInterval(interval);
+      interval = null;
+      isRolling = false;
+      started = false;
+      startBtn.disabled = false;
+      startBtn.style.animation = "pulse 1.2s infinite";
+      stopBtn.style.display = "none";
+      resultControls.style.display = "none";
+      randomNameDisplay.textContent = "";
+    }
+
     // بدء الدوران (مرة واحدة)
     function startRollingOnce() {
+      if (isRolling) return; // منع بدء جديد إذا كان هناك دوران بالفعل
       playClick();
       const selectedClass = classSelect.value;
       
@@ -444,6 +451,7 @@
       
       if (started) return;
       
+      isRolling = true;
       started = true;
       startBtn.disabled = true;
       startBtn.style.animation = "none";
@@ -491,8 +499,11 @@
 
     // إيقاف الدوران
     function stopRolling() {
+      if (!isRolling) return; // تأكيد أن هناك دوران قبل الإيقاف
+      
       clearInterval(interval);
       interval = null;
+      isRolling = false;
       
       if (!isMuted) {
         nameStartSound.pause();
@@ -609,6 +620,13 @@
     muteBtn.addEventListener('click', muteToggle);
     backBtn.addEventListener('click', goBack);
     fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+    // التأكد من إيقاف الدوران عند مغادرة الصفحة
+    window.addEventListener('beforeunload', () => {
+      if (isRolling) {
+        clearInterval(interval);
+      }
+    });
   </script>
 </body>
 </html>
