@@ -19,6 +19,40 @@
       justify-content: center;
       min-height: 100vh;
       position: relative;
+      padding-top: 50px; /* إضافة حشوة للشريط العلوي */
+      padding-bottom: 50px; /* إضافة حشوة للشريط السفلي */
+    }
+
+    /* شريط التحكم العلوي */
+    .top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 50px;
+      background: rgba(255,255,255,0.9);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 15px;
+      z-index: 1000;
+    }
+
+    /* شريط التحكم السفلي */
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 50px;
+      background: rgba(255,255,255,0.9);
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 15px;
+      z-index: 1000;
     }
 
     .school-logo {
@@ -86,20 +120,13 @@
       transform: translateY(1px);
     }
 
-    .control-btns {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      display: flex;
-      gap: 15px;
-    }
-
     .control-btn {
       font-size: 24px;
       cursor: pointer;
       background: none;
       border: none;
       transition: transform 0.3s ease;
+      padding: 5px;
     }
 
     .control-btn:hover {
@@ -198,6 +225,13 @@
   </style>
 </head>
 <body>
+  <!-- الشريط العلوي -->
+  <div class="top-bar">
+    <div></div> <!-- عنصر فارغ للمساحة -->
+    <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">⛶</button>
+  </div>
+
+  <!-- المحتوى الرئيسي -->
   <img alt="شعار المدرسة" class="school-logo" src="assets/media/images/school-logo.png"/>
   <div class="title" id="schoolName">جارٍ التحميل...</div>
   <div class="subtitle">برنامج الأنشطة الصفية</div>
@@ -207,10 +241,10 @@
   <div id="current-class"></div>
   <a class="start-btn" id="startBtn" href="main.html">ابدأ البرنامج</a>
 
-  <!-- أزرار التحكم -->
-  <div class="control-btns">
+  <!-- الشريط السفلي -->
+  <div class="bottom-bar">
     <button class="control-btn" id="openDesigner" title="معلومات المصمم">⚙️</button>
-    <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">⛶</button>
+    <div></div> <!-- عنصر فارغ للمساحة -->
   </div>
 
   <!-- النافذة المنبثقة -->
