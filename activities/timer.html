@@ -4,17 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>المؤقت الصفي</title>
+  <meta name="description" content="تطبيق مؤقت صفي لتنظيم الوقت في الفصول الدراسية">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary-color: #00796B;
+      --primary-color: #00695C;
       --primary-dark: #004D40;
-      --warning-color: #e53935;
-      --success-color: #4CAF50;
-      --text-color: #333;
+      --warning-color: #C62828;
+      --success-color: #2E7D32;
+      --text-color: #212121;
       --light-gray: #f5f5f5;
       --shadow: 0 4px 12px rgba(0,0,0,0.1);
       --transition: all 0.3s ease;
+      --circle-size: 280px;
+      --circle-stroke: 15px;
+      --modal-time: 3s;
     }
     
     body {
@@ -74,14 +78,15 @@
     
     #progress-container {
       position: relative;
-      width: 280px;
-      height: 280px;
+      width: var(--circle-size);
+      height: var(--circle-size);
       margin: 0 auto 30px;
+      transition: transform 0.3s ease;
     }
     
     svg circle {
       fill: none;
-      stroke-width: 15;
+      stroke-width: var(--circle-stroke);
     }
     
     .bg {
@@ -116,6 +121,7 @@
       font-size: 3rem;
       color: var(--primary-color);
       font-weight: bold;
+      aria-live: "polite";
     }
     
     .controls, .settings {
@@ -149,6 +155,11 @@
     
     .controls button:active {
       transform: translateY(1px);
+    }
+    
+    button:focus, select:focus {
+      outline: 2px solid var(--primary-dark);
+      outline-offset: 2px;
     }
     
     .settings select {
@@ -196,6 +207,10 @@
     }
     
     @media (max-width: 768px) {
+      :root {
+        --circle-size: 250px;
+      }
+      
       h1 {
         font-size: 2rem;
         margin: 5rem 0 1.5rem;
@@ -216,11 +231,6 @@
         left: 15px;
       }
       
-      #progress-container {
-        width: 250px;
-        height: 250px;
-      }
-      
       #timer {
         font-size: 2.5rem;
       }
@@ -238,14 +248,14 @@
     }
     
     @media (max-width: 480px) {
+      :root {
+        --circle-size: 220px;
+        --circle-stroke: 12px;
+      }
+      
       h1 {
         font-size: 1.8rem;
         margin: 4rem 0 1rem;
-      }
-      
-      #progress-container {
-        width: 220px;
-        height: 220px;
       }
       
       #timer {
@@ -268,20 +278,20 @@
   </style>
 </head>
 <body>
-  <button class="control-btn" id="muteBtn" title="تشغيل/كتم الصوت">🔊</button>
-  <button class="control-btn" id="backBtn" title="الرجوع للأنشطة">📚</button>
-  <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">⛶</button>
+  <button class="control-btn" id="muteBtn" aria-label="تشغيل أو كتم الصوت">🔊</button>
+  <button class="control-btn" id="backBtn" aria-label="الرجوع للأنشطة">📚</button>
+  <button class="control-btn" id="fullscreenBtn" aria-label="ملء الشاشة">⛶</button>
 
   <h1>⏱️ المؤقت الصفي</h1>
 
   <div class="settings">
-    <label>نوع المؤقت:
+    <label for="mode">نوع المؤقت:
       <select id="mode">
         <option value="countdown">تنازلي</option>
         <option value="countup">تصاعدي</option>
       </select>
     </label>
-    <label>المدة:
+    <label for="time">المدة:
       <select id="time">
         <option value="60">1 دقيقة</option>
         <option value="120">2 دقيقة</option>
@@ -299,7 +309,7 @@
   </div>
 
   <div id="progress-container">
-    <svg width="100%" height="100%" viewBox="0 0 300 300">
+    <svg width="100%" height="100%" viewBox="0 0 300 300" aria-hidden="true">
       <circle class="bg" cx="150" cy="150" r="120" />
       <circle class="progress" cx="150" cy="150" r="120" stroke-dasharray="754" stroke-dashoffset="0" />
     </svg>
@@ -307,21 +317,21 @@
   </div>
 
   <div class="controls">
-    <button id="startBtn">ابدأ</button>
-    <button id="pauseResumeBtn">إيقاف</button>
-    <button id="resetBtn">إعادة</button>
+    <button id="startBtn" aria-label="بدء المؤقت">ابدأ</button>
+    <button id="pauseResumeBtn" aria-label="إيقاف أو استئناف المؤقت">إيقاف</button>
+    <button id="resetBtn" aria-label="إعادة ضبط المؤقت">إعادة</button>
   </div>
 
-  <div class="modal" id="modal">
+  <div class="modal" id="modal" role="alert">
     <div class="modal-content">
       ⏰ انتهى الوقت!
     </div>
   </div>
 
-  <audio id="startSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/start-timer.mp3"></audio>
-  <audio id="endSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/end-timer.mp3"></audio>
-  <audio id="clickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/Click.mp3"></audio>
-  <audio id="tickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/start-timer.mp3"></audio>
+  <audio id="startSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/start-timer.mp3" preload="auto"></audio>
+  <audio id="endSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/end-timer.mp3" preload="auto"></audio>
+  <audio id="clickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/Click.mp3" preload="auto"></audio>
+  <audio id="tickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/start-timer.mp3" preload="auto"></audio>
 
   <script>
     // متغيرات التطبيق
@@ -334,6 +344,7 @@
     let soundEnabled = true;
     let tickSoundInterval = null;
     let currentColor = 'var(--primary-color)';
+    let animationFrameId = null;
 
     // عناصر واجهة المستخدم
     const timerDisplay = document.getElementById('timer');
@@ -355,7 +366,9 @@
     const tickSound = document.getElementById('tickSound');
 
     // تهيئة الصفحة
-    function init() {
+    async function init() {
+      loadSettings();
+      
       startBtn.addEventListener('click', startTimer);
       pauseResumeBtn.addEventListener('click', togglePause);
       resetBtn.addEventListener('click', resetTimer);
@@ -363,17 +376,53 @@
       backBtn.addEventListener('click', goBack);
       fullscreenBtn.addEventListener('click', toggleFullscreen);
       
+      modeSelect.addEventListener('change', saveSettings);
+      timeSelect.addEventListener('change', saveSettings);
+      
       document.querySelectorAll('button').forEach(btn => {
         btn.addEventListener('click', playClick);
       });
       
-      [startSound, endSound, clickSound, tickSound].forEach(audio => {
-        audio.load().catch(e => console.log("تعذر تحميل الصوت:", e));
-      });
+      try {
+        await loadAudio();
+      } catch (error) {
+        console.error("خطأ في تحميل الملفات الصوتية:", error);
+        soundEnabled = false;
+        muteBtn.textContent = '🔇';
+        muteBtn.title = 'تعطيل الصوت (الملفات الصوتية غير متوفرة)';
+      }
       
       duration = parseInt(timeSelect.value);
       timeLeft = duration;
       updateDisplay();
+    }
+
+    async function loadAudio() {
+      await Promise.all([
+        startSound.load(),
+        endSound.load(),
+        clickSound.load(),
+        tickSound.load()
+      ]);
+    }
+
+    function saveSettings() {
+      localStorage.setItem('timerSettings', JSON.stringify({
+        mode: modeSelect.value,
+        time: timeSelect.value,
+        sound: soundEnabled
+      }));
+    }
+
+    function loadSettings() {
+      const settings = JSON.parse(localStorage.getItem('timerSettings'));
+      if (settings) {
+        modeSelect.value = settings.mode || 'countdown';
+        timeSelect.value = settings.time || '300';
+        soundEnabled = settings.sound !== false;
+        muteBtn.textContent = soundEnabled ? '🔊' : '🔇';
+        muteBtn.title = soundEnabled ? 'كتم الصوت' : 'تشغيل الصوت';
+      }
     }
 
     function formatTime(seconds) {
@@ -470,20 +519,33 @@
       isPaused = false;
       currentColor = 'var(--primary-color)';
       
-      interval = setInterval(timerTick, 1000);
+      let lastTime = performance.now();
+      
+      function frame(time) {
+        if (!isPaused) {
+          const delta = time - lastTime;
+          
+          if (delta >= 1000) {
+            timerTick();
+            lastTime = time - (delta % 1000);
+          }
+          
+          animationFrameId = requestAnimationFrame(frame);
+        }
+      }
+      
+      animationFrameId = requestAnimationFrame(frame);
       pauseResumeBtn.textContent = 'إيقاف';
       updateDisplay();
       manageTickSound();
+      saveSettings();
     }
 
     function togglePause() {
-      if (!interval && !isPaused) return;
+      if (!animationFrameId && !isPaused) return;
 
       if (isPaused) {
-        interval = setInterval(timerTick, 1000);
-        pauseResumeBtn.textContent = 'إيقاف';
-        isPaused = false;
-        manageTickSound();
+        startTimer();
       } else {
         stopTimer();
         pauseResumeBtn.textContent = 'استئناف';
@@ -494,12 +556,15 @@
           audio.currentTime = 0;
         });
       }
+      saveSettings();
     }
 
     function stopTimer() {
-      clearInterval(interval);
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
       clearInterval(tickSoundInterval);
-      interval = null;
       tickSoundInterval = null;
       tickSound.pause();
       tickSound.currentTime = 0;
@@ -522,6 +587,7 @@
       muteBtn.textContent = soundEnabled ? '🔊' : '🔇';
       muteBtn.title = soundEnabled ? 'كتم الصوت' : 'تشغيل الصوت';
       playClick();
+      saveSettings();
     }
 
     function playClick() {
@@ -547,9 +613,12 @@
 
     function goBack() {
       playClick();
-      setTimeout(() => {
-        window.location.href = "https://a7mdooh.github.io/entertainment-app/main.html";
-      }, 300);
+      if (animationFrameId || isPaused) {
+        const confirmBack = confirm("هل أنت متأكد من الرجوع؟ سيتم إيقاف المؤقت الحالي.");
+        if (!confirmBack) return;
+      }
+      
+      window.location.href = "https://a7mdooh.github.io/entertainment-app/main.html";
     }
 
     function toggleFullscreen() {
