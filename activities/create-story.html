@@ -542,7 +542,13 @@
       }, 250);
     }
 
-    window.onload = loadStudents;
-  </script>
-</body>
+    window.onload = function() {
+      loadStudents();
+      document.getElementById('startBtn').onclick = startStory;
+    };
+  </script>  </script>
+
+
+
+</html></body></body>
 </html>
