@@ -317,10 +317,18 @@
     </div>
   </div>
 
-  <audio id="startSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/start-timer.mp3"></audio>
-  <audio id="endSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/end-timer.mp3"></audio>
-  <audio id="clickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/Click.mp3"></audio>
-  <audio id="tickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/start-timer.mp3"></audio>
+  <audio id="startSound" preload="auto">
+    <source src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/start-timer.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="endSound" preload="auto">
+    <source src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/end-timer.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="clickSound" preload="auto">
+    <source src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/Click.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="tickSound" preload="auto">
+    <source src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/start-timer.mp3" type="audio/mpeg">
+  </audio>
 
   <script>
     // متغيرات التطبيق
@@ -333,6 +341,7 @@
     let soundEnabled = true;
     let tickSoundInterval = null;
     let currentColor = 'var(--primary-color)';
+    let lastTickTime = 0;
 
     // عناصر واجهة المستخدم
     const timerDisplay = document.getElementById('timer');
@@ -366,6 +375,7 @@
         btn.addEventListener('click', playClick);
       });
       
+      // تحميل الأصوات مسبقاً
       [startSound, endSound, clickSound, tickSound].forEach(audio => {
         audio.load().catch(e => console.log("تعذر تحميل الصوت:", e));
       });
@@ -418,6 +428,14 @@
     }
 
     function timerTick() {
+      const now = Date.now();
+      const delta = now - lastTickTime;
+      
+      // التأكد من مرور ثانية كاملة (مع هامش خطأ 100ms)
+      if (delta < 900) return;
+      
+      lastTickTime = now;
+      
       if (mode === 'countdown') {
         if (timeLeft > 0) {
           timeLeft--;
@@ -460,8 +478,9 @@
       elapsed = 0;
       isPaused = false;
       currentColor = 'var(--primary-color)';
+      lastTickTime = Date.now();
       
-      interval = setInterval(timerTick, 1000);
+      interval = setInterval(timerTick, 100);
       pauseResumeBtn.textContent = 'إيقاف';
       updateDisplay();
       manageTickSound();
@@ -471,7 +490,8 @@
       if (!interval && !isPaused) return;
 
       if (isPaused) {
-        interval = setInterval(timerTick, 1000);
+        lastTickTime = Date.now();
+        interval = setInterval(timerTick, 100);
         pauseResumeBtn.textContent = 'إيقاف';
         isPaused = false;
         manageTickSound();
@@ -511,11 +531,9 @@
       playClick();
       
       if (!soundEnabled) {
-        // عند كتم الصوت، أوقف أي أصوات تعمل حالياً
         tickSound.pause();
         tickSound.currentTime = 0;
       } else {
-        // عند تشغيل الصوت، تحقق إذا كنا في فترة التيك تاك
         manageTickSound();
       }
     }
