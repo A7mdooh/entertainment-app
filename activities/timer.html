@@ -397,8 +397,18 @@
       const inFirst10 = mode === 'countdown' ? (duration - timeLeft) <= 10 : elapsed <= 10;
       const inLast10 = mode === 'countdown' ? timeLeft <= 10 : (duration - elapsed) <= 10;
       
-      if ((inFirst10 || inLast10) && !isPaused) {
-        currentColor = inFirst10 ? 'var(--success-color)' : 'var(--warning-color)';
+      if (inLast10 && !isPaused) {
+        currentColor = 'var(--warning-color)';
+        progressCircle.classList.add('shake');
+        
+        tickSoundInterval = setInterval(() => {
+          if (soundEnabled) {
+            endSound.currentTime = 0;
+            endSound.play().catch(e => console.log("تعذر تشغيل صوت المؤقت:", e));
+          }
+        }, 1000);
+      } else if (inFirst10 && !isPaused) {
+        currentColor = 'var(--success-color)';
         progressCircle.classList.add('shake');
         
         tickSoundInterval = setInterval(() => {
