@@ -22,6 +22,10 @@
       padding: 0;
     }
     
+    html {
+      overflow-x: hidden;
+    }
+    
     body {
       font-family: 'Cairo', sans-serif;
       background: linear-gradient(135deg, #e0f7fa, #f3f4f6);
@@ -33,7 +37,7 @@
       color: var(--text-color);
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
-      padding-bottom: 100px; /* إضافة مساحة للأزرار الثابتة */
+      padding-bottom: 100px;
     }
     
     /* أزرار التحكم الثابتة العلوية */
@@ -134,7 +138,7 @@
       word-wrap: break-word;
       overflow-wrap: break-word;
       hyphens: auto;
-      overflow: visible;
+      overflow-y: auto;
       text-overflow: clip;
       
       display: flex;
@@ -153,6 +157,7 @@
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       
       box-sizing: border-box;
+      max-height: 50vh;
     }
     
     #randomNameDisplay.highlight {
@@ -199,14 +204,17 @@
     /* أزرار التحكم الثابتة في الأسفل */
     .fixed-controls {
       position: fixed;
-      bottom: 20px;
+      bottom: 0;
       left: 0;
       right: 0;
       display: flex;
       justify-content: center;
       gap: 20px;
       z-index: 100;
-      padding: 0 20px;
+      padding: 15px 20px;
+      background-color: #f3f4f6;
+      border-top: 1px solid #e0e0e0;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
     }
     
     .fixed-controls button {
@@ -307,14 +315,16 @@
     
     @media (max-width: 480px) {
       .fixed-controls {
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        padding: 10px;
       }
       
       .fixed-controls button {
-        width: 90%;
-        max-width: 250px;
+        flex: 1;
+        min-width: 120px;
+        max-width: 45%;
       }
     }
   </style>
@@ -434,6 +444,8 @@
       randomNameDisplay.textContent = "";
       currentName = "";
       currentIndex = -1;
+      randomNameDisplay.style.overflowY = "visible";
+      randomNameDisplay.style.maxHeight = "none";
     }
 
     // ضبط حجم العرض حسب طول الاسم
@@ -443,13 +455,25 @@
       
       if (!text) return;
       
+      // حساب المساحة المتاحة مع مراعاة الأزرار الثابتة
+      const availableHeight = window.innerHeight - 250; // 250px مساحة للأزرار والعناصر الأخرى
+      
       // حساب الطول التقريبي للنص
       const approxCharsPerLine = Math.floor(display.offsetWidth / 20);
       const lines = Math.ceil(text.length / approxCharsPerLine);
-      
-      // ضبط الارتفاع بناءً على عدد الأسطر
       const lineHeight = parseInt(getComputedStyle(display).lineHeight);
-      display.style.minHeight = `${Math.max(100, lines * lineHeight + 40)}px`;
+      const neededHeight = lines * lineHeight + 40;
+      
+      // ضبط الارتفاع مع عدم تجاوز المساحة المتاحة
+      display.style.minHeight = `${Math.min(neededHeight, availableHeight)}px`;
+      
+      // إضافة scroll داخلي إذا لزم الأمر
+      if (neededHeight > availableHeight) {
+        display.style.overflowY = 'auto';
+        display.style.maxHeight = `${availableHeight}px`;
+      } else {
+        display.style.overflowY = 'visible';
+      }
     }
 
     // إعادة حساب الحجم عند تغيير حجم النافذة
@@ -618,11 +642,6 @@
         fullscreenBtn.title = "ملء الشاشة";
       }
     });
-
-    // أحداث الأزرار
-    muteBtn.addEventListener('click', muteToggle);
-    backBtn.addEventListener('click', goBack);
-    fullscreenBtn.addEventListener('click', toggleFullscreen);
 
     // التأكد من إيقاف الدوران عند مغادرة الصفحة
     window.addEventListener('beforeunload', () => {
