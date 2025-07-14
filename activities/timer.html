@@ -401,15 +401,17 @@
         currentColor = inFirst10 ? 'var(--success-color)' : 'var(--warning-color)';
         progressCircle.classList.add('shake');
         
-        tickSoundInterval = setInterval(() => {
-          if (soundEnabled) {
+        if (soundEnabled) {
+          tickSoundInterval = setInterval(() => {
             tickSound.currentTime = 0;
             tickSound.play().catch(e => console.log("تعذر تشغيل صوت المؤقت:", e));
-          }
-        }, 1000);
+          }, 1000);
+        }
       } else {
         currentColor = 'var(--primary-color)';
         progressCircle.classList.remove('shake');
+        tickSound.pause();
+        tickSound.currentTime = 0;
       }
       
       updateDisplay();
@@ -487,6 +489,7 @@
       tickSoundInterval = null;
       tickSound.pause();
       tickSound.currentTime = 0;
+      progressCircle.classList.remove('shake');
       isPaused = false;
     }
 
@@ -506,6 +509,15 @@
       muteBtn.textContent = soundEnabled ? '🔊' : '🔇';
       muteBtn.title = soundEnabled ? 'كتم الصوت' : 'تشغيل الصوت';
       playClick();
+      
+      if (!soundEnabled) {
+        // عند كتم الصوت، أوقف أي أصوات تعمل حالياً
+        tickSound.pause();
+        tickSound.currentTime = 0;
+      } else {
+        // عند تشغيل الصوت، تحقق إذا كنا في فترة التيك تاك
+        manageTickSound();
+      }
     }
 
     function playClick() {
