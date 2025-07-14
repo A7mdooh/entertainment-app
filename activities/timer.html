@@ -317,18 +317,10 @@
     </div>
   </div>
 
-  <audio id="startSound" preload="auto">
-    <source src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/start-timer.mp3" type="audio/mpeg">
-  </audio>
-  <audio id="endSound" preload="auto">
-    <source src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/end-timer.mp3" type="audio/mpeg">
-  </audio>
-  <audio id="clickSound" preload="auto">
-    <source src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/Click.mp3" type="audio/mpeg">
-  </audio>
-  <audio id="tickSound" preload="auto">
-    <source src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/start-timer.mp3" type="audio/mpeg">
-  </audio>
+  <audio id="startSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/start-timer.mp3"></audio>
+  <audio id="endSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/end-timer.mp3"></audio>
+  <audio id="clickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/Click.mp3"></audio>
+  <audio id="tickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/start-timer.mp3"></audio>
 
   <script>
     // متغيرات التطبيق
@@ -341,7 +333,6 @@
     let soundEnabled = true;
     let tickSoundInterval = null;
     let currentColor = 'var(--primary-color)';
-    let lastTickTime = 0;
 
     // عناصر واجهة المستخدم
     const timerDisplay = document.getElementById('timer');
@@ -375,7 +366,6 @@
         btn.addEventListener('click', playClick);
       });
       
-      // تحميل الأصوات مسبقاً
       [startSound, endSound, clickSound, tickSound].forEach(audio => {
         audio.load().catch(e => console.log("تعذر تحميل الصوت:", e));
       });
@@ -407,19 +397,21 @@
       const inFirst10 = mode === 'countdown' ? (duration - timeLeft) <= 10 : elapsed <= 10;
       const inLast10 = mode === 'countdown' ? timeLeft <= 10 : (duration - elapsed) <= 10;
       
-      if ((inFirst10 || inLast10) && !isPaused) {
+      if ((inFirst10 || inLast10) && !isPaused && soundEnabled) {
         currentColor = inFirst10 ? 'var(--success-color)' : 'var(--warning-color)';
         progressCircle.classList.add('shake');
         
-        if (soundEnabled) {
-          tickSoundInterval = setInterval(() => {
-            tickSound.currentTime = 0;
-            tickSound.play().catch(e => console.log("تعذر تشغيل صوت المؤقت:", e));
-          }, 1000);
-        }
+        tickSoundInterval = setInterval(() => {
+          tickSound.currentTime = 0;
+          tickSound.play().catch(e => console.log("تعذر تشغيل صوت المؤقت:", e));
+        }, 1000);
       } else {
         currentColor = 'var(--primary-color)';
         progressCircle.classList.remove('shake');
+        if (tickSoundInterval) {
+          clearInterval(tickSoundInterval);
+          tickSoundInterval = null;
+        }
         tickSound.pause();
         tickSound.currentTime = 0;
       }
@@ -428,14 +420,6 @@
     }
 
     function timerTick() {
-      const now = Date.now();
-      const delta = now - lastTickTime;
-      
-      // التأكد من مرور ثانية كاملة (مع هامش خطأ 100ms)
-      if (delta < 900) return;
-      
-      lastTickTime = now;
-      
       if (mode === 'countdown') {
         if (timeLeft > 0) {
           timeLeft--;
@@ -478,9 +462,8 @@
       elapsed = 0;
       isPaused = false;
       currentColor = 'var(--primary-color)';
-      lastTickTime = Date.now();
       
-      interval = setInterval(timerTick, 100);
+      interval = setInterval(timerTick, 1000);
       pauseResumeBtn.textContent = 'إيقاف';
       updateDisplay();
       manageTickSound();
@@ -490,12 +473,13 @@
       if (!interval && !isPaused) return;
 
       if (isPaused) {
-        lastTickTime = Date.now();
-        interval = setInterval(timerTick, 100);
+        // الاستئناف
+        interval = setInterval(timerTick, 1000);
         pauseResumeBtn.textContent = 'إيقاف';
         isPaused = false;
         manageTickSound();
       } else {
+        // الإيقاف
         stopTimer();
         pauseResumeBtn.textContent = 'استئناف';
         isPaused = true;
@@ -504,9 +488,11 @@
 
     function stopTimer() {
       clearInterval(interval);
-      clearInterval(tickSoundInterval);
+      if (tickSoundInterval) {
+        clearInterval(tickSoundInterval);
+        tickSoundInterval = null;
+      }
       interval = null;
-      tickSoundInterval = null;
       tickSound.pause();
       tickSound.currentTime = 0;
       progressCircle.classList.remove('shake');
@@ -528,12 +514,19 @@
       soundEnabled = !soundEnabled;
       muteBtn.textContent = soundEnabled ? '🔊' : '🔇';
       muteBtn.title = soundEnabled ? 'كتم الصوت' : 'تشغيل الصوت';
-      playClick();
       
       if (!soundEnabled) {
-        tickSound.pause();
-        tickSound.currentTime = 0;
+        // عند كتم الصوت، أوقف جميع الأصوات
+        [startSound, endSound, clickSound, tickSound].forEach(sound => {
+          sound.pause();
+          sound.currentTime = 0;
+        });
+        if (tickSoundInterval) {
+          clearInterval(tickSoundInterval);
+          tickSoundInterval = null;
+        }
       } else {
+        // عند تشغيل الصوت، تحقق إذا كنا في فترة التيك تاك
         manageTickSound();
       }
     }
