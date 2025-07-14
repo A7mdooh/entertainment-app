@@ -33,9 +33,10 @@
       color: var(--text-color);
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
+      padding-bottom: 100px; /* إضافة مساحة للأزرار الثابتة */
     }
     
-    /* أزرار التحكم الثابتة */
+    /* أزرار التحكم الثابتة العلوية */
     .control-btn {
       position: fixed;
       top: 20px;
@@ -122,7 +123,6 @@
     }
     
     #randomNameDisplay {
-      /* التعديلات الجديدة لعرض الأسماء الطويلة */
       width: 90%;
       min-width: 250px;
       min-height: 100px;
@@ -130,7 +130,6 @@
       padding: 25px;
       margin: 20px auto;
       
-      /* تحسين عرض النص */
       white-space: normal;
       word-wrap: break-word;
       overflow-wrap: break-word;
@@ -138,7 +137,6 @@
       overflow: visible;
       text-overflow: clip;
       
-      /* تنسيق النص */
       display: flex;
       align-items: center;
       justify-content: center;
@@ -146,7 +144,6 @@
       font-size: clamp(1.5rem, 5vw, 2.5rem);
       line-height: 1.6;
       
-      /* التنسيق المرئي */
       font-weight: bold;
       color: var(--primary-dark);
       background: white;
@@ -155,18 +152,7 @@
       border: 3px solid var(--light-gray);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       
-      /* التأكد من أن الإطار يتوسع مع المحتوى */
       box-sizing: border-box;
-    }
-    
-    /* تصميم للهواتف */
-    @media (max-width: 768px) {
-      #randomNameDisplay {
-        width: 95%;
-        padding: 20px 15px;
-        font-size: clamp(1.2rem, 4vw, 2rem);
-        min-height: 80px;
-      }
     }
     
     #randomNameDisplay.highlight {
@@ -181,62 +167,15 @@
       100% { transform: scale(1); box-shadow: var(--shadow); }
     }
     
-    .controls {
-      margin: 30px auto;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-      max-width: 800px;
-    }
-    
-    .controls button {
-      font-family: 'Cairo', sans-serif;
-      font-size: 1.5rem;
+    #studentCount {
+      font-size: 1.3rem;
+      color: var(--primary-dark);
       font-weight: 600;
-      padding: 18px 30px;
-      min-width: 180px;
-      border: none;
-      border-radius: 12px;
-      background-color: var(--primary-color);
-      color: white;
-      cursor: pointer;
-      transition: var(--transition);
-      box-shadow: var(--shadow);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .controls button:hover {
-      background-color: var(--primary-dark);
-      transform: translateY(-3px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    }
-    
-    .controls button:active {
-      transform: translateY(1px);
-      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    }
-    
-    .controls button:disabled {
-      background-color: #cccccc;
-      cursor: not-allowed;
-      transform: none !important;
-    }
-    
-    #startBtn {
-      animation: pulse 1.2s infinite;
-      background-color: var(--accent-color);
-    }
-    
-    #startBtn:hover {
-      background-color: #E64A19;
-    }
-    
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
+      margin: 20px 0;
+      padding: 10px;
+      background: rgba(255,255,255,0.7);
+      border-radius: 8px;
+      display: inline-block;
     }
     
     .firework {
@@ -257,15 +196,64 @@
       opacity: 1;
     }
     
-    #studentCount {
-      font-size: 1.3rem;
-      color: var(--primary-dark);
+    /* أزرار التحكم الثابتة في الأسفل */
+    .fixed-controls {
+      position: fixed;
+      bottom: 20px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      z-index: 100;
+      padding: 0 20px;
+    }
+    
+    .fixed-controls button {
+      font-family: 'Cairo', sans-serif;
+      font-size: 1.5rem;
       font-weight: 600;
-      margin: 20px 0;
-      padding: 10px;
-      background: rgba(255,255,255,0.7);
-      border-radius: 8px;
-      display: inline-block;
+      padding: 18px 30px;
+      min-width: 180px;
+      border: none;
+      border-radius: 12px;
+      background-color: var(--primary-color);
+      color: white;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: var(--shadow);
+    }
+    
+    .fixed-controls button:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+    
+    .fixed-controls button:active {
+      transform: translateY(1px);
+    }
+    
+    .fixed-controls button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+    
+    #fixedStartBtn {
+      background-color: var(--accent-color);
+      animation: pulse 1.2s infinite;
+    }
+    
+    #fixedStopBtn {
+      display: none;
+      background-color: #f44336;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
     }
     
     /* تصميم متجاوب */
@@ -305,7 +293,12 @@
         padding: 12px;
       }
       
-      .controls button {
+      #randomNameDisplay {
+        font-size: clamp(1.2rem, 4vw, 2rem);
+        min-height: 80px;
+      }
+      
+      .fixed-controls button {
         font-size: 1.3rem;
         padding: 15px 20px;
         min-width: 140px;
@@ -313,12 +306,14 @@
     }
     
     @media (max-width: 480px) {
-      .controls {
-        gap: 12px;
+      .fixed-controls {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
       }
       
-      .controls button {
-        width: 100%;
+      .fixed-controls button {
+        width: 90%;
         max-width: 250px;
       }
     }
@@ -350,28 +345,17 @@
     <div id="randomNameDisplay"></div>
     <p id="studentCount"></p>
 
-    <div class="controls">
-      <button id="startBtn" onclick="startRollingOnce()">
-        <span class="btn-content">🚀 ابدأ</span>
-      </button>
-    </div>
-
-    <div class="controls" id="resultControls" style="display:none">
-      <button onclick="removeCurrentName()">
-        <span class="btn-content">🗑️ حذف</span>
-      </button>
-      <button onclick="startRolling()">
-        <span class="btn-content">🔁 متابعة</span>
-      </button>
-    </div>
-
-    <div class="controls">
-      <button onclick="stopRolling()" id="stopBtn" style="display:none">
-        <span class="btn-content">🖐️ إيقاف</span>
-      </button>
-    </div>
-
     <div class="firework" id="firework"></div>
+  </div>
+
+  <!-- أزرار التحكم الثابتة في الأسفل -->
+  <div class="fixed-controls">
+    <button id="fixedStartBtn" onclick="startRollingOnce()">
+      <span class="btn-content">🚀 ابدأ</span>
+    </button>
+    <button id="fixedStopBtn" onclick="stopRolling()">
+      <span class="btn-content">🖐️ إيقاف</span>
+    </button>
   </div>
 
   <script>
@@ -395,15 +379,14 @@
 
     // عناصر واجهة المستخدم
     const randomNameDisplay = document.getElementById("randomNameDisplay");
-    const startBtn = document.getElementById("startBtn");
-    const stopBtn = document.getElementById("stopBtn");
-    const resultControls = document.getElementById("resultControls");
     const classSelect = document.getElementById("classSelect");
     const studentCount = document.getElementById("studentCount");
     const firework = document.getElementById("firework");
     const muteBtn = document.getElementById("muteBtn");
     const backBtn = document.getElementById("backBtn");
     const fullscreenBtn = document.getElementById("fullscreenBtn");
+    const fixedStartBtn = document.getElementById("fixedStartBtn");
+    const fixedStopBtn = document.getElementById("fixedStopBtn");
 
     // تحميل بيانات الطلاب
     async function loadStudents() {
@@ -444,10 +427,10 @@
       clearInterval(interval);
       interval = null;
       isRolling = false;
-      startBtn.disabled = false;
-      startBtn.style.animation = "pulse 1.2s infinite";
-      stopBtn.style.display = "none";
-      resultControls.style.display = "none";
+      fixedStartBtn.disabled = false;
+      fixedStartBtn.style.animation = "pulse 1.2s infinite";
+      fixedStopBtn.style.display = "none";
+      fixedStartBtn.style.display = "inline-block";
       randomNameDisplay.textContent = "";
       currentName = "";
       currentIndex = -1;
@@ -461,7 +444,7 @@
       if (!text) return;
       
       // حساب الطول التقريبي للنص
-      const approxCharsPerLine = Math.floor(display.offsetWidth / 20); // تقريب لكل 20px لكل حرف
+      const approxCharsPerLine = Math.floor(display.offsetWidth / 20);
       const lines = Math.ceil(text.length / approxCharsPerLine);
       
       // ضبط الارتفاع بناءً على عدد الأسطر
@@ -489,8 +472,8 @@
         return;
       }
       
-      startBtn.disabled = true;
-      startBtn.style.animation = "none";
+      fixedStartBtn.disabled = true;
+      fixedStartBtn.style.animation = "none";
       startRolling();
     }
 
@@ -516,8 +499,8 @@
       }
 
       isRolling = true;
-      resultControls.style.display = "none";
-      stopBtn.style.display = "inline-block";
+      fixedStopBtn.style.display = "inline-block";
+      fixedStartBtn.style.display = "none";
 
       if (!isMuted) {
         nameStartSound.play().catch(e => console.log("تعذر تشغيل الصوت:", e));
@@ -550,41 +533,10 @@
         nameStopSound.play().catch(e => console.log("تعذر تشغيل الصوت:", e));
       }
       
-      stopBtn.style.display = "none";
-      resultControls.style.display = "flex";
+      fixedStopBtn.style.display = "none";
+      fixedStartBtn.style.display = "inline-block";
       showFirework();
       canRemove = true;
-    }
-
-    // حذف الاسم الحالي
-    function removeCurrentName() {
-      if (!canRemove || isRolling) return;
-      
-      playClick();
-      
-      if (interval) {
-        clearInterval(interval);
-        interval = null;
-        isRolling = false;
-        nameStartSound.pause();
-        nameStartSound.currentTime = 0;
-      }
-      
-      if (currentIndex !== -1 && currentList.length > 0) {
-        currentList.splice(currentIndex, 1);
-        randomNameDisplay.textContent = "تمت الإزالة: " + currentName;
-        updateStudentCount();
-        canRemove = false;
-        adjustDisplaySize();
-        
-        if (!isMuted) {
-          selectSound.play().catch(e => console.log("تعذر تشغيل الصوت:", e));
-        }
-        
-        startBtn.disabled = false;
-        startBtn.style.animation = "pulse 1.2s infinite";
-        resultControls.style.display = "none";
-      }
     }
 
     // عرض تأثير الألعاب النارية
