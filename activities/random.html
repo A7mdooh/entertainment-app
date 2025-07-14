@@ -122,33 +122,50 @@
     }
     
     #randomNameDisplay {
-      display: inline-block;
+      /* التعديلات الجديدة لعرض الأسماء الطويلة */
+      width: 90%;
+      min-width: 250px;
+      min-height: 100px;
+      max-width: 800px;
+      padding: 25px;
+      margin: 20px auto;
+      
+      /* تحسين عرض النص */
+      white-space: normal;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      hyphens: auto;
+      overflow: visible;
+      text-overflow: clip;
+      
+      /* تنسيق النص */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: clamp(1.5rem, 5vw, 2.5rem);
+      line-height: 1.6;
+      
+      /* التنسيق المرئي */
       font-weight: bold;
       color: var(--primary-dark);
-      margin: 40px auto;
-      max-width: 90%;
-      padding: 25px;
       background: white;
       border-radius: 16px;
       box-shadow: var(--shadow);
-      font-size: clamp(1.5rem, 8vw, 3.5rem);
-      line-height: 1.4;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      min-width: 250px;
       border: 3px solid var(--light-gray);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      
+      /* التأكد من أن الإطار يتوسع مع المحتوى */
+      box-sizing: border-box;
     }
     
     /* تصميم للهواتف */
-    @media (max-width: 480px) {
+    @media (max-width: 768px) {
       #randomNameDisplay {
-        font-size: clamp(1.2rem, 6vw, 2.5rem);
-        padding: 15px 20px;
-        min-width: 200px;
-        max-width: 95%;
+        width: 95%;
+        padding: 20px 15px;
+        font-size: clamp(1.2rem, 4vw, 2rem);
+        min-height: 80px;
       }
     }
     
@@ -436,6 +453,29 @@
       currentIndex = -1;
     }
 
+    // ضبط حجم العرض حسب طول الاسم
+    function adjustDisplaySize() {
+      const display = document.getElementById('randomNameDisplay');
+      const text = display.textContent;
+      
+      if (!text) return;
+      
+      // حساب الطول التقريبي للنص
+      const approxCharsPerLine = Math.floor(display.offsetWidth / 20); // تقريب لكل 20px لكل حرف
+      const lines = Math.ceil(text.length / approxCharsPerLine);
+      
+      // ضبط الارتفاع بناءً على عدد الأسطر
+      const lineHeight = parseInt(getComputedStyle(display).lineHeight);
+      display.style.minHeight = `${Math.max(100, lines * lineHeight + 40)}px`;
+    }
+
+    // إعادة حساب الحجم عند تغيير حجم النافذة
+    window.addEventListener('resize', () => {
+      if (randomNameDisplay.textContent) {
+        adjustDisplaySize();
+      }
+    });
+
     // بدء الدوران (مرة واحدة)
     function startRollingOnce() {
       if (isRolling) return;
@@ -487,6 +527,7 @@
         currentIndex = Math.floor(Math.random() * currentList.length);
         currentName = currentList[currentIndex];
         randomNameDisplay.textContent = currentName;
+        adjustDisplaySize();
         
         randomNameDisplay.style.transform = "scale(1.1)";
         setTimeout(() => {
@@ -534,6 +575,7 @@
         randomNameDisplay.textContent = "تمت الإزالة: " + currentName;
         updateStudentCount();
         canRemove = false;
+        adjustDisplaySize();
         
         if (!isMuted) {
           selectSound.play().catch(e => console.log("تعذر تشغيل الصوت:", e));
