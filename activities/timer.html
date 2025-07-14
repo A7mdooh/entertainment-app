@@ -2,6 +2,7 @@
 <html dir="rtl" lang="ar">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>المؤقت الصفي</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
@@ -403,8 +404,8 @@
         
         tickSoundInterval = setInterval(() => {
           if (soundEnabled) {
-            endSound.currentTime = 0;
-            endSound.play().catch(e => console.log("تعذر تشغيل صوت المؤقت:", e));
+            tickSound.currentTime = 0;
+            tickSound.play().catch(e => console.log("تعذر تشغيل صوت المؤقت:", e));
           }
         }, 1000);
       } else if (inFirst10 && !isPaused) {
@@ -456,7 +457,7 @@
           modal.style.display = 'none';
           modal.classList.remove('fade-out');
         }, 1000);
-      }, 8000);
+      }, 3000);
     }
 
     function startTimer() {
