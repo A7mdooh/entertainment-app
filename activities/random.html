@@ -10,6 +10,7 @@
       --primary-color: #00796B;
       --primary-dark: #004D40;
       --accent-color: #FF5722;
+      --danger-color: #f44336;
       --text-color: #333;
       --light-gray: #f5f5f5;
       --shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -201,67 +202,57 @@
       opacity: 1;
     }
     
-    /* أزرار التحكم الثابتة في الأسفل */
-    .fixed-controls {
+    /* زر التحكم الرئيسي الثابت */
+    .main-control-btn {
       position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      z-index: 100;
-      padding: 15px 20px;
-      background-color: #f3f4f6;
-      border-top: 1px solid #e0e0e0;
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-    }
-    
-    .fixed-controls button {
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
       font-family: 'Cairo', sans-serif;
       font-size: 1.5rem;
       font-weight: 600;
-      padding: 18px 30px;
-      min-width: 180px;
+      padding: 18px 40px;
+      min-width: 220px;
       border: none;
       border-radius: 12px;
-      background-color: var(--primary-color);
+      background-color: var(--accent-color);
       color: white;
       cursor: pointer;
       transition: var(--transition);
       box-shadow: var(--shadow);
-    }
-    
-    .fixed-controls button:hover {
-      background-color: var(--primary-dark);
-      transform: translateY(-3px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    }
-    
-    .fixed-controls button:active {
-      transform: translateY(1px);
-    }
-    
-    .fixed-controls button:disabled {
-      background-color: #cccccc;
-      cursor: not-allowed;
-      transform: none !important;
-    }
-    
-    #fixedStartBtn {
-      background-color: var(--accent-color);
+      z-index: 100;
       animation: pulse 1.2s infinite;
     }
     
-    #fixedStopBtn {
-      display: none;
-      background-color: #f44336;
+    .main-control-btn:hover {
+      transform: translateX(-50%) translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+    
+    .main-control-btn:active {
+      transform: translateX(-50%) translateY(1px);
+    }
+    
+    .main-control-btn:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+      transform: translateX(-50%) !important;
+    }
+    
+    .main-control-btn.stop {
+      background-color: var(--danger-color);
+      animation: none;
+    }
+    
+    .main-control-btn.continue {
+      background-color: var(--primary-color);
+      animation: none;
     }
     
     @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
+      0% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) scale(1.05); }
+      100% { transform: translateX(-50%) scale(1); }
     }
     
     /* تصميم متجاوب */
@@ -306,26 +297,69 @@
         min-height: 80px;
       }
       
-      .fixed-controls button {
+      .main-control-btn {
         font-size: 1.3rem;
-        padding: 15px 20px;
-        min-width: 140px;
+        padding: 15px 30px;
+        min-width: 180px;
       }
     }
     
     @media (max-width: 480px) {
-      .fixed-controls {
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: space-around;
-        padding: 10px;
+      .main-control-btn {
+        width: 90%;
+        max-width: 300px;
       }
-      
-      .fixed-controls button {
-        flex: 1;
-        min-width: 120px;
-        max-width: 45%;
-      }
+    }
+    
+    /* نافذة التأكيد */
+    .confirm-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0,0,0,0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .confirm-box {
+      background-color: white;
+      padding: 25px;
+      border-radius: 12px;
+      max-width: 90%;
+      width: 400px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    
+    .confirm-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .confirm-buttons button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Cairo', sans-serif;
+      font-weight: bold;
+      transition: var(--transition);
+    }
+    
+    .confirm-buttons button:first-child {
+      background-color: var(--danger-color);
+      color: white;
+    }
+    
+    .confirm-buttons button:last-child {
+      background-color: var(--light-gray);
+      color: var(--text-color);
     }
   </style>
 </head>
@@ -358,14 +392,19 @@
     <div class="firework" id="firework"></div>
   </div>
 
-  <!-- أزرار التحكم الثابتة في الأسفل -->
-  <div class="fixed-controls">
-    <button id="fixedStartBtn" onclick="startRollingOnce()">
-      <span class="btn-content">🚀 ابدأ</span>
-    </button>
-    <button id="fixedStopBtn" onclick="stopRolling()">
-      <span class="btn-content">🖐️ إيقاف</span>
-    </button>
+  <!-- زر التحكم الرئيسي -->
+  <button id="mainControlBtn" class="main-control-btn">🚀 ابدأ</button>
+  
+  <!-- نافذة تأكيد الحذف -->
+  <div id="confirmModal" class="confirm-modal">
+    <div class="confirm-box">
+      <h3>تأكيد الحذف</h3>
+      <p>هل أنت متأكد من حذف <span id="nameToDelete"></span> من القائمة؟</p>
+      <div class="confirm-buttons">
+        <button id="confirmDeleteBtn">نعم، احذف</button>
+        <button id="cancelDeleteBtn">إلغاء</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -395,8 +434,11 @@
     const muteBtn = document.getElementById("muteBtn");
     const backBtn = document.getElementById("backBtn");
     const fullscreenBtn = document.getElementById("fullscreenBtn");
-    const fixedStartBtn = document.getElementById("fixedStartBtn");
-    const fixedStopBtn = document.getElementById("fixedStopBtn");
+    const mainControlBtn = document.getElementById("mainControlBtn");
+    const confirmModal = document.getElementById("confirmModal");
+    const nameToDelete = document.getElementById("nameToDelete");
+    const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+    const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
 
     // تحميل بيانات الطلاب
     async function loadStudents() {
@@ -437,10 +479,11 @@
       clearInterval(interval);
       interval = null;
       isRolling = false;
-      fixedStartBtn.disabled = false;
-      fixedStartBtn.style.animation = "pulse 1.2s infinite";
-      fixedStopBtn.style.display = "none";
-      fixedStartBtn.style.display = "inline-block";
+      canRemove = false;
+      mainControlBtn.disabled = false;
+      mainControlBtn.textContent = "🚀 ابدأ";
+      mainControlBtn.className = "main-control-btn";
+      mainControlBtn.style.animation = "pulse 1.2s infinite";
       randomNameDisplay.textContent = "";
       currentName = "";
       currentIndex = -1;
@@ -455,19 +498,14 @@
       
       if (!text) return;
       
-      // حساب المساحة المتاحة مع مراعاة الأزرار الثابتة
-      const availableHeight = window.innerHeight - 250; // 250px مساحة للأزرار والعناصر الأخرى
-      
-      // حساب الطول التقريبي للنص
+      const availableHeight = window.innerHeight - 250;
       const approxCharsPerLine = Math.floor(display.offsetWidth / 20);
       const lines = Math.ceil(text.length / approxCharsPerLine);
       const lineHeight = parseInt(getComputedStyle(display).lineHeight);
       const neededHeight = lines * lineHeight + 40;
       
-      // ضبط الارتفاع مع عدم تجاوز المساحة المتاحة
       display.style.minHeight = `${Math.min(neededHeight, availableHeight)}px`;
       
-      // إضافة scroll داخلي إذا لزم الأمر
       if (neededHeight > availableHeight) {
         display.style.overflowY = 'auto';
         display.style.maxHeight = `${availableHeight}px`;
@@ -483,10 +521,24 @@
       }
     });
 
+    // التحكم الرئيسي - يعتمد على حالة التطبيق
+    function handleMainControl() {
+      playClick();
+      
+      if (!isRolling && !canRemove) {
+        // حالة البدء
+        startRollingOnce();
+      } else if (isRolling) {
+        // حالة الإيقاف
+        stopRolling();
+      } else if (canRemove) {
+        // حالة المتابعة
+        showDeleteConfirm();
+      }
+    }
+
     // بدء الدوران (مرة واحدة)
     function startRollingOnce() {
-      if (isRolling) return;
-      playClick();
       const selectedClass = classSelect.value;
       
       if (!selectedClass || !studentData[selectedClass]) {
@@ -496,16 +548,13 @@
         return;
       }
       
-      fixedStartBtn.disabled = true;
-      fixedStartBtn.style.animation = "none";
+      mainControlBtn.disabled = true;
+      mainControlBtn.style.animation = "none";
       startRolling();
     }
 
     // بدء الدوران العشوائي
     function startRolling() {
-      if (isRolling) return;
-      
-      playClick();
       const selectedClass = classSelect.value;
 
       if (!selectedClass || !studentData[selectedClass]) {
@@ -523,8 +572,8 @@
       }
 
       isRolling = true;
-      fixedStopBtn.style.display = "inline-block";
-      fixedStartBtn.style.display = "none";
+      mainControlBtn.textContent = "🖐️ إيقاف";
+      mainControlBtn.className = "main-control-btn stop";
 
       if (!isMuted) {
         nameStartSound.play().catch(e => console.log("تعذر تشغيل الصوت:", e));
@@ -545,11 +594,10 @@
 
     // إيقاف الدوران
     function stopRolling() {
-      if (!isRolling) return;
-      
       clearInterval(interval);
       interval = null;
       isRolling = false;
+      canRemove = true;
       
       if (!isMuted) {
         nameStartSound.pause();
@@ -557,10 +605,33 @@
         nameStopSound.play().catch(e => console.log("تعذر تشغيل الصوت:", e));
       }
       
-      fixedStopBtn.style.display = "none";
-      fixedStartBtn.style.display = "inline-block";
+      mainControlBtn.textContent = "🔁 متابعة";
+      mainControlBtn.className = "main-control-btn continue";
       showFirework();
-      canRemove = true;
+    }
+
+    // عرض تأكيد الحذف
+    function showDeleteConfirm() {
+      nameToDelete.textContent = currentName;
+      confirmModal.style.display = "flex";
+    }
+
+    // حذف الاسم الحالي
+    function removeCurrentName() {
+      if (currentIndex !== -1 && currentList.length > 0) {
+        currentList.splice(currentIndex, 1);
+        randomNameDisplay.textContent = "تمت الإزالة: " + currentName;
+        updateStudentCount();
+        canRemove = false;
+        
+        if (!isMuted) {
+          selectSound.play().catch(e => console.log("تعذر تشغيل الصوت:", e));
+        }
+        
+        mainControlBtn.textContent = "🚀 ابدأ";
+        mainControlBtn.className = "main-control-btn";
+        mainControlBtn.style.animation = "pulse 1.2s infinite";
+      }
     }
 
     // عرض تأثير الألعاب النارية
@@ -632,7 +703,35 @@
     }
 
     // تهيئة الصفحة عند التحميل
-    window.onload = loadStudents;
+    window.onload = function() {
+      loadStudents();
+      
+      // أحداث الأزرار
+      mainControlBtn.addEventListener('click', handleMainControl);
+      muteBtn.addEventListener('click', muteToggle);
+      backBtn.addEventListener('click', goBack);
+      fullscreenBtn.addEventListener('click', toggleFullscreen);
+      
+      // أحداث نافذة التأكيد
+      confirmDeleteBtn.addEventListener('click', function() {
+        playClick();
+        removeCurrentName();
+        confirmModal.style.display = "none";
+      });
+      
+      cancelDeleteBtn.addEventListener('click', function() {
+        playClick();
+        confirmModal.style.display = "none";
+      });
+      
+      // إغلاق النافذة عند النقر خارجها
+      confirmModal.addEventListener('click', function(e) {
+        if (e.target === confirmModal) {
+          playClick();
+          confirmModal.style.display = "none";
+        }
+      });
+    };
 
     // كشف تغيير وضع الشاشة
     document.addEventListener('fullscreenchange', () => {
