@@ -13,13 +13,11 @@
       --text-color: #333;
       --light-gray: #f5f5f5;
     }
-    
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
-    
     body {
       font-family: 'Cairo', sans-serif;
       background: #f0f4f8;
@@ -29,7 +27,6 @@
       position: relative;
       min-height: 100vh;
     }
-    
     .header {
       background-color: var(--primary-color);
       color: white;
@@ -39,7 +36,6 @@
       max-width: 800px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
-    
     select, button {
       font-family: 'Cairo', sans-serif;
       padding: 12px 18px;
@@ -49,12 +45,10 @@
       border: 1px solid #ddd;
       transition: all 0.3s ease;
     }
-    
     select {
       width: 220px;
       background-color: white;
     }
-    
     button {
       background-color: var(--primary-color);
       color: white;
@@ -63,18 +57,15 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       transition: all 0.2s ease;
     }
-    
     button:hover {
       background-color: var(--primary-dark);
       transform: translateY(-2px);
       box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     }
-    
     button:active {
       transform: translateY(1px);
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
-    
     #storyContainer {
       margin-top: 30px;
       padding: 25px;
@@ -85,19 +76,16 @@
       margin-left: auto;
       margin-right: auto;
     }
-    
     #studentName {
       font-size: 1.8rem;
       color: var(--primary-color);
       margin-bottom: 20px;
       font-weight: 600;
     }
-    
     #timerCanvas {
       margin: 25px auto;
       display: block;
     }
-    
     #celebration {
       display: none;
       font-size: 2rem;
@@ -106,7 +94,6 @@
       transition: opacity 1s ease;
       font-weight: bold;
     }
-    
     .student-cards {
       display: flex;
       flex-wrap: wrap;
@@ -117,7 +104,6 @@
       margin-left: auto;
       margin-right: auto;
     }
-    
     .student-card {
       background: #fff;
       border: 2px solid var(--primary-color);
@@ -128,7 +114,6 @@
       font-size: 1.1rem;
       box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
-    
     .student-card:hover,
     .student-card.selected {
       background-color: var(--primary-color);
@@ -136,7 +121,6 @@
       transform: translateY(-3px);
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
-    
     #thankYouModal {
       display: none;
       position: fixed;
@@ -156,19 +140,16 @@
       transition: opacity 0.4s ease;
       width: 500px;
     }
-    
     #thankYouModal h2 {
       color: var(--primary-color);
       margin-bottom: 20px;
       font-size: 1.8rem;
     }
-    
     #thankYouModal ul {
       list-style: none;
       padding: 0;
       margin: 20px 0;
     }
-    
     #thankYouModal li {
       font-size: 1.2rem;
       margin: 10px 0;
@@ -176,7 +157,6 @@
       background-color: var(--light-gray);
       border-radius: 8px;
     }
-    
     #closeModalBtn {
       font-size: 1.5rem;
       color: var(--primary-color);
@@ -188,20 +168,10 @@
       right: 20px;
       transition: transform 0.3s;
     }
-    
     #closeModalBtn:hover {
       transform: scale(1.1);
     }
-    
-    #backBtn {
-      font-size: 1.2rem;
-      margin-top: 15px;
-      background-color: #e0f2f1;
-      color: var(--primary-color);
-      padding: 10px 20px;
-    }
-    
-    /* أزرار التحكم الثابتة - تصميم محسن */
+    /* أزرار التحكم الثابتة - تصميم موحد */
     .control-btn {
       position: fixed;
       top: 20px;
@@ -212,102 +182,74 @@
       justify-content: center;
       border-radius: 50%;
       background-color: white;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       border: none;
       cursor: pointer;
       z-index: 100;
       transition: all 0.3s ease;
+      font-size: 1.4rem;
     }
-    
     .control-btn:hover {
       transform: scale(1.15);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      background-color: var(--light-gray);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      background-color: #f5f5f5;
     }
-    
     .control-btn:active {
       transform: scale(1.05);
     }
-    
     .control-btn svg {
       width: 22px;
       height: 22px;
       fill: var(--primary-color);
     }
-    
-    #homeBtn {
-      right: 25px;
-    }
-    
-    #fullscreenBtn {
-      left: 25px;
-    }
-    
+    #muteBtn { right: 25px; }
+    #backBtn { left: 50%; transform: translateX(-50%); }
+    #fullscreenBtn { left: 25px; }
     .container {
       max-width: 800px;
       margin: 0 auto;
       padding: 0 15px;
     }
-    
     @media (max-width: 768px) {
       .header {
         padding: 1rem 0.8rem;
       }
-      
       select, button {
         padding: 10px 15px;
         font-size: 1rem;
         margin: 8px;
       }
-      
       select {
         width: 100%;
         max-width: 300px;
       }
-      
       .control-btn {
         width: 42px;
         height: 42px;
         top: 15px;
       }
-      
-      #homeBtn {
-        right: 15px;
-      }
-      
-      #fullscreenBtn {
-        left: 15px;
-      }
+      #muteBtn { right: 15px; }
+      #backBtn { left: 50%; transform: translateX(-50%); }
+      #fullscreenBtn { left: 15px; }
     }
   </style>
 </head>
 <body>
   <!-- صوت النقر -->
   <audio id="clickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/Click.mp3"></audio>
-  
-  <!-- زر العودة -->
-  <button class="control-btn" id="homeBtn" title="العودة لصفحة الأنشطة">
-    <svg viewBox="0 0 24 24">
-      <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-    </svg>
-  </button>
-  
-  <!-- زر ملء الشاشة -->
+  <!-- أزرار التحكم الموحدة -->
+  <button class="control-btn" id="muteBtn" title="تشغيل/كتم الصوت">🔊</button>
+  <button class="control-btn" id="backBtn" title="الرجوع للأنشطة">📚</button>
   <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">
     <svg viewBox="0 0 24 24" id="fullscreen-svg">
       <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
     </svg>
   </button>
-
-  <!-- زر كتم الصوت -->
-  <button class="control-btn" id="muteBtn" title="تشغيل/كتم الصوت">🔊</button>
-
   <div class="container">
     <div class="header">
       <h1>📝 نشاط: كوّن قصة</h1>
       <p>اختر الصف ونوع القصة لبدء التفاعل</p>
     </div>
-
     <div>
       <select id="classSelect">
         <option value="">-- اختر الصف --</option>
@@ -321,9 +263,7 @@
       </select>
       <button id="startBtn">ابدأ</button>
     </div>
-
     <div id="studentSelection" class="student-cards"></div>
-
     <div id="storyContainer" style="display:none">
       <div id="studentName"></div>
       <canvas id="timerCanvas" width="150" height="150"></canvas>
@@ -334,89 +274,87 @@
       <div id="celebration">🎉 أحسنت! 🎉</div>
     </div>
   </div>
-
   <div id="thankYouModal">
     <button id="closeModalBtn">✖️</button>
     <h2>شكرًا لمشاركتكم الرائعة! 🌟</h2>
     <p>المشاركون في القصة:</p>
     <ul id="participantList"></ul>
-    <button id="backBtn">🔙 عودة</button>
+    <button id="modalBackBtn">🔙 عودة</button>
   </div>
-
   <audio id="clap" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/clap.mp3"></audio>
-
   <script>
-    // تحسينات كود JavaScript
+    // تعريف عناصر التحكم
+    const muteBtn = document.getElementById('muteBtn');
+    const backBtn = document.getElementById('backBtn');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
     const fullscreenSvg = document.getElementById('fullscreen-svg');
     const clickSound = document.getElementById('clickSound');
-    
-    // أيقونات SVG للدخول والخروج من وضع ملء الشاشة
+    let soundEnabled = true;
+
+    // ربط الأزرار بالدوال
+    muteBtn.onclick = toggleSoundBtn;
+    backBtn.onclick = goBackBtn;
+    fullscreenBtn.onclick = toggleFullscreenBtn;
+
+    function playClick() {
+      if (soundEnabled) {
+        clickSound.currentTime = 0;
+        clickSound.play().catch(()=>{});
+      }
+    }
+    function toggleSoundBtn() {
+      soundEnabled = !soundEnabled;
+      muteBtn.textContent = soundEnabled ? '🔊' : '🔇';
+      muteBtn.title = soundEnabled ? 'كتم الصوت' : 'تشغيل الصوت';
+      document.querySelectorAll('audio').forEach(audio => {
+        audio.muted = !soundEnabled;
+      });
+      playClick();
+    }
+    function goBackBtn() {
+      playClick();
+      setTimeout(() => {
+        window.location.href = "https://a7mdooh.github.io/entertainment-app/main.html";
+      }, 300);
+    }
     const fullscreenEnterPath = 'M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z';
     const fullscreenExitPath = 'M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z';
-
-    // تشغيل صوت النقر
-    function playClickSound() {
-      clickSound.currentTime = 0;
-      clickSound.play().catch(e => {
-        console.log("تعذر تشغيل صوت النقر:", e);
-      });
-    }
-
-    function toggleFullScreen() {
-      playClickSound();
-      
+    function toggleFullscreenBtn() {
+      playClick();
+      const doc = document.documentElement;
       if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen()
-          .then(() => {
-            fullscreenSvg.setAttribute('d', fullscreenExitPath);
-            fullscreenBtn.title = 'خروج من ملء الشاشة';
-          })
-          .catch(err => {
-            console.error('خطأ في ملء الشاشة:', err);
-          });
+        doc.requestFullscreen().then(() => {
+          fullscreenSvg.setAttribute('d', fullscreenExitPath);
+          fullscreenBtn.title = "خروج من ملء الشاشة";
+        }).catch(()=>{});
       } else {
         document.exitFullscreen();
         fullscreenSvg.setAttribute('d', fullscreenEnterPath);
-        fullscreenBtn.title = 'ملء الشاشة';
+        fullscreenBtn.title = "ملء الشاشة";
       }
     }
-
-    // كشف تغيير وضع الشاشة
     document.addEventListener('fullscreenchange', () => {
       if (!document.fullscreenElement) {
         fullscreenSvg.setAttribute('d', fullscreenEnterPath);
-        fullscreenBtn.title = 'ملء الشاشة';
+        fullscreenBtn.title = "ملء الشاشة";
+      } else {
+        fullscreenSvg.setAttribute('d', fullscreenExitPath);
+        fullscreenBtn.title = "خروج من ملء الشاشة";
       }
     });
 
-    // تعيين أحداث الأزرار مع إضافة صوت النقر
-    fullscreenBtn.addEventListener('click', toggleFullScreen);
-    
-    document.getElementById('homeBtn').addEventListener('click', () => {
-      playClickSound();
-      setTimeout(() => {
-        window.location.href = 'https://a7mdooh.github.io/entertainment-app/main.html';
-      }, 300);
+    // زر العودة داخل المودال
+    document.getElementById('modalBackBtn').addEventListener('click', function() {
+      playClick();
+      const modal = document.getElementById("thankYouModal");
+      modal.style.display = 'none';
+      document.getElementById("storyContainer").style.display = "none";
+      document.getElementById("studentSelection").style.display = "block";
     });
-    
-    document.getElementById('startBtn').addEventListener('click', function() {
-      playClickSound();
-      startStory();
-    });
-    
-    document.getElementById('finishBtn').addEventListener('click', function() {
-      playClickSound();
-      finishStory();
-    });
-    
-    document.getElementById('nextBtn').addEventListener('click', function() {
-      playClickSound();
-      nextStudent();
-    });
-    
+
+    // زر إغلاق المودال
     document.getElementById('closeModalBtn').addEventListener('click', function() {
-      playClickSound();
+      playClick();
       const modal = document.getElementById("thankYouModal");
       modal.style.opacity = '0';
       setTimeout(() => {
@@ -424,18 +362,10 @@
         modal.style.opacity = '1';
       }, 400);
     });
-    
-    document.getElementById('backBtn').addEventListener('click', function() {
-      playClickSound();
-      const modal = document.getElementById("thankYouModal");
-      modal.style.display = 'none';
-      document.getElementById("storyContainer").style.display = "none";
-      document.getElementById("studentSelection").style.display = "block";
-    });
-    
-    // إضافة صوت النقر لجميع الأزرار
+
+    // إضافة صوت النقر لجميع الأزرار (اختياري)
     document.querySelectorAll('button').forEach(button => {
-      button.addEventListener('click', playClickSound);
+      button.addEventListener('click', playClick);
     });
 
     // باقي الدوال كما هي
@@ -456,7 +386,7 @@
     }
 
     function handleModeChange() {
-      playClickSound();
+      playClick();
       document.getElementById("studentSelection").innerHTML = '';
     }
 
@@ -487,7 +417,7 @@
         div.className = "student-card";
         div.textContent = name;
         div.onclick = () => {
-          playClickSound();
+          playClick();
           if (mode === 'select-single') {
             selectedManualStudents = [name];
             document.querySelectorAll('.student-card').forEach(el => el.classList.remove('selected'));
@@ -508,7 +438,7 @@
       const confirmBtn = document.createElement("button");
       confirmBtn.textContent = "بدء السرد";
       confirmBtn.onclick = () => {
-        playClickSound();
+        playClick();
         if (selectedManualStudents.length === 0) return alert("يرجى اختيار طالب/طلاب.");
         currentList = [...selectedManualStudents];
         usedStudents = [];
