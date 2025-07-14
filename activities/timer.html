@@ -328,10 +328,11 @@
     </div>
   </div>
 
-  <audio id="startSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/start-timer.mp3" preload="auto"></audio>
-  <audio id="endSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/end-timer.mp3" preload="auto"></audio>
-  <audio id="clickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/Click.mp3" preload="auto"></audio>
-  <audio id="tickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/start-timer.mp3" preload="auto"></audio>
+  <!-- عناصر الصوت الأساسية مخفية -->
+  <audio id="startSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/start-timer.mp3" preload="auto" crossorigin="anonymous"></audio>
+  <audio id="endSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/end-timer.mp3" preload="auto" crossorigin="anonymous"></audio>
+  <audio id="clickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/Click.mp3" preload="auto" crossorigin="anonymous"></audio>
+  <audio id="tickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/tick-timer.mp3" preload="auto" crossorigin="anonymous"></audio>
 
   <script>
     // متغيرات التطبيق
@@ -339,12 +340,11 @@
     let timeLeft = 0;
     let elapsed = 0;
     let mode = 'countdown';
-    let interval = null;
+    let animationFrameId = null;
     let isPaused = false;
     let soundEnabled = true;
     let tickSoundInterval = null;
     let currentColor = 'var(--primary-color)';
-    let animationFrameId = null;
 
     // عناصر واجهة المستخدم
     const timerDisplay = document.getElementById('timer');
@@ -359,72 +359,96 @@
     const backBtn = document.getElementById('backBtn');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
 
-    // عناصر الصوت
-    const startSound = document.getElementById('startSound');
-    const endSound = document.getElementById('endSound');
-    const clickSound = document.getElementById('clickSound');
-    const tickSound = document.getElementById('tickSound');
-
-    // تهيئة الصفحة
-    async function init() {
-      loadSettings();
+    // نظام إدارة الصوتيات المتقدم
+    const audioSystem = {
+      sounds: {
+        start: [],
+        end: [],
+        click: [],
+        tick: []
+      },
       
-      startBtn.addEventListener('click', startTimer);
-      pauseResumeBtn.addEventListener('click', togglePause);
-      resetBtn.addEventListener('click', resetTimer);
-      muteBtn.addEventListener('click', toggleSound);
-      backBtn.addEventListener('click', goBack);
-      fullscreenBtn.addEventListener('click', toggleFullscreen);
+      init: async function() {
+        try {
+          // إنشاء نسخ متعددة لكل صوت (3 نسخ لكل نوع)
+          for (let i = 0; i < 3; i++) {
+            this.sounds.start.push(this.createAudio('startSound'));
+            this.sounds.end.push(this.createAudio('endSound'));
+            this.sounds.click.push(this.createAudio('clickSound'));
+            this.sounds.tick.push(this.createAudio('tickSound'));
+          }
+          
+          await this.loadAll();
+          return true;
+        } catch (error) {
+          console.error('خطأ في تهيئة النظام الصوتي:', error);
+          return false;
+        }
+      },
       
-      modeSelect.addEventListener('change', saveSettings);
-      timeSelect.addEventListener('change', saveSettings);
+      createAudio: function(id) {
+        const original = document.getElementById(id);
+        const audio = new Audio(original.src);
+        audio.volume = 0.7;
+        audio.preload = 'auto';
+        audio.crossOrigin = 'anonymous';
+        return audio;
+      },
       
-      document.querySelectorAll('button').forEach(btn => {
-        btn.addEventListener('click', playClick);
-      });
+      loadAll: async function() {
+        const loadPromises = [];
+        Object.values(this.sounds).forEach(soundArray => {
+          soundArray.forEach(sound => {
+            loadPromises.push(new Promise((resolve) => {
+              sound.addEventListener('canplaythrough', resolve, { once: true });
+              sound.load();
+            }));
+          });
+        });
+        await Promise.all(loadPromises);
+      },
       
-      try {
-        await loadAudio();
-      } catch (error) {
-        console.error("خطأ في تحميل الملفات الصوتية:", error);
-        soundEnabled = false;
-        muteBtn.textContent = '🔇';
-        muteBtn.title = 'تعطيل الصوت (الملفات الصوتية غير متوفرة)';
+      play: function(type) {
+        if (!soundEnabled || !this.sounds[type]) return;
+        
+        const soundArray = this.sounds[type];
+        let availableSound = soundArray.find(s => s.paused);
+        
+        if (!availableSound) {
+          // إذا كانت جميع النسخ مشغّلة، نستخدم الأولى ونعيد تشغيلها
+          availableSound = soundArray[0];
+          availableSound.pause();
+          availableSound.currentTime = 0;
+        }
+        
+        try {
+          availableSound.play().catch(e => {
+            console.log(`تعذر تشغيل صوت ${type}:`, e.message);
+          });
+        } catch (e) {
+          console.log(`خطأ في تشغيل صوت ${type}:`, e.message);
+        }
+      },
+      
+      stopAll: function() {
+        Object.values(this.sounds).forEach(soundArray => {
+          soundArray.forEach(sound => {
+            sound.pause();
+            sound.currentTime = 0;
+          });
+        });
+      },
+      
+      setVolume: function(volume) {
+        Object.values(this.sounds).forEach(soundArray => {
+          soundArray.forEach(sound => {
+            sound.volume = volume;
+          });
+        });
       }
-      
-      duration = parseInt(timeSelect.value);
-      timeLeft = duration;
-      updateDisplay();
-    }
+    };
 
-    async function loadAudio() {
-      await Promise.all([
-        startSound.load(),
-        endSound.load(),
-        clickSound.load(),
-        tickSound.load()
-      ]);
-    }
-
-    function saveSettings() {
-      localStorage.setItem('timerSettings', JSON.stringify({
-        mode: modeSelect.value,
-        time: timeSelect.value,
-        sound: soundEnabled
-      }));
-    }
-
-    function loadSettings() {
-      const settings = JSON.parse(localStorage.getItem('timerSettings'));
-      if (settings) {
-        modeSelect.value = settings.mode || 'countdown';
-        timeSelect.value = settings.time || '300';
-        soundEnabled = settings.sound !== false;
-        muteBtn.textContent = soundEnabled ? '🔊' : '🔇';
-        muteBtn.title = soundEnabled ? 'كتم الصوت' : 'تشغيل الصوت';
-      }
-    }
-
+    // وظائف التحكم بالمؤقت
     function formatTime(seconds) {
       const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
       const secs = String(seconds % 60).padStart(2, '0');
@@ -452,20 +476,14 @@
         progressCircle.classList.add('shake');
         
         tickSoundInterval = setInterval(() => {
-          if (soundEnabled) {
-            tickSound.currentTime = 0;
-            tickSound.play().catch(e => console.log("تعذر تشغيل صوت المؤقت:", e));
-          }
+          audioSystem.play('tick');
         }, 1000);
       } else if (inFirst10 && !isPaused) {
         currentColor = 'var(--success-color)';
         progressCircle.classList.add('shake');
         
         tickSoundInterval = setInterval(() => {
-          if (soundEnabled) {
-            tickSound.currentTime = 0;
-            tickSound.play().catch(e => console.log("تعذر تشغيل صوت المؤقت:", e));
-          }
+          audioSystem.play('tick');
         }, 1000);
       } else {
         currentColor = 'var(--primary-color)';
@@ -496,7 +514,7 @@
     }
 
     function showModal() {
-      playEnd();
+      audioSystem.play('end');
       modal.style.display = 'flex';
       modal.classList.remove('fade-out');
       
@@ -511,7 +529,7 @@
 
     function startTimer() {
       stopTimer();
-      playStart();
+      audioSystem.play('start');
       duration = parseInt(timeSelect.value);
       mode = modeSelect.value;
       timeLeft = duration;
@@ -550,11 +568,7 @@
         stopTimer();
         pauseResumeBtn.textContent = 'استئناف';
         isPaused = true;
-        // إيقاف جميع الأصوات
-        [startSound, endSound, clickSound, tickSound].forEach(audio => {
-          audio.pause();
-          audio.currentTime = 0;
-        });
+        audioSystem.stopAll();
       }
       saveSettings();
     }
@@ -566,8 +580,7 @@
       }
       clearInterval(tickSoundInterval);
       tickSoundInterval = null;
-      tickSound.pause();
-      tickSound.currentTime = 0;
+      audioSystem.stopAll();
       isPaused = false;
     }
 
@@ -586,33 +599,13 @@
       soundEnabled = !soundEnabled;
       muteBtn.textContent = soundEnabled ? '🔊' : '🔇';
       muteBtn.title = soundEnabled ? 'كتم الصوت' : 'تشغيل الصوت';
-      playClick();
+      audioSystem.setVolume(soundEnabled ? 0.7 : 0);
+      audioSystem.play('click');
       saveSettings();
     }
 
-    function playClick() {
-      if (soundEnabled) {
-        clickSound.currentTime = 0;
-        clickSound.play().catch(e => console.log("تعذر تشغيل صوت النقر:", e));
-      }
-    }
-
-    function playStart() {
-      if (soundEnabled) {
-        startSound.currentTime = 0;
-        startSound.play().catch(e => console.log("تعذر تشغيل صوت البدء:", e));
-      }
-    }
-
-    function playEnd() {
-      if (soundEnabled) {
-        endSound.currentTime = 0;
-        endSound.play().catch(e => console.log("تعذر تشغيل صوت النهاية:", e));
-      }
-    }
-
     function goBack() {
-      playClick();
+      audioSystem.play('click');
       if (animationFrameId || isPaused) {
         const confirmBack = confirm("هل أنت متأكد من الرجوع؟ سيتم إيقاف المؤقت الحالي.");
         if (!confirmBack) return;
@@ -622,7 +615,7 @@
     }
 
     function toggleFullscreen() {
-      playClick();
+      audioSystem.play('click');
       const doc = document.documentElement;
       
       if (!document.fullscreenElement) {
@@ -639,6 +632,26 @@
       }
     }
 
+    function saveSettings() {
+      localStorage.setItem('timerSettings', JSON.stringify({
+        mode: modeSelect.value,
+        time: timeSelect.value,
+        sound: soundEnabled
+      }));
+    }
+
+    function loadSettings() {
+      const settings = JSON.parse(localStorage.getItem('timerSettings'));
+      if (settings) {
+        modeSelect.value = settings.mode || 'countdown';
+        timeSelect.value = settings.time || '300';
+        soundEnabled = settings.sound !== false;
+        muteBtn.textContent = soundEnabled ? '🔊' : '🔇';
+        muteBtn.title = soundEnabled ? 'كتم الصوت' : 'تشغيل الصوت';
+        audioSystem.setVolume(soundEnabled ? 0.7 : 0);
+      }
+    }
+
     document.addEventListener('fullscreenchange', () => {
       if (!document.fullscreenElement) {
         fullscreenBtn.textContent = "⛶";
@@ -646,7 +659,45 @@
       }
     });
 
-    window.addEventListener('DOMContentLoaded', init);
+    // تهيئة التطبيق
+    async function initializeApp() {
+      try {
+        // تحميل الإعدادات
+        loadSettings();
+        
+        // تهيئة النظام الصوتي
+        const audioInitialized = await audioSystem.init();
+        if (!audioInitialized) {
+          soundEnabled = false;
+          muteBtn.textContent = '🔇';
+          muteBtn.title = 'تعطيل الصوت (الملفات الصوتية غير متوفرة)';
+        }
+        
+        // إعداد مستمعي الأحداث
+        startBtn.addEventListener('click', startTimer);
+        pauseResumeBtn.addEventListener('click', togglePause);
+        resetBtn.addEventListener('click', resetTimer);
+        muteBtn.addEventListener('click', toggleSound);
+        backBtn.addEventListener('click', goBack);
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+        
+        modeSelect.addEventListener('change', saveSettings);
+        timeSelect.addEventListener('change', saveSettings);
+        
+        document.querySelectorAll('button').forEach(btn => {
+          btn.addEventListener('click', () => audioSystem.play('click'));
+        });
+        
+        duration = parseInt(timeSelect.value);
+        timeLeft = duration;
+        updateDisplay();
+        
+      } catch (error) {
+        console.error('خطأ في تهيئة التطبيق:', error);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', initializeApp);
   </script>
 </body>
 </html>
