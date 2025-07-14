@@ -130,14 +130,37 @@
       color: #d32f2f;
       z-index: 10000;
     }
+    .control-btn {
+      position: fixed;
+      top: 20px;
+      width: 46px;
+      height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background-color: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border: none;
+      cursor: pointer;
+      z-index: 100;
+      transition: all 0.3s ease;
+      font-size: 1.4rem;
+    }
+    .control-btn:hover {
+      transform: scale(1.15);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      background-color: #f5f5f5;
+    }
+    #muteBtn { right: 25px; }
+    #backBtn { left: 50%; transform: translateX(-50%); }
+    #fullscreenBtn { left: 25px; }
   </style>
 </head>
 <body style="padding-top: 60px;">
-<div class="fixed-controls" style="position: fixed; top: 0; left: 0; right: 0; height: 50px; z-index: 10000;">
-<button onclick="location.href='https://a7mdooh.github.io/entertainment-app/main.html'" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); font-size: 1.5rem; background: none; border: none; cursor: pointer;" title="رجوع">📚</button>
-<button onclick="toggleFullScreen()" style="position: absolute; top: 10px; right: 10px; font-size: 1.5rem; background: none; border: none; cursor: pointer;" title="ملء الشاشة">⛶</button>
-<button id="soundButton" onclick="toggleSound()" style="position: absolute; top: 10px; left: 10px; font-size: 1.5rem; background: none; border: none; cursor: pointer;" title="كتم/تشغيل الصوت">🔊</button>
-</div>
+<button class="control-btn" id="muteBtn" title="تشغيل/كتم الصوت">🔊</button>
+<button class="control-btn" id="backBtn" title="الرجوع للأنشطة">📚</button>
+<button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">⛶</button>
 <div class="header">
 <h1>🔥 التحديات 🔥</h1>
 </div>
@@ -530,30 +553,68 @@
 
   window.onload = loadStudents;
 
-  function goBack() {
-    window.history.back();
-  }
+  // تعريف عناصر التحكم
+const muteBtn = document.getElementById('muteBtn');
+const backBtn = document.getElementById('backBtn');
+const fullscreenBtn = document.getElementById('fullscreenBtn');
 
-  function toggleFullScreen() {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      }
-    }
-  }
+// إضافة صوت النقر
+const clickSound = document.createElement('audio');
+clickSound.id = "clickSound";
+clickSound.src = "https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/Click.mp3";
+document.body.appendChild(clickSound);
 
-  let isMuted = false;
-  function toggleSound() {
-    isMuted = !isMuted;
-    const soundButton = document.getElementById('soundButton');
-    const audios = document.querySelectorAll('audio');
-    audios.forEach(audio => {
-      audio.muted = isMuted;
-    });
-    soundButton.textContent = isMuted ? '🔇' : '🔊';
+let soundEnabled = true;
+
+// ربط الأزرار بالدوال
+muteBtn.onclick = toggleSoundBtn;
+backBtn.onclick = goBackBtn;
+fullscreenBtn.onclick = toggleFullscreenBtn;
+
+function playClick() {
+  if (soundEnabled) {
+    clickSound.currentTime = 0;
+    clickSound.play().catch(()=>{});
   }
+}
+function toggleSoundBtn() {
+  soundEnabled = !soundEnabled;
+  muteBtn.textContent = soundEnabled ? '🔊' : '🔇';
+  muteBtn.title = soundEnabled ? 'كتم الصوت' : 'تشغيل الصوت';
+  document.querySelectorAll('audio').forEach(audio => {
+    audio.muted = !soundEnabled;
+  });
+  playClick();
+}
+function goBackBtn() {
+  playClick();
+  setTimeout(() => {
+    window.location.href = "https://a7mdooh.github.io/entertainment-app/main.html";
+  }, 300);
+}
+function toggleFullscreenBtn() {
+  playClick();
+  const doc = document.documentElement;
+  if (!document.fullscreenElement) {
+    doc.requestFullscreen().then(() => {
+      fullscreenBtn.textContent = "🗗";
+      fullscreenBtn.title = "خروج من ملء الشاشة";
+    }).catch(()=>{});
+  } else {
+    document.exitFullscreen();
+    fullscreenBtn.textContent = "⛶";
+    fullscreenBtn.title = "ملء الشاشة";
+  }
+}
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement) {
+    fullscreenBtn.textContent = "⛶";
+    fullscreenBtn.title = "ملء الشاشة";
+  } else {
+    fullscreenBtn.textContent = "🗗";
+    fullscreenBtn.title = "خروج من ملء الشاشة";
+  }
+});
 </script>
 </body>
 </html>
