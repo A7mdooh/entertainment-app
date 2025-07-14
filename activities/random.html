@@ -415,7 +415,7 @@
       <p>هل تريد حذف <span id="nameToDelete"></span> من القائمة؟</p>
       <div class="confirm-buttons">
         <button id="confirmDeleteBtn">نعم، احذف</button>
-        <button id="continueBtn">↩️ متابعة</button>
+        <button id="continueBtn">↩️ متابعة الدوران</button>
       </div>
     </div>
   </div>
@@ -532,6 +532,20 @@
       }
     }
 
+    // تحديث حالة الزر الرئيسي
+    function updateMainButton() {
+      if (isRolling) {
+        mainControlBtn.textContent = "🖐️ إيقاف";
+        mainControlBtn.className = "main-control-btn stop";
+        mainControlBtn.style.animation = "none";
+      } else if (canRemove) {
+        mainControlBtn.textContent = "🔁 متابعة";
+        mainControlBtn.className = "main-control-btn continue";
+      } else {
+        resetMainButton();
+      }
+    }
+
     // التحكم الرئيسي - يعتمد على حالة التطبيق
     function handleMainControl() {
       playClick();
@@ -575,9 +589,7 @@
     function startRolling() {
       isRolling = true;
       canRemove = false;
-      mainControlBtn.textContent = "🖐️ إيقاف";
-      mainControlBtn.className = "main-control-btn stop";
-      mainControlBtn.style.animation = "none";
+      updateMainButton();
 
       if (!isMuted) {
         nameStartSound.play().catch(e => console.log("تعذر تشغيل الصوت:", e));
@@ -598,6 +610,8 @@
 
     // إيقاف الدوران
     function stopRolling() {
+      if (!isRolling) return;
+      
       clearInterval(interval);
       interval = null;
       isRolling = false;
@@ -609,8 +623,7 @@
         nameStopSound.play().catch(e => console.log("تعذر تشغيل الصوت:", e));
       }
       
-      mainControlBtn.textContent = "🔁 متابعة";
-      mainControlBtn.className = "main-control-btn continue";
+      updateMainButton();
       showFirework();
     }
 
@@ -724,7 +737,7 @@
       continueBtn.addEventListener('click', function() {
         playClick();
         confirmModal.style.display = "none";
-        resetMainButton();
+        startRolling(); // بدء الدوران تلقائياً عند الضغط على متابعة
       });
       
       // إغلاق النافذة عند النقر خارجها
@@ -732,7 +745,6 @@
         if (e.target === confirmModal) {
           playClick();
           confirmModal.style.display = "none";
-          resetMainButton();
         }
       });
     };
