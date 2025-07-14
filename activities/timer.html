@@ -477,6 +477,11 @@
         stopTimer();
         pauseResumeBtn.textContent = 'استئناف';
         isPaused = true;
+        // إيقاف جميع الأصوات
+        [startSound, endSound, clickSound, tickSound].forEach(audio => {
+          audio.pause();
+          audio.currentTime = 0;
+        });
       }
     }
 
