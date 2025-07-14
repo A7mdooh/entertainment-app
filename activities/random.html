@@ -255,6 +255,57 @@
       100% { transform: translateX(-50%) scale(1); }
     }
     
+    /* نافذة التأكيد */
+    .confirm-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0,0,0,0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .confirm-box {
+      background-color: white;
+      padding: 25px;
+      border-radius: 12px;
+      max-width: 90%;
+      width: 400px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    
+    .confirm-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .confirm-buttons button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Cairo', sans-serif;
+      font-weight: bold;
+      transition: var(--transition);
+    }
+    
+    .confirm-buttons button:first-child {
+      background-color: var(--danger-color);
+      color: white;
+    }
+    
+    .confirm-buttons button:last-child {
+      background-color: var(--light-gray);
+      color: var(--text-color);
+    }
+    
     /* تصميم متجاوب */
     @media (max-width: 768px) {
       .header {
@@ -309,57 +360,14 @@
         width: 90%;
         max-width: 300px;
       }
-    }
-    
-    /* نافذة التأكيد */
-    .confirm-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(0,0,0,0.5);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-    }
-    
-    .confirm-box {
-      background-color: white;
-      padding: 25px;
-      border-radius: 12px;
-      max-width: 90%;
-      width: 400px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-      text-align: center;
-    }
-    
-    .confirm-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin-top: 20px;
-    }
-    
-    .confirm-buttons button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-family: 'Cairo', sans-serif;
-      font-weight: bold;
-      transition: var(--transition);
-    }
-    
-    .confirm-buttons button:first-child {
-      background-color: var(--danger-color);
-      color: white;
-    }
-    
-    .confirm-buttons button:last-child {
-      background-color: var(--light-gray);
-      color: var(--text-color);
+      
+      .confirm-buttons {
+        flex-direction: column;
+      }
+      
+      .confirm-buttons button {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -480,15 +488,20 @@
       interval = null;
       isRolling = false;
       canRemove = false;
-      mainControlBtn.disabled = false;
-      mainControlBtn.textContent = "🚀 ابدأ";
-      mainControlBtn.className = "main-control-btn";
-      mainControlBtn.style.animation = "pulse 1.2s infinite";
+      resetMainButton();
       randomNameDisplay.textContent = "";
       currentName = "";
       currentIndex = -1;
       randomNameDisplay.style.overflowY = "visible";
       randomNameDisplay.style.maxHeight = "none";
+    }
+
+    // إعادة تعيين الزر الرئيسي
+    function resetMainButton() {
+      mainControlBtn.textContent = "🚀 ابدأ";
+      mainControlBtn.className = "main-control-btn";
+      mainControlBtn.style.animation = "pulse 1.2s infinite";
+      mainControlBtn.disabled = false;
     }
 
     // ضبط حجم العرض حسب طول الاسم
@@ -514,13 +527,6 @@
       }
     }
 
-    // إعادة حساب الحجم عند تغيير حجم النافذة
-    window.addEventListener('resize', () => {
-      if (randomNameDisplay.textContent) {
-        adjustDisplaySize();
-      }
-    });
-
     // التحكم الرئيسي - يعتمد على حالة التطبيق
     function handleMainControl() {
       playClick();
@@ -532,7 +538,7 @@
         // حالة الإيقاف
         stopRolling();
       } else if (canRemove) {
-        // حالة المتابعة
+        // حالة المتابعة/الحذف
         showDeleteConfirm();
       }
     }
@@ -548,20 +554,6 @@
         return;
       }
       
-      mainControlBtn.disabled = true;
-      mainControlBtn.style.animation = "none";
-      startRolling();
-    }
-
-    // بدء الدوران العشوائي
-    function startRolling() {
-      const selectedClass = classSelect.value;
-
-      if (!selectedClass || !studentData[selectedClass]) {
-        randomNameDisplay.textContent = "يرجى اختيار الصف أولاً";
-        return;
-      }
-
       if (currentList.length === 0) {
         currentList = [...studentData[selectedClass]];
       }
@@ -571,9 +563,16 @@
         return;
       }
 
+      startRolling();
+    }
+
+    // بدء الدوران العشوائي
+    function startRolling() {
       isRolling = true;
+      canRemove = false;
       mainControlBtn.textContent = "🖐️ إيقاف";
       mainControlBtn.className = "main-control-btn stop";
+      mainControlBtn.style.animation = "none";
 
       if (!isMuted) {
         nameStartSound.play().catch(e => console.log("تعذر تشغيل الصوت:", e));
@@ -628,9 +627,7 @@
           selectSound.play().catch(e => console.log("تعذر تشغيل الصوت:", e));
         }
         
-        mainControlBtn.textContent = "🚀 ابدأ";
-        mainControlBtn.className = "main-control-btn";
-        mainControlBtn.style.animation = "pulse 1.2s infinite";
+        resetMainButton();
       }
     }
 
