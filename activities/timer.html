@@ -2,23 +2,18 @@
 <html dir="rtl" lang="ar">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>المؤقت الصفي</title>
-  <meta name="description" content="تطبيق مؤقت صفي لتنظيم الوقت في الفصول الدراسية">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary-color: #00695C;
+      --primary-color: #00796B;
       --primary-dark: #004D40;
-      --warning-color: #C62828;
-      --success-color: #2E7D32;
-      --text-color: #212121;
+      --warning-color: #e53935;
+      --success-color: #4CAF50;
+      --text-color: #333;
       --light-gray: #f5f5f5;
       --shadow: 0 4px 12px rgba(0,0,0,0.1);
       --transition: all 0.3s ease;
-      --circle-size: 280px;
-      --circle-stroke: 15px;
-      --modal-time: 3s;
     }
     
     body {
@@ -78,15 +73,14 @@
     
     #progress-container {
       position: relative;
-      width: var(--circle-size);
-      height: var(--circle-size);
+      width: 280px;
+      height: 280px;
       margin: 0 auto 30px;
-      transition: transform 0.3s ease;
     }
     
     svg circle {
       fill: none;
-      stroke-width: var(--circle-stroke);
+      stroke-width: 15;
     }
     
     .bg {
@@ -121,7 +115,6 @@
       font-size: 3rem;
       color: var(--primary-color);
       font-weight: bold;
-      aria-live: "polite";
     }
     
     .controls, .settings {
@@ -155,11 +148,6 @@
     
     .controls button:active {
       transform: translateY(1px);
-    }
-    
-    button:focus, select:focus {
-      outline: 2px solid var(--primary-dark);
-      outline-offset: 2px;
     }
     
     .settings select {
@@ -207,10 +195,6 @@
     }
     
     @media (max-width: 768px) {
-      :root {
-        --circle-size: 250px;
-      }
-      
       h1 {
         font-size: 2rem;
         margin: 5rem 0 1.5rem;
@@ -231,6 +215,11 @@
         left: 15px;
       }
       
+      #progress-container {
+        width: 250px;
+        height: 250px;
+      }
+      
       #timer {
         font-size: 2.5rem;
       }
@@ -248,14 +237,14 @@
     }
     
     @media (max-width: 480px) {
-      :root {
-        --circle-size: 220px;
-        --circle-stroke: 12px;
-      }
-      
       h1 {
         font-size: 1.8rem;
         margin: 4rem 0 1rem;
+      }
+      
+      #progress-container {
+        width: 220px;
+        height: 220px;
       }
       
       #timer {
@@ -278,20 +267,20 @@
   </style>
 </head>
 <body>
-  <button class="control-btn" id="muteBtn" aria-label="تشغيل أو كتم الصوت">🔊</button>
-  <button class="control-btn" id="backBtn" aria-label="الرجوع للأنشطة">📚</button>
-  <button class="control-btn" id="fullscreenBtn" aria-label="ملء الشاشة">⛶</button>
+  <button class="control-btn" id="muteBtn" title="تشغيل/كتم الصوت">🔊</button>
+  <button class="control-btn" id="backBtn" title="الرجوع للأنشطة">📚</button>
+  <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">⛶</button>
 
   <h1>⏱️ المؤقت الصفي</h1>
 
   <div class="settings">
-    <label for="mode">نوع المؤقت:
+    <label>نوع المؤقت:
       <select id="mode">
         <option value="countdown">تنازلي</option>
         <option value="countup">تصاعدي</option>
       </select>
     </label>
-    <label for="time">المدة:
+    <label>المدة:
       <select id="time">
         <option value="60">1 دقيقة</option>
         <option value="120">2 دقيقة</option>
@@ -309,7 +298,7 @@
   </div>
 
   <div id="progress-container">
-    <svg width="100%" height="100%" viewBox="0 0 300 300" aria-hidden="true">
+    <svg width="100%" height="100%" viewBox="0 0 300 300">
       <circle class="bg" cx="150" cy="150" r="120" />
       <circle class="progress" cx="150" cy="150" r="120" stroke-dasharray="754" stroke-dashoffset="0" />
     </svg>
@@ -317,22 +306,21 @@
   </div>
 
   <div class="controls">
-    <button id="startBtn" aria-label="بدء المؤقت">ابدأ</button>
-    <button id="pauseResumeBtn" aria-label="إيقاف أو استئناف المؤقت">إيقاف</button>
-    <button id="resetBtn" aria-label="إعادة ضبط المؤقت">إعادة</button>
+    <button id="startBtn">ابدأ</button>
+    <button id="pauseResumeBtn">إيقاف</button>
+    <button id="resetBtn">إعادة</button>
   </div>
 
-  <div class="modal" id="modal" role="alert">
+  <div class="modal" id="modal">
     <div class="modal-content">
       ⏰ انتهى الوقت!
     </div>
   </div>
 
-  <!-- عناصر الصوت الأساسية مخفية -->
-  <audio id="startSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/start-timer.mp3" preload="auto" crossorigin="anonymous"></audio>
-  <audio id="endSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/end-timer.mp3" preload="auto" crossorigin="anonymous"></audio>
-  <audio id="clickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/Click.mp3" preload="auto" crossorigin="anonymous"></audio>
-  <audio id="tickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/tick-timer.mp3" preload="auto" crossorigin="anonymous"></audio>
+  <audio id="startSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/start-timer.mp3"></audio>
+  <audio id="endSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/end-timer.mp3"></audio>
+  <audio id="clickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/Click.mp3"></audio>
+  <audio id="tickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/start-timer.mp3"></audio>
 
   <script>
     // متغيرات التطبيق
@@ -340,7 +328,7 @@
     let timeLeft = 0;
     let elapsed = 0;
     let mode = 'countdown';
-    let animationFrameId = null;
+    let interval = null;
     let isPaused = false;
     let soundEnabled = true;
     let tickSoundInterval = null;
@@ -359,96 +347,34 @@
     const backBtn = document.getElementById('backBtn');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
 
-    // نظام إدارة الصوتيات المتقدم
-    const audioSystem = {
-      sounds: {
-        start: [],
-        end: [],
-        click: [],
-        tick: []
-      },
-      
-      init: async function() {
-        try {
-          // إنشاء نسخ متعددة لكل صوت (3 نسخ لكل نوع)
-          for (let i = 0; i < 3; i++) {
-            this.sounds.start.push(this.createAudio('startSound'));
-            this.sounds.end.push(this.createAudio('endSound'));
-            this.sounds.click.push(this.createAudio('clickSound'));
-            this.sounds.tick.push(this.createAudio('tickSound'));
-          }
-          
-          await this.loadAll();
-          return true;
-        } catch (error) {
-          console.error('خطأ في تهيئة النظام الصوتي:', error);
-          return false;
-        }
-      },
-      
-      createAudio: function(id) {
-        const original = document.getElementById(id);
-        const audio = new Audio(original.src);
-        audio.volume = 0.7;
-        audio.preload = 'auto';
-        audio.crossOrigin = 'anonymous';
-        return audio;
-      },
-      
-      loadAll: async function() {
-        const loadPromises = [];
-        Object.values(this.sounds).forEach(soundArray => {
-          soundArray.forEach(sound => {
-            loadPromises.push(new Promise((resolve) => {
-              sound.addEventListener('canplaythrough', resolve, { once: true });
-              sound.load();
-            }));
-          });
-        });
-        await Promise.all(loadPromises);
-      },
-      
-      play: function(type) {
-        if (!soundEnabled || !this.sounds[type]) return;
-        
-        const soundArray = this.sounds[type];
-        let availableSound = soundArray.find(s => s.paused);
-        
-        if (!availableSound) {
-          // إذا كانت جميع النسخ مشغّلة، نستخدم الأولى ونعيد تشغيلها
-          availableSound = soundArray[0];
-          availableSound.pause();
-          availableSound.currentTime = 0;
-        }
-        
-        try {
-          availableSound.play().catch(e => {
-            console.log(`تعذر تشغيل صوت ${type}:`, e.message);
-          });
-        } catch (e) {
-          console.log(`خطأ في تشغيل صوت ${type}:`, e.message);
-        }
-      },
-      
-      stopAll: function() {
-        Object.values(this.sounds).forEach(soundArray => {
-          soundArray.forEach(sound => {
-            sound.pause();
-            sound.currentTime = 0;
-          });
-        });
-      },
-      
-      setVolume: function(volume) {
-        Object.values(this.sounds).forEach(soundArray => {
-          soundArray.forEach(sound => {
-            sound.volume = volume;
-          });
-        });
-      }
-    };
+    // عناصر الصوت
+    const startSound = document.getElementById('startSound');
+    const endSound = document.getElementById('endSound');
+    const clickSound = document.getElementById('clickSound');
+    const tickSound = document.getElementById('tickSound');
 
-    // وظائف التحكم بالمؤقت
+    // تهيئة الصفحة
+    function init() {
+      startBtn.addEventListener('click', startTimer);
+      pauseResumeBtn.addEventListener('click', togglePause);
+      resetBtn.addEventListener('click', resetTimer);
+      muteBtn.addEventListener('click', toggleSound);
+      backBtn.addEventListener('click', goBack);
+      fullscreenBtn.addEventListener('click', toggleFullscreen);
+      
+      document.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', playClick);
+      });
+      
+      [startSound, endSound, clickSound, tickSound].forEach(audio => {
+        audio.load().catch(e => console.log("تعذر تحميل الصوت:", e));
+      });
+      
+      duration = parseInt(timeSelect.value);
+      timeLeft = duration;
+      updateDisplay();
+    }
+
     function formatTime(seconds) {
       const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
       const secs = String(seconds % 60).padStart(2, '0');
@@ -471,19 +397,15 @@
       const inFirst10 = mode === 'countdown' ? (duration - timeLeft) <= 10 : elapsed <= 10;
       const inLast10 = mode === 'countdown' ? timeLeft <= 10 : (duration - elapsed) <= 10;
       
-      if (inLast10 && !isPaused) {
-        currentColor = 'var(--warning-color)';
+      if ((inFirst10 || inLast10) && !isPaused) {
+        currentColor = inFirst10 ? 'var(--success-color)' : 'var(--warning-color)';
         progressCircle.classList.add('shake');
         
         tickSoundInterval = setInterval(() => {
-          audioSystem.play('tick');
-        }, 1000);
-      } else if (inFirst10 && !isPaused) {
-        currentColor = 'var(--success-color)';
-        progressCircle.classList.add('shake');
-        
-        tickSoundInterval = setInterval(() => {
-          audioSystem.play('tick');
+          if (soundEnabled) {
+            tickSound.currentTime = 0;
+            tickSound.play().catch(e => console.log("تعذر تشغيل صوت المؤقت:", e));
+          }
         }, 1000);
       } else {
         currentColor = 'var(--primary-color)';
@@ -514,7 +436,7 @@
     }
 
     function showModal() {
-      audioSystem.play('end');
+      playEnd();
       modal.style.display = 'flex';
       modal.classList.remove('fade-out');
       
@@ -524,12 +446,12 @@
           modal.style.display = 'none';
           modal.classList.remove('fade-out');
         }, 1000);
-      }, 3000);
+      }, 8000);
     }
 
     function startTimer() {
       stopTimer();
-      audioSystem.play('start');
+      playStart();
       duration = parseInt(timeSelect.value);
       mode = modeSelect.value;
       timeLeft = duration;
@@ -537,50 +459,34 @@
       isPaused = false;
       currentColor = 'var(--primary-color)';
       
-      let lastTime = performance.now();
-      
-      function frame(time) {
-        if (!isPaused) {
-          const delta = time - lastTime;
-          
-          if (delta >= 1000) {
-            timerTick();
-            lastTime = time - (delta % 1000);
-          }
-          
-          animationFrameId = requestAnimationFrame(frame);
-        }
-      }
-      
-      animationFrameId = requestAnimationFrame(frame);
+      interval = setInterval(timerTick, 1000);
       pauseResumeBtn.textContent = 'إيقاف';
       updateDisplay();
       manageTickSound();
-      saveSettings();
     }
 
     function togglePause() {
-      if (!animationFrameId && !isPaused) return;
+      if (!interval && !isPaused) return;
 
       if (isPaused) {
-        startTimer();
+        interval = setInterval(timerTick, 1000);
+        pauseResumeBtn.textContent = 'إيقاف';
+        isPaused = false;
+        manageTickSound();
       } else {
         stopTimer();
         pauseResumeBtn.textContent = 'استئناف';
         isPaused = true;
-        audioSystem.stopAll();
       }
-      saveSettings();
     }
 
     function stopTimer() {
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
-      }
+      clearInterval(interval);
       clearInterval(tickSoundInterval);
+      interval = null;
       tickSoundInterval = null;
-      audioSystem.stopAll();
+      tickSound.pause();
+      tickSound.currentTime = 0;
       isPaused = false;
     }
 
@@ -599,23 +505,39 @@
       soundEnabled = !soundEnabled;
       muteBtn.textContent = soundEnabled ? '🔊' : '🔇';
       muteBtn.title = soundEnabled ? 'كتم الصوت' : 'تشغيل الصوت';
-      audioSystem.setVolume(soundEnabled ? 0.7 : 0);
-      audioSystem.play('click');
-      saveSettings();
+      playClick();
+    }
+
+    function playClick() {
+      if (soundEnabled) {
+        clickSound.currentTime = 0;
+        clickSound.play().catch(e => console.log("تعذر تشغيل صوت النقر:", e));
+      }
+    }
+
+    function playStart() {
+      if (soundEnabled) {
+        startSound.currentTime = 0;
+        startSound.play().catch(e => console.log("تعذر تشغيل صوت البدء:", e));
+      }
+    }
+
+    function playEnd() {
+      if (soundEnabled) {
+        endSound.currentTime = 0;
+        endSound.play().catch(e => console.log("تعذر تشغيل صوت النهاية:", e));
+      }
     }
 
     function goBack() {
-      audioSystem.play('click');
-      if (animationFrameId || isPaused) {
-        const confirmBack = confirm("هل أنت متأكد من الرجوع؟ سيتم إيقاف المؤقت الحالي.");
-        if (!confirmBack) return;
-      }
-      
-      window.location.href = "https://a7mdooh.github.io/entertainment-app/main.html";
+      playClick();
+      setTimeout(() => {
+        window.location.href = "https://a7mdooh.github.io/entertainment-app/main.html";
+      }, 300);
     }
 
     function toggleFullscreen() {
-      audioSystem.play('click');
+      playClick();
       const doc = document.documentElement;
       
       if (!document.fullscreenElement) {
@@ -632,26 +554,6 @@
       }
     }
 
-    function saveSettings() {
-      localStorage.setItem('timerSettings', JSON.stringify({
-        mode: modeSelect.value,
-        time: timeSelect.value,
-        sound: soundEnabled
-      }));
-    }
-
-    function loadSettings() {
-      const settings = JSON.parse(localStorage.getItem('timerSettings'));
-      if (settings) {
-        modeSelect.value = settings.mode || 'countdown';
-        timeSelect.value = settings.time || '300';
-        soundEnabled = settings.sound !== false;
-        muteBtn.textContent = soundEnabled ? '🔊' : '🔇';
-        muteBtn.title = soundEnabled ? 'كتم الصوت' : 'تشغيل الصوت';
-        audioSystem.setVolume(soundEnabled ? 0.7 : 0);
-      }
-    }
-
     document.addEventListener('fullscreenchange', () => {
       if (!document.fullscreenElement) {
         fullscreenBtn.textContent = "⛶";
@@ -659,45 +561,7 @@
       }
     });
 
-    // تهيئة التطبيق
-    async function initializeApp() {
-      try {
-        // تحميل الإعدادات
-        loadSettings();
-        
-        // تهيئة النظام الصوتي
-        const audioInitialized = await audioSystem.init();
-        if (!audioInitialized) {
-          soundEnabled = false;
-          muteBtn.textContent = '🔇';
-          muteBtn.title = 'تعطيل الصوت (الملفات الصوتية غير متوفرة)';
-        }
-        
-        // إعداد مستمعي الأحداث
-        startBtn.addEventListener('click', startTimer);
-        pauseResumeBtn.addEventListener('click', togglePause);
-        resetBtn.addEventListener('click', resetTimer);
-        muteBtn.addEventListener('click', toggleSound);
-        backBtn.addEventListener('click', goBack);
-        fullscreenBtn.addEventListener('click', toggleFullscreen);
-        
-        modeSelect.addEventListener('change', saveSettings);
-        timeSelect.addEventListener('change', saveSettings);
-        
-        document.querySelectorAll('button').forEach(btn => {
-          btn.addEventListener('click', () => audioSystem.play('click'));
-        });
-        
-        duration = parseInt(timeSelect.value);
-        timeLeft = duration;
-        updateDisplay();
-        
-      } catch (error) {
-        console.error('خطأ في تهيئة التطبيق:', error);
-      }
-    }
-
-    window.addEventListener('DOMContentLoaded', initializeApp);
+    window.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
 </html>
