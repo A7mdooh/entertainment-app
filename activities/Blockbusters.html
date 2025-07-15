@@ -310,6 +310,48 @@
       .hex-row:nth-child(even) .hex-cell { margin-right: 10px; }
       .hex-board { min-width: 0; }
     }
+    .win-modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0; top: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.35);
+      align-items: center;
+      justify-content: center;
+      direction: rtl;
+    }
+    .win-modal.active {
+      display: flex;
+    }
+    .win-modal-content {
+      background: #fff;
+      border-radius: 18px;
+      padding: 32px 24px 18px 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      min-width: 320px;
+      max-width: 95vw;
+      position: relative;
+      text-align: center;
+    }
+    .close-btn {
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      background: #e53935;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      z-index: 10;
+      transition: background 0.2s;
+    }
+    .close-btn:hover {
+      background: #b71c1c;
+    }
   </style>
 </head>
 <body>
@@ -337,7 +379,7 @@
       <div class="trophy">🏆</div>
       <div class="winner-team" id="winnerTeam"></div>
       <div class="winner-names" id="winnerNames"></div>
-      <div class="honor-board" id="honorBoard" style="margin-top:18px;display:none;">
+      <div class="honor-board" id="honorBoard" style="margin-top:18px;">
         <div style="font-size:1.1rem;color:#888;">لوحة الشرف</div>
         <ul id="honorList" style="list-style:none;padding:0;margin:8px 0 0 0;"></ul>
       </div>
@@ -472,7 +514,7 @@
     document.getElementById('honorBoard').style.display = honor.length ? 'block' : 'none';
   }
 
-  // نافذة الفوز: أظهر لوحة الشرف عند الفوز
+  // نافذة الفوز: أظهر لوحة الشرف عند الفوز فقط
   function showWinModal(team, names) {
     document.getElementById('winnerTeam').textContent = team === 'green' ? 'الفريق الأخضر' : 'الفريق الأحمر';
     document.getElementById('winnerTeam').style.color = team === 'green' ? '#43a047' : '#e53935';
@@ -488,6 +530,17 @@
     playSound('winSound');
   }
   document.getElementById('closeWinModal').onclick = function() {
+    document.getElementById('winModal').classList.remove('active');
+  };
+
+  // عند تحميل الصفحة: لا تظهر نافذة الفوز ولا لوحة الشرف
+  window.onload = function() {
+    document.getElementById('modeSelect').disabled = true;
+    document.getElementById('startBtn').disabled = true;
+    loadClasses();
+    renderHexBoard();
+    setAllowPlay(false);
+    // لا تظهر نافذة الفوز أو لوحة الشرف عند البداية
     document.getElementById('winModal').classList.remove('active');
   };
 
@@ -701,7 +754,8 @@
     loadClasses();
     renderHexBoard();
     setAllowPlay(false);
-    renderHonorBoard();
+    // لا تظهر نافذة الفوز أو لوحة الشرف عند البداية
+    document.getElementById('winModal').classList.remove('active');
   };
 
   // تشغيل الأصوات
