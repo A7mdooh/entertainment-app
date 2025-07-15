@@ -404,3 +404,11 @@
       // محاولة الدخول في وضع ملء الشاشة تلقائياً
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(()=>{});
+      }
+    });
+
+    // زر ملء الشاشة
+    document.getElementById('fullscreenBtn').addEventListener('click', toggleFullScreen);
+  </script>
+</body>
+</html>
