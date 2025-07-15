@@ -437,6 +437,7 @@
         <li>انقر على أي خلية في لوحة الحروف، ثم اختر الفريق المناسب (أخضر أو أحمر).</li>
         <li>الفريق الأخضر يفوز عند إكمال صف أفقي بالكامل.</li>
         <li>الفريق الأحمر يفوز عند إكمال عمود رأسي بالكامل.</li>
+        <li>إذا امتلأت جميع الخلايا ولم يفز أحد، يتم تحديد الفائز حسب النقاط، وإذا تساوت النقاط يكون تعادل ولا يوجد فائز.</li>
         <li>عند فوز أحد الفرق ستظهر نافذة احتفالية مع لوحة الشرف.</li>
         <li>يمكنك إعادة تعيين اللعبة في أي وقت بالضغط على زر "إعادة تعيين".</li>
       </ul>
@@ -704,27 +705,32 @@
     selectedCell.classList.add(team);
     selectedCell.dataset.state = team;
     playSound('successSound');
+    let win = false;
     if (team === 'green') {
       greenScore++;
       document.getElementById('greenPoints').textContent = greenScore;
-      playSound('greenPointSound'); // صوت الفريق الأخضر
+      playSound('greenPointSound');
       const row = Math.floor(Number(selectedCell.dataset.index) / 5);
       if (checkRowWin(row, 'green')) {
         highlightRow(row, 'green');
         playWin('green');
+        win = true;
       }
     } else {
       redScore++;
       document.getElementById('redPoints').textContent = redScore;
-      playSound('redPointSound'); // صوت الفريق الأحمر
+      playSound('redPointSound');
       const col = Number(selectedCell.dataset.index) % 5;
       if (checkColWin(col, 'red')) {
         highlightCol(col, 'red');
         playWin('red');
+        win = true;
       }
     }
     removeTeamButtons();
     selectedCell = null;
+    // إذا لم يفز أحد، تحقق من امتلاء الشبكة
+    if (!win) checkDrawOrPointsWinner();
   }
 
   // جلب بيانات الصفوف والطلاب من ملف خارجي فقط (بدون بيانات افتراضية)
@@ -987,6 +993,37 @@
       const j = Math.floor(Math.random() * (i + 1));
       [arr[i], arr[j]] = [arr[j], arr[i]];
     }
+  }
+
+  // نافذة الفوز: أضف منطق إعلان الفائز بالنقاط إذا امتلأت الشبكة ولم يفز أحد
+  function checkDrawOrPointsWinner() {
+    // تحقق هل جميع الخلايا ممتلئة
+    const allCells = document.querySelectorAll('.hex-cell');
+    const isFull = Array.from(allCells).every(cell => cell.dataset.state !== "empty");
+    if (!isFull) return false;
+
+    // لم يفز أحد: حدد الفائز بالنقاط أو التعادل
+    setAllowPlay(false);
+    let winner = '';
+    let names = '';
+    if (greenScore > redScore) {
+      winner = 'green';
+      names = document.getElementById('greenNames').textContent;
+      showWinModal(winner, names + " (فاز بالنقاط)");
+    } else if (redScore > greenScore) {
+      winner = 'red';
+      names = document.getElementById('redNames').textContent;
+      showWinModal(winner, names + " (فاز بالنقاط)");
+    } else {
+      // تعادل
+      document.getElementById('winnerTeam').textContent = "لا يوجد فائز (تعادل)";
+      document.getElementById('winnerTeam').style.color = "#607d8b";
+      document.getElementById('winnerNames').textContent = "";
+      document.getElementById('honorBoard').style.display = "none";
+      document.getElementById('winModal').classList.add('active');
+      playConfetti();
+    }
+    return true;
   }
   </script>
 </body>
