@@ -172,17 +172,12 @@
       window.location.href = 'https://a7mdooh.github.io/entertainment-app/';
     });
 
-    // إخفاء الأزرار عند الدخول في وضع ملء الشاشة
+    // إظهار الأزرار دائمًا حتى في وضع ملء الشاشة
     document.addEventListener('fullscreenchange', function() {
       const homeBtn = document.getElementById('homeBtn');
       const fullscreenBtn = document.getElementById('fullscreenBtn');
-      if (document.fullscreenElement) {
-        homeBtn.style.display = 'none';
-        fullscreenBtn.style.display = 'none';
-      } else {
-        homeBtn.style.display = 'block';
-        fullscreenBtn.style.display = 'block';
-      }
+      homeBtn.style.display = 'block';
+      fullscreenBtn.style.display = 'block';
     });
   </script>
 </body>
