@@ -639,12 +639,162 @@
       playersInputs.innerHTML = html;
     };
 
+    // شبكة الحروف الاحترافية (25 خلية)
+    let selectedCell = null;
+    let greenScore = 0, redScore = 0;
+
+    function renderHexBoard() {
+      const board = document.getElementById("hexBoard");
+      board.innerHTML = "";
+      const ARABIC_LETTERS = "أبتثجحخدذرزسشصضطظعغفقكلمنهوي";
+      const ARABIC_NUMBERS = "١٢٣٤٥٦٧٨٩٠";
+      let pool = (ARABIC_LETTERS + ARABIC_NUMBERS).split('');
+      let cells = [];
+      while (cells.length < 25) {
+        const idx = Math.floor(Math.random() * pool.length);
+        cells.push(pool.splice(idx, 1)[0]);
+        if (pool.length === 0) pool = (ARABIC_LETTERS + ARABIC_NUMBERS).split('');
+      }
+      let i = 0;
+      for (let row = 0; row < 5; row++) {
+        const rowDiv = document.createElement("div");
+        rowDiv.className = "hex-row";
+        for (let col = 0; col < 5; col++) {
+          const cell = document.createElement("div");
+          cell.className = "hex-cell";
+          cell.tabIndex = 0;
+          cell.innerHTML = `<span style="font-size:2.3rem;letter-spacing:2px;">${cells[i]}</span>`;
+          cell.dataset.index = i;
+          cell.dataset.state = "empty";
+          // تلوين الحواف
+          if (row === 0) cell.classList.add("top-edge");
+          if (row === 4) cell.classList.add("bottom-edge");
+          if (col === 0) cell.classList.add("left-edge");
+          if (col === 4) cell.classList.add("right-edge");
+          cell.onclick = function() {
+            if (cell.dataset.state !== "empty" || selectedCell) return;
+            selectedCell = cell;
+            cell.classList.add("pulse");
+            showTeamButtons(cell);
+            playClick();
+          };
+          rowDiv.appendChild(cell);
+          i++;
+        }
+        board.appendChild(rowDiv);
+      }
+    }
+
+    // إظهار أزرار اختيار الفريق على الخلية
+    function showTeamButtons(cell) {
+      removeTeamButtons();
+      const btns = document.createElement("div");
+      btns.className = "choose-team-btns";
+      btns.innerHTML = `
+        <button class="choose-team-btn green" onclick="chooseTeam('green');event.stopPropagation();">🟢</button>
+        <button class="choose-team-btn red" onclick="chooseTeam('red');event.stopPropagation();">🔴</button>
+      `;
+      cell.appendChild(btns);
+    }
+    function removeTeamButtons() {
+      document.querySelectorAll('.choose-team-btns').forEach(e=>e.remove());
+      document.querySelectorAll('.hex-cell.pulse').forEach(e=>e.classList.remove('pulse'));
+    }
+
+    // منطق الفوز (صف أو عمود)
+    function checkRowWin(row, team) {
+      for (let i = row * 5; i < (row + 1) * 5; i++) {
+        const cell = document.querySelector(`.hex-cell[data-index="${i}"]`);
+        if (!cell || cell.dataset.state !== team) return false;
+      }
+      return true;
+    }
+    function checkColWin(col, team) {
+      for (let i = col; i < 25; i += 5) {
+        const cell = document.querySelector(`.hex-cell[data-index="${i}"]`);
+        if (!cell || cell.dataset.state !== team) return false;
+      }
+      return true;
+    }
+    function highlightRow(row, team) {
+      for (let i = row * 5; i < (row + 1) * 5; i++) {
+        const cell = document.querySelector(`.hex-cell[data-index="${i}"]`);
+        if (cell) cell.classList.add('win');
+      }
+    }
+    function highlightCol(col, team) {
+      for (let i = col; i < 25; i += 5) {
+        const cell = document.querySelector(`.hex-cell[data-index="${i}"]`);
+        if (cell) cell.classList.add('win');
+      }
+    }
+
+    // إعادة تعيين اللعبة
+    function resetGame() {
+      greenScore = 0;
+      redScore = 0;
+      document.getElementById('greenPoints').textContent = 0;
+      document.getElementById('redPoints').textContent = 0;
+      document.getElementById('greenNames').textContent = '';
+      document.getElementById('redNames').textContent = '';
+      removeTeamButtons();
+      renderHexBoard();
+    }
+
+    // عند تحميل الصفحة
     window.onload = function() {
       document.getElementById('modeSelect').disabled = true;
       document.getElementById('startBtn').disabled = true;
       loadClasses();
       renderHexBoard();
     };
+
+    // تشغيل الأصوات
+    function playSound(id) {
+      if (!soundEnabled) return;
+      const audio = document.getElementById(id);
+      if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(()=>{});
+      }
+    }
+
+    // عند بدء اللعبة (توزيع الأسماء)
+    document.getElementById("settingsForm").onsubmit = function(e) {
+      e.preventDefault();
+      const mode = document.getElementById("modeSelect").value;
+      const cls = document.getElementById("classSelect").value;
+      let greenNames = "", redNames = "";
+      const students = classData[cls] || [];
+      if (mode === "team2-manual") {
+        redNames = document.getElementById("red1").value;
+        greenNames = document.getElementById("green1").value;
+      } else if (mode === "team4-manual") {
+        redNames = document.getElementById("red1").value + "، " + document.getElementById("red2").value;
+        greenNames = document.getElementById("green1").value + "، " + document.getElementById("green2").value;
+      } else if (mode === "team2-random") {
+        const arr = [...students];
+        shuffle(arr);
+        redNames = arr.slice(0,2).join("، ");
+        greenNames = arr.slice(2,4).join("، ");
+      } else if (mode === "team-free") {
+        redNames = "الفريق الأحمر";
+        greenNames = "الفريق الأخضر";
+      }
+      document.getElementById('greenNames').textContent = greenNames;
+      document.getElementById('redNames').textContent = redNames;
+      greenScore = 0; redScore = 0;
+      document.getElementById('greenPoints').textContent = 0;
+      document.getElementById('redPoints').textContent = 0;
+      renderHexBoard();
+    };
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
   </script>
 </body>
 </html>
