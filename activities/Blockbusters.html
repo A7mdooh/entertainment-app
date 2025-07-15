@@ -576,6 +576,81 @@
       removeTeamButtons();
       selectedCell = null;
     }
+    // جلب بيانات الصفوف والطلاب من ملف خارجي فقط (بدون بيانات افتراضية)
+    let classData = {};
+
+    async function loadClasses() {
+      try {
+        const res = await fetch('/studentData.json');
+        if (!res.ok) throw new Error('فشل في تحميل بيانات الطلاب');
+        classData = await res.json();
+        fillClassSelect();
+      } catch (e) {
+        alert("تعذر تحميل بيانات الصفوف والطلاب. تأكد من وجود ملف studentData.json في جذر الموقع.");
+        // إيقاف باقي منطق الصفحة حتى لا تظهر أخطاء
+        document.getElementById('classSelect').innerHTML = '<option value="">لا توجد بيانات صفوف</option>';
+        document.getElementById('modeSelect').disabled = true;
+        document.getElementById('startBtn').disabled = true;
+        return;
+      }
+    }
+
+    // تعبئة قائمة الصفوف
+    function fillClassSelect() {
+      const classSelect = document.getElementById('classSelect');
+      classSelect.innerHTML = '<option value="">-- اختر الصف --</option>';
+      Object.keys(classData).forEach(cls => {
+        const opt = document.createElement('option');
+        opt.value = cls;
+        opt.textContent = `الصف ${cls}`;
+        classSelect.appendChild(opt);
+      });
+      document.getElementById('modeSelect').disabled = false;
+      document.getElementById('startBtn').disabled = false;
+    }
+
+    // عند تغيير الصف، أعد تعيين اختيار النمط واللاعبين
+    document.getElementById("classSelect").onchange = function() {
+      document.getElementById("modeSelect").selectedIndex = 0;
+      document.getElementById("playersInputs").innerHTML = "";
+    };
+
+    // منطق اختيار اللاعبين حسب النمط
+    document.getElementById("modeSelect").onchange = function() {
+      const mode = this.value;
+      const playersInputs = document.getElementById("playersInputs");
+      playersInputs.innerHTML = "";
+      const cls = document.getElementById("classSelect").value;
+      let html = "";
+      if (!mode || mode === "team-free" || !cls || !classData[cls]) return;
+      const students = classData[cls] || [];
+      function selectBox(id, label) {
+        return `<label style="color:#00796B;margin-left:4px">${label}:</label>
+          <select id="${id}" required style="width:120px">
+            <option value="">اختر</option>
+            ${students.map(n=>`<option value="${n}">${n}</option>`).join('')}
+          </select>`;
+      }
+      if (mode === "team2-manual") {
+        html = selectBox("red1", "لاعب الفريق الأحمر") + selectBox("green1", "لاعب الفريق الأخضر");
+      } else if (mode === "team4-manual") {
+        html = selectBox("red1", "لاعب ١ أحمر") + selectBox("red2", "لاعب ٢ أحمر")
+             + selectBox("green1", "لاعب ١ أخضر") + selectBox("green2", "لاعب ٢ أخضر");
+      } else if (mode === "team2-random") {
+        html = `<span style="color:#00796B">سيتم اختيار لاعبين عشوائيًا لكل فريق</span>`;
+      }
+      playersInputs.innerHTML = html;
+    };
+
+    // عند تحميل الصفحة
+    window.onload = function() {
+      // تعطيل النمط والبدء حتى تحميل البيانات
+      document.getElementById('modeSelect').disabled = true;
+      document.getElementById('startBtn').disabled = true;
+      loadClasses();
+      renderHexBoard();
+    };
+
     // ...باقي الكود كما هو...
   </script>
 </body>
