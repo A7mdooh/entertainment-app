@@ -382,373 +382,411 @@
   <audio id="winSound" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae5e2.mp3"></audio>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <script>
-    // أزرار التحكم
-    const muteBtn = document.getElementById('muteBtn');
-    const backBtn = document.getElementById('backBtn');
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
-    const fullscreenSvg = document.getElementById('fullscreen-svg');
-    const mainPanel = document.getElementById('mainPanel');
-    const fullscreenEnterPath = 'M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z';
-    const fullscreenExitPath = 'M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z';
+  // أزرار التحكم
+  const muteBtn = document.getElementById('muteBtn');
+  const backBtn = document.getElementById('backBtn');
+  const fullscreenBtn = document.getElementById('fullscreenBtn');
+  const fullscreenSvg = document.getElementById('fullscreen-svg');
+  const mainPanel = document.getElementById('mainPanel');
+  const fullscreenEnterPath = 'M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z';
+  const fullscreenExitPath = 'M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z';
 
-    let soundEnabled = true;
-    muteBtn.onclick = toggleSoundBtn;
-    backBtn.onclick = goBackBtn;
-    fullscreenBtn.onclick = toggleFullscreenBtn;
+  let soundEnabled = true;
+  muteBtn.onclick = toggleSoundBtn;
+  backBtn.onclick = goBackBtn;
+  fullscreenBtn.onclick = toggleFullscreenBtn;
 
-    function playClick() {
-      if (soundEnabled) {
-        const clickSound = document.getElementById('clickSound');
-        if (clickSound) {
-          clickSound.currentTime = 0;
-          clickSound.play().catch(()=>{});
-        }
+  function playClick() {
+    if (soundEnabled) {
+      const clickSound = document.getElementById('clickSound');
+      if (clickSound) {
+        clickSound.currentTime = 0;
+        clickSound.play().catch(()=>{});
       }
     }
-    function toggleSoundBtn() {
-      soundEnabled = !soundEnabled;
-      muteBtn.textContent = soundEnabled ? '🔊' : '🔇';
-      muteBtn.title = soundEnabled ? 'كتم الصوت' : 'تشغيل الصوت';
-      document.querySelectorAll('audio').forEach(audio => {
-        audio.muted = !soundEnabled;
-      });
-      playClick();
-    }
-    function goBackBtn() {
-      playClick();
-      setTimeout(() => {
-        window.location.href = "https://a7mdooh.github.io/entertainment-app/main.html";
-      }, 300);
-    }
-    function toggleFullscreenBtn() {
-      playClick();
-      const doc = document.documentElement;
-      if (!document.fullscreenElement) {
-        doc.requestFullscreen().then(() => {
-          fullscreenSvg.setAttribute('d', fullscreenExitPath);
-          fullscreenBtn.title = "خروج من ملء الشاشة";
-          mainPanel.classList.add('fullscreen-main-panel');
-        }).catch(()=>{});
-      } else {
-        document.exitFullscreen();
-        fullscreenSvg.setAttribute('d', fullscreenEnterPath);
-        fullscreenBtn.title = "ملء الشاشة";
-        mainPanel.classList.remove('fullscreen-main-panel');
-      }
-    }
-    document.addEventListener('fullscreenchange', () => {
-      if (!document.fullscreenElement) {
-        fullscreenSvg.setAttribute('d', fullscreenEnterPath);
-        fullscreenBtn.title = "ملء الشاشة";
-        mainPanel.classList.remove('fullscreen-main-panel');
-      } else {
+  }
+  function toggleSoundBtn() {
+    soundEnabled = !soundEnabled;
+    muteBtn.textContent = soundEnabled ? '🔊' : '🔇';
+    muteBtn.title = soundEnabled ? 'كتم الصوت' : 'تشغيل الصوت';
+    document.querySelectorAll('audio').forEach(audio => {
+      audio.muted = !soundEnabled;
+    });
+    playClick();
+  }
+  function goBackBtn() {
+    playClick();
+    setTimeout(() => {
+      window.location.href = "https://a7mdooh.github.io/entertainment-app/main.html";
+    }, 300);
+  }
+  function toggleFullscreenBtn() {
+    playClick();
+    const doc = document.documentElement;
+    if (!document.fullscreenElement) {
+      doc.requestFullscreen().then(() => {
         fullscreenSvg.setAttribute('d', fullscreenExitPath);
         fullscreenBtn.title = "خروج من ملء الشاشة";
         mainPanel.classList.add('fullscreen-main-panel');
-      }
+      }).catch(()=>{});
+    } else {
+      document.exitFullscreen();
+      fullscreenSvg.setAttribute('d', fullscreenEnterPath);
+      fullscreenBtn.title = "ملء الشاشة";
+      mainPanel.classList.remove('fullscreen-main-panel');
+    }
+  }
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) {
+      fullscreenSvg.setAttribute('d', fullscreenEnterPath);
+      fullscreenBtn.title = "ملء الشاشة";
+      mainPanel.classList.remove('fullscreen-main-panel');
+    } else {
+      fullscreenSvg.setAttribute('d', fullscreenExitPath);
+      fullscreenBtn.title = "خروج من ملء الشاشة";
+      mainPanel.classList.add('fullscreen-main-panel');
+    }
+  });
+
+  // لوحة الشرف: حفظ الفائزين في localStorage
+  function addToHonorBoard(team, names) {
+    let honor = [];
+    try {
+      honor = JSON.parse(localStorage.getItem('honorBoard') || '[]');
+    } catch { honor = []; }
+    honor.unshift({ team, names, date: new Date().toLocaleString('ar-EG') });
+    honor = honor.slice(0, 10); // آخر 10 فقط
+    localStorage.setItem('honorBoard', JSON.stringify(honor));
+  }
+  function renderHonorBoard() {
+    const honor = JSON.parse(localStorage.getItem('honorBoard') || '[]');
+    const honorList = document.getElementById('honorList');
+    honorList.innerHTML = '';
+    honor.forEach(item => {
+      const li = document.createElement('li');
+      li.style.marginBottom = '4px';
+      li.innerHTML = `<span style="color:${item.team==='green'?'#43a047':'#e53935'};font-weight:bold">${item.team==='green'?'الأخضر':'الأحمر'}</span>
+        - ${item.names} <span style="color:#888;font-size:0.95em">(${item.date})</span>`;
+      honorList.appendChild(li);
     });
+    document.getElementById('honorBoard').style.display = honor.length ? 'block' : 'none';
+  }
 
-    // نافذة الفوز
-    function showWinModal(team, names) {
-      document.getElementById('winnerTeam').textContent = team === 'green' ? 'الفريق الأخضر' : 'الفريق الأحمر';
-      document.getElementById('winnerTeam').style.color = team === 'green' ? '#43a047' : '#e53935';
-      document.getElementById('winnerNames').textContent = names;
-      addToHonorBoard(team, names);
-      renderHonorBoard();
-      document.getElementById('winModal').classList.add('active');
-      confetti({
-        particleCount: 250,
-        spread: 160,
-        origin: { y: 0.6 }
-      });
-      playSound('winSound');
-    }
-    document.getElementById('closeWinModal').onclick = function() {
-      document.getElementById('winModal').classList.remove('active');
-    };
+  // نافذة الفوز: أظهر لوحة الشرف عند الفوز
+  function showWinModal(team, names) {
+    document.getElementById('winnerTeam').textContent = team === 'green' ? 'الفريق الأخضر' : 'الفريق الأحمر';
+    document.getElementById('winnerTeam').style.color = team === 'green' ? '#43a047' : '#e53935';
+    document.getElementById('winnerNames').textContent = names;
+    addToHonorBoard(team, names);
+    renderHonorBoard();
+    document.getElementById('winModal').classList.add('active');
+    confetti({
+      particleCount: 250,
+      spread: 160,
+      origin: { y: 0.6 }
+    });
+    playSound('winSound');
+  }
+  document.getElementById('closeWinModal').onclick = function() {
+    document.getElementById('winModal').classList.remove('active');
+  };
 
-    // لوحة الشرف: حفظ الفائزين في localStorage
-    function addToHonorBoard(team, names) {
-      let honor = [];
-      try {
-        honor = JSON.parse(localStorage.getItem('honorBoard') || '[]');
-      } catch { honor = []; }
-      honor.unshift({ team, names, date: new Date().toLocaleString('ar-EG') });
-      honor = honor.slice(0, 10); // آخر 10 فقط
-      localStorage.setItem('honorBoard', JSON.stringify(honor));
-    }
-    function renderHonorBoard() {
-      const honor = JSON.parse(localStorage.getItem('honorBoard') || '[]');
-      const honorList = document.getElementById('honorList');
-      honorList.innerHTML = '';
-      honor.forEach(item => {
-        const li = document.createElement('li');
-        li.style.marginBottom = '4px';
-        li.innerHTML = `<span style="color:${item.team==='green'?'#43a047':'#e53935'};font-weight:bold">${item.team==='green'?'الأخضر':'الأحمر'}</span>
-          - ${item.names} <span style="color:#888;font-size:0.95em">(${item.date})</span>`;
-        honorList.appendChild(li);
-      });
-      document.getElementById('honorBoard').style.display = honor.length ? 'block' : 'none';
-    }
+  // منع اللعب قبل اختيار نوع المسابقة
+  let allowPlay = false;
+  function setAllowPlay(val) {
+    allowPlay = val;
+    document.getElementById('hexBoard').style.opacity = allowPlay ? '1' : '0.5';
+    document.getElementById('hexBoard').style.pointerEvents = allowPlay ? 'auto' : 'none';
+  }
 
-    // منع اللعب قبل اختيار نوع المسابقة
-    let allowPlay = false;
-    function setAllowPlay(val) {
-      allowPlay = val;
-      document.getElementById('hexBoard').style.opacity = allowPlay ? '1' : '0.5';
-      document.getElementById('hexBoard').style.pointerEvents = allowPlay ? 'auto' : 'none';
-    }
-
-    // عدل استدعاء playWin في منطق الفوز:
-    window.chooseTeam = function(team) {
-      if (!selectedCell || !allowPlay) return;
-      selectedCell.classList.remove('pulse');
-      selectedCell.classList.add(team);
-      selectedCell.dataset.state = team;
-      playSound('successSound');
-      if (team === 'green') {
-        greenScore++;
-        document.getElementById('greenPoints').textContent = greenScore;
-        const row = Math.floor(Number(selectedCell.dataset.index) / 5);
-        if (checkRowWin(row, 'green')) {
-          highlightRow(row, 'green');
-          playWin('green');
-        }
-      } else {
-        redScore++;
-        document.getElementById('redPoints').textContent = redScore;
-        const col = Number(selectedCell.dataset.index) % 5;
-        if (checkColWin(col, 'red')) {
-          highlightCol(col, 'red');
-          playWin('red');
-        }
+  // منطق اللعب: لا يمكن اللعب إلا بعد اختيار نوع المسابقة
+  window.chooseTeam = function(team) {
+    if (!selectedCell || !allowPlay) return;
+    selectedCell.classList.remove('pulse');
+    selectedCell.classList.add(team);
+    selectedCell.dataset.state = team;
+    playSound('successSound');
+    if (team === 'green') {
+      greenScore++;
+      document.getElementById('greenPoints').textContent = greenScore;
+      const row = Math.floor(Number(selectedCell.dataset.index) / 5);
+      if (checkRowWin(row, 'green')) {
+        highlightRow(row, 'green');
+        playWin('green');
       }
-      removeTeamButtons();
-      selectedCell = null;
-    }
-
-    // جلب بيانات الصفوف والطلاب من ملف خارجي فقط (بدون بيانات افتراضية)
-    let classData = {};
-
-    async function loadClasses() {
-      try {
-        // استخدم نفس المسار كما في الأنشطة السابقة
-        const res = await fetch('https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/data/studentData.json');
-        if (!res.ok) throw new Error('فشل في تحميل بيانات الطلاب');
-        classData = await res.json();
-        fillClassSelect();
-      } catch (e) {
-        alert("تعذر تحميل بيانات الصفوف والطلاب. تأكد من وجود اتصال بالإنترنت أو صحة ملف studentData.json.");
-        document.getElementById('classSelect').innerHTML = '<option value="">لا توجد بيانات صفوف</option>';
-        document.getElementById('modeSelect').disabled = true;
-        document.getElementById('startBtn').disabled = true;
-        return;
+    } else {
+      redScore++;
+      document.getElementById('redPoints').textContent = redScore;
+      const col = Number(selectedCell.dataset.index) % 5;
+      if (checkColWin(col, 'red')) {
+        highlightCol(col, 'red');
+        playWin('red');
       }
     }
+    removeTeamButtons();
+    selectedCell = null;
+  }
 
-    function fillClassSelect() {
-      const classSelect = document.getElementById('classSelect');
-      classSelect.innerHTML = '<option value="">-- اختر الصف --</option>';
-      Object.keys(classData).forEach(cls => {
-        const opt = document.createElement('option');
-        opt.value = cls;
-        opt.textContent = `الصف ${cls}`;
-        classSelect.appendChild(opt);
-      });
-      document.getElementById('modeSelect').disabled = false;
-      document.getElementById('startBtn').disabled = false;
-    }
+  // جلب بيانات الصفوف والطلاب من ملف خارجي فقط (بدون بيانات افتراضية)
+  let classData = {};
 
-    document.getElementById("classSelect").onchange = function() {
-      document.getElementById("modeSelect").selectedIndex = 0;
-      document.getElementById("playersInputs").innerHTML = "";
-    };
-
-    document.getElementById("modeSelect").onchange = function() {
-      const mode = this.value;
-      const playersInputs = document.getElementById("playersInputs");
-      playersInputs.innerHTML = "";
-      const cls = document.getElementById("classSelect").value;
-      let html = "";
-      if (!mode || mode === "team-free" || !cls || !classData[cls]) return;
-      const students = classData[cls] || [];
-      function selectBox(id, label) {
-        return `<label style="color:#00796B;margin-left:4px">${label}:</label>
-          <select id="${id}" required style="width:120px">
-            <option value="">اختر</option>
-            ${students.map(n=>`<option value="${n}">${n}</option>`).join('')}
-          </select>`;
-      }
-      if (mode === "team2-manual") {
-        html = selectBox("red1", "لاعب الفريق الأحمر") + selectBox("green1", "لاعب الفريق الأخضر");
-      } else if (mode === "team4-manual") {
-        html = selectBox("red1", "لاعب ١ أحمر") + selectBox("red2", "لاعب ٢ أحمر")
-             + selectBox("green1", "لاعب ١ أخضر") + selectBox("green2", "لاعب ٢ أخضر");
-      } else if (mode === "team2-random") {
-        html = `<span style="color:#00796B">سيتم اختيار لاعبين عشوائيًا لكل فريق</span>`;
-      }
-      playersInputs.innerHTML = html;
-    };
-
-    // شبكة الحروف الاحترافية (25 خلية)
-    let selectedCell = null;
-    let greenScore = 0, redScore = 0;
-
-    function renderHexBoard() {
-      const board = document.getElementById("hexBoard");
-      board.innerHTML = "";
-      const ARABIC_LETTERS = "أبتثجحخدذرزسشصضطظعغفقكلمنهوي";
-      const ARABIC_NUMBERS = "١٢٣٤٥٦٧٨٩٠";
-      let pool = (ARABIC_LETTERS + ARABIC_NUMBERS).split('');
-      let cells = [];
-      while (cells.length < 25) {
-        const idx = Math.floor(Math.random() * pool.length);
-        cells.push(pool.splice(idx, 1)[0]);
-        if (pool.length === 0) pool = (ARABIC_LETTERS + ARABIC_NUMBERS).split('');
-      }
-      let i = 0;
-      for (let row = 0; row < 5; row++) {
-        const rowDiv = document.createElement("div");
-        rowDiv.className = "hex-row";
-        for (let col = 0; col < 5; col++) {
-          const cell = document.createElement("div");
-          cell.className = "hex-cell";
-          cell.tabIndex = 0;
-          cell.innerHTML = `<span style="font-size:2.3rem;letter-spacing:2px;">${cells[i]}</span>`;
-          cell.dataset.index = i;
-          cell.dataset.state = "empty";
-          // تلوين الحواف
-          if (row === 0) cell.classList.add("top-edge");
-          if (row === 4) cell.classList.add("bottom-edge");
-          if (col === 0) cell.classList.add("left-edge");
-          if (col === 4) cell.classList.add("right-edge");
-          cell.onclick = function() {
-            if (cell.dataset.state !== "empty" || selectedCell) return;
-            selectedCell = cell;
-            cell.classList.add("pulse");
-            showTeamButtons(cell);
-            playClick();
-          };
-          rowDiv.appendChild(cell);
-          i++;
-        }
-        board.appendChild(rowDiv);
-      }
-    }
-
-    // إظهار أزرار اختيار الفريق على الخلية
-    function showTeamButtons(cell) {
-      removeTeamButtons();
-      const btns = document.createElement("div");
-      btns.className = "choose-team-btns";
-      btns.innerHTML = `
-        <button class="choose-team-btn green" onclick="chooseTeam('green');event.stopPropagation();">🟢</button>
-        <button class="choose-team-btn red" onclick="chooseTeam('red');event.stopPropagation();">🔴</button>
-      `;
-      cell.appendChild(btns);
-    }
-    function removeTeamButtons() {
-      document.querySelectorAll('.choose-team-btns').forEach(e=>e.remove());
-      document.querySelectorAll('.hex-cell.pulse').forEach(e=>e.classList.remove('pulse'));
-    }
-
-    // منطق الفوز (صف أو عمود)
-    function checkRowWin(row, team) {
-      for (let i = row * 5; i < (row + 1) * 5; i++) {
-        const cell = document.querySelector(`.hex-cell[data-index="${i}"]`);
-        if (!cell || cell.dataset.state !== team) return false;
-      }
-      return true;
-    }
-    function checkColWin(col, team) {
-      for (let i = col; i < 25; i += 5) {
-        const cell = document.querySelector(`.hex-cell[data-index="${i}"]`);
-        if (!cell || cell.dataset.state !== team) return false;
-      }
-      return true;
-    }
-    function highlightRow(row, team) {
-      for (let i = row * 5; i < (row + 1) * 5; i++) {
-        const cell = document.querySelector(`.hex-cell[data-index="${i}"]`);
-        if (cell) cell.classList.add('win');
-      }
-    }
-    function highlightCol(col, team) {
-      for (let i = col; i < 25; i += 5) {
-        const cell = document.querySelector(`.hex-cell[data-index="${i}"]`);
-        if (cell) cell.classList.add('win');
-      }
-    }
-
-    // إعادة تعيين اللعبة
-    function resetGame() {
-      greenScore = 0;
-      redScore = 0;
-      document.getElementById('greenPoints').textContent = 0;
-      document.getElementById('redPoints').textContent = 0;
-      document.getElementById('greenNames').textContent = '';
-      document.getElementById('redNames').textContent = '';
-      removeTeamButtons();
-      renderHexBoard();
-    }
-
-    // عند تحميل الصفحة
-    window.onload = function() {
+  async function loadClasses() {
+    try {
+      const res = await fetch('https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/data/studentData.json');
+      if (!res.ok) throw new Error('فشل في تحميل بيانات الطلاب');
+      classData = await res.json();
+      fillClassSelect();
+    } catch (e) {
+      alert("تعذر تحميل بيانات الصفوف والطلاب. تأكد من وجود اتصال بالإنترنت أو صحة ملف studentData.json.");
+      document.getElementById('classSelect').innerHTML = '<option value="">لا توجد بيانات صفوف</option>';
       document.getElementById('modeSelect').disabled = true;
       document.getElementById('startBtn').disabled = true;
-      loadClasses();
-      renderHexBoard();
-      setAllowPlay(false);
-      renderHonorBoard();
-    };
-
-    // تشغيل الأصوات
-    function playSound(id) {
-      if (!soundEnabled) return;
-      const audio = document.getElementById(id);
-      if (audio) {
-        audio.currentTime = 0;
-        audio.play().catch(()=>{});
-      }
+      return;
     }
+  }
 
-    // عند بدء اللعبة (توزيع الأسماء)
-    document.getElementById("settingsForm").onsubmit = function(e) {
-      e.preventDefault();
-      const mode = document.getElementById("modeSelect").value;
-      const cls = document.getElementById("classSelect").value;
-      let greenNames = "", redNames = "";
-      const students = classData[cls] || [];
-      if (mode === "team2-manual") {
-        redNames = document.getElementById("red1").value;
-        greenNames = document.getElementById("green1").value;
-      } else if (mode === "team4-manual") {
-        redNames = document.getElementById("red1").value + "، " + document.getElementById("red2").value;
-        greenNames = document.getElementById("green1").value + "، " + document.getElementById("green2").value;
-      } else if (mode === "team2-random") {
-        const arr = [...students];
+  function fillClassSelect() {
+    const classSelect = document.getElementById('classSelect');
+    classSelect.innerHTML = '<option value="">-- اختر الصف --</option>';
+    Object.keys(classData).forEach(cls => {
+      const opt = document.createElement('option');
+      opt.value = cls;
+      opt.textContent = `الصف ${cls}`;
+      classSelect.appendChild(opt);
+    });
+    document.getElementById('modeSelect').disabled = false;
+    document.getElementById('startBtn').disabled = false;
+  }
+
+  document.getElementById("classSelect").onchange = function() {
+    setAllowPlay(false);
+    document.getElementById("modeSelect").selectedIndex = 0;
+    document.getElementById("playersInputs").innerHTML = "";
+  };
+
+  document.getElementById("modeSelect").onchange = function() {
+    setAllowPlay(false);
+    const mode = this.value;
+    const playersInputs = document.getElementById("playersInputs");
+    playersInputs.innerHTML = "";
+    const cls = document.getElementById("classSelect").value;
+    let html = "";
+    if (!mode || mode === "team-free" || !cls || !classData[cls]) return;
+    const students = classData[cls] || [];
+    function selectBox(id, label) {
+      return `<label style="color:#00796B;margin-left:4px">${label}:</label>
+        <select id="${id}" required style="width:120px">
+          <option value="">اختر</option>
+          ${students.map(n=>`<option value="${n}">${n}</option>`).join('')}
+        </select>`;
+    }
+    if (mode === "team2-manual") {
+      html = selectBox("red1", "لاعب الفريق الأحمر") + selectBox("green1", "لاعب الفريق الأخضر");
+    } else if (mode === "team4-manual") {
+      html = selectBox("red1", "لاعب ١ أحمر") + selectBox("red2", "لاعب ٢ أحمر")
+           + selectBox("green1", "لاعب ١ أخضر") + selectBox("green2", "لاعب ٢ أخضر");
+    } else if (mode === "team2-random") {
+      html = `<span style="color:#00796B">سيتم اختيار لاعبين عشوائيًا لكل فريق</span>`;
+    }
+    playersInputs.innerHTML = html;
+  };
+
+  // شبكة الحروف الاحترافية (25 خلية)
+  let selectedCell = null;
+  let greenScore = 0, redScore = 0;
+
+  function renderHexBoard() {
+    const board = document.getElementById("hexBoard");
+    board.innerHTML = "";
+    const ARABIC_LETTERS = "أبتثجحخدذرزسشصضطظعغفقكلمنهوي";
+    const ARABIC_NUMBERS = "١٢٣٤٥٦٧٨٩٠";
+    let pool = (ARABIC_LETTERS + ARABIC_NUMBERS).split('');
+    let cells = [];
+    while (cells.length < 25) {
+      const idx = Math.floor(Math.random() * pool.length);
+      cells.push(pool.splice(idx, 1)[0]);
+      if (pool.length === 0) pool = (ARABIC_LETTERS + ARABIC_NUMBERS).split('');
+    }
+    let i = 0;
+    for (let row = 0; row < 5; row++) {
+      const rowDiv = document.createElement("div");
+      rowDiv.className = "hex-row";
+      for (let col = 0; col < 5; col++) {
+        const cell = document.createElement("div");
+        cell.className = "hex-cell";
+        cell.tabIndex = 0;
+        cell.innerHTML = `<span style="font-size:2.3rem;letter-spacing:2px;">${cells[i]}</span>`;
+        cell.dataset.index = i;
+        cell.dataset.state = "empty";
+        // تلوين الحواف
+        if (row === 0) cell.classList.add("top-edge");
+        if (row === 4) cell.classList.add("bottom-edge");
+        if (col === 0) cell.classList.add("left-edge");
+        if (col === 4) cell.classList.add("right-edge");
+        cell.onclick = function() {
+          if (cell.dataset.state !== "empty" || selectedCell || !allowPlay) return;
+          selectedCell = cell;
+          cell.classList.add("pulse");
+          showTeamButtons(cell);
+          playClick();
+        };
+        rowDiv.appendChild(cell);
+        i++;
+      }
+      board.appendChild(rowDiv);
+    }
+  }
+
+  // إظهار أزرار اختيار الفريق على الخلية
+  function showTeamButtons(cell) {
+    removeTeamButtons();
+    const btns = document.createElement("div");
+    btns.className = "choose-team-btns";
+    btns.innerHTML = `
+      <button class="choose-team-btn green" onclick="chooseTeam('green');event.stopPropagation();">🟢</button>
+      <button class="choose-team-btn red" onclick="chooseTeam('red');event.stopPropagation();">🔴</button>
+    `;
+    cell.appendChild(btns);
+  }
+  function removeTeamButtons() {
+    document.querySelectorAll('.choose-team-btns').forEach(e=>e.remove());
+    document.querySelectorAll('.hex-cell.pulse').forEach(e=>e.classList.remove('pulse'));
+  }
+
+  // منطق الفوز (صف أو عمود)
+  function checkRowWin(row, team) {
+    for (let i = row * 5; i < (row + 1) * 5; i++) {
+      const cell = document.querySelector(`.hex-cell[data-index="${i}"]`);
+      if (!cell || cell.dataset.state !== team) return false;
+    }
+    return true;
+  }
+  function checkColWin(col, team) {
+    for (let i = col; i < 25; i += 5) {
+      const cell = document.querySelector(`.hex-cell[data-index="${i}"]`);
+      if (!cell || cell.dataset.state !== team) return false;
+    }
+    return true;
+  }
+  function highlightRow(row, team) {
+    for (let i = row * 5; i < (row + 1) * 5; i++) {
+      const cell = document.querySelector(`.hex-cell[data-index="${i}"]`);
+      if (cell) cell.classList.add('win');
+    }
+  }
+  function highlightCol(col, team) {
+    for (let i = col; i < 25; i += 5) {
+      const cell = document.querySelector(`.hex-cell[data-index="${i}"]`);
+      if (cell) cell.classList.add('win');
+    }
+  }
+
+  // إعادة تعيين اللعبة
+  function resetGame() {
+    greenScore = 0;
+    redScore = 0;
+    document.getElementById('greenPoints').textContent = 0;
+    document.getElementById('redPoints').textContent = 0;
+    document.getElementById('greenNames').textContent = '';
+    document.getElementById('redNames').textContent = '';
+    removeTeamButtons();
+    renderHexBoard();
+    setAllowPlay(false);
+  }
+
+  // عند تحميل الصفحة
+  window.onload = function() {
+    document.getElementById('modeSelect').disabled = true;
+    document.getElementById('startBtn').disabled = true;
+    loadClasses();
+    renderHexBoard();
+    setAllowPlay(false);
+    renderHonorBoard();
+  };
+
+  // تشغيل الأصوات
+  function playSound(id) {
+    if (!soundEnabled) return;
+    const audio = document.getElementById(id);
+    if (audio) {
+      audio.currentTime = 0;
+      audio.play().catch(()=>{});
+    }
+  }
+
+  // عند بدء اللعبة (توزيع الأسماء) + منع تكرار نفس الطالب
+  document.getElementById("settingsForm").onsubmit = function(e) {
+    e.preventDefault();
+    const mode = document.getElementById("modeSelect").value;
+    const cls = document.getElementById("classSelect").value;
+    let greenNames = "", redNames = "";
+    const students = classData[cls] || [];
+    if (mode === "team2-manual") {
+      redNames = document.getElementById("red1").value;
+      greenNames = document.getElementById("green1").value;
+      if (!redNames || !greenNames) {
+        alert("يرجى اختيار جميع اللاعبين.");
+        return;
+      }
+      if (redNames === greenNames) {
+        alert("لا يمكن اختيار نفس الطالب في كلا الفريقين!");
+        return;
+      }
+    } else if (mode === "team4-manual") {
+      const r1 = document.getElementById("red1").value, r2 = document.getElementById("red2").value;
+      const g1 = document.getElementById("green1").value, g2 = document.getElementById("green2").value;
+      if (!r1 || !r2 || !g1 || !g2) {
+        alert("يرجى اختيار جميع اللاعبين.");
+        return;
+      }
+      const all = [r1, r2, g1, g2];
+      const set = new Set(all);
+      if (set.size < 4) {
+        alert("لا يمكن تكرار نفس الطالب في أكثر من فريق!");
+        return;
+      }
+      redNames = r1 + "، " + r2;
+      greenNames = g1 + "، " + g2;
+    } else if (mode === "team2-random") {
+      if (students.length < 4) {
+        alert("عدد الطلاب غير كافٍ للاختيار العشوائي.");
+        return;
+      }
+      let arr, tries = 0;
+      do {
+        arr = [...students];
         shuffle(arr);
-        redNames = arr.slice(0,2).join("، ");
-        greenNames = arr.slice(2,4).join("، ");
-      } else if (mode === "team-free") {
-        redNames = "الفريق الأحمر";
-        greenNames = "الفريق الأخضر";
+        tries++;
+        // تأكد من عدم تكرار أي طالب بين الفرق
+      } while (
+        (arr[0] === arr[2] || arr[0] === arr[3] || arr[1] === arr[2] || arr[1] === arr[3])
+        && tries < 10
+      );
+      if (arr[0] === arr[2] || arr[0] === arr[3] || arr[1] === arr[2] || arr[1] === arr[3]) {
+        alert("حدث تكرار في اختيار الطلاب، أعد المحاولة.");
+        return;
       }
-      document.getElementById('greenNames').textContent = greenNames;
-      document.getElementById('redNames').textContent = redNames;
-      greenScore = 0; redScore = 0;
-      document.getElementById('greenPoints').textContent = 0;
-      document.getElementById('redPoints').textContent = 0;
-      renderHexBoard();
-      setAllowPlay(true);
-    };
-
-    function shuffle(arr) {
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
+      redNames = arr.slice(0,2).join("، ");
+      greenNames = arr.slice(2,4).join("، ");
+    } else if (mode === "team-free") {
+      redNames = "الفريق الأحمر";
+      greenNames = "الفريق الأخضر";
     }
+    document.getElementById('greenNames').textContent = greenNames;
+    document.getElementById('redNames').textContent = redNames;
+    greenScore = 0; redScore = 0;
+    document.getElementById('greenPoints').textContent = 0;
+    document.getElementById('redPoints').textContent = 0;
+    renderHexBoard();
+    setAllowPlay(true);
+  };
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+  }
   </script>
 </body>
 </html>
