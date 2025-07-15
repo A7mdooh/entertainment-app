@@ -42,7 +42,6 @@
       color: #444;
       font-size: 1rem;
     }
-    /* أزرار التحكم */
     .control-btn {
       position: fixed;
       top: 15px;
@@ -77,10 +76,7 @@
   </style>
 </head>
 <body>
-  <!-- زر العودة للصفحة الرئيسية (على اليمين) -->
   <button class="control-btn" id="homeBtn" title="العودة للصفحة الرئيسية">🏠</button>
-  
-  <!-- زر ملء الشاشة (على اليسار) -->
   <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">⛶</button>
 
   <div class="header">
@@ -118,9 +114,10 @@
     <div class="activity-desc">تحدٍّ تفاعلي يختبر ذكاءك في كشف هوية الطالب من خلال تلميحات ممتعة! 🎯</div>
   </div>
 
-  <div class="activity-card" onclick="window.location.href='activities/story.html'">
-    <div class="activity-title">قصة تفاعلية</div>
-    <div class="activity-desc">تابع قصة قصيرة برسومات وتعليم أخلاقي</div>
+  <!-- تم التعديل هنا -->
+  <div class="activity-card" onclick="window.location.href='activities/Blockbusters.html'">
+    <div class="activity-title">🔤 مسابقة حروف</div>
+    <div class="activity-desc">لعبة ممتعة لاكتشاف الكلمات باستخدام الحروف والبلاطات التفاعلية</div>
   </div>
 
   <div class="activity-card" onclick="window.location.href='activities/video.html'">
@@ -134,7 +131,6 @@
   </div>
 
   <script>
-    // وظيفة ملء الشاشة
     document.getElementById('fullscreenBtn').addEventListener('click', toggleFullScreen);
     
     function toggleFullScreen() {
@@ -149,12 +145,10 @@
       }
     }
 
-    // وظيفة العودة للصفحة الرئيسية
     document.getElementById('homeBtn').addEventListener('click', function() {
       window.location.href = 'https://a7mdooh.github.io/entertainment-app/';
     });
 
-    // إخفاء الأزرار عند الدخول في وضع ملء الشاشة
     document.addEventListener('fullscreenchange', function() {
       const homeBtn = document.getElementById('homeBtn');
       const fullscreenBtn = document.getElementById('fullscreenBtn');
