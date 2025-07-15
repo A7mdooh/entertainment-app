@@ -19,10 +19,16 @@
       z-index: 100;
       display: flex;
       align-items: center;
-      justify-content: space-between; /* توزيع الأزرار بين اليمين واليسار */
+      justify-content: space-between;
       padding: 8px 24px;
       box-shadow: 0 2px 12px #2221;
       border-bottom: 1px solid #e0e0e0;
+    }
+    .control-bar .center-controls {
+      display: flex;
+      flex: 1;
+      justify-content: center;
+      align-items: center;
     }
     .control-bar .left-controls,
     .control-bar .right-controls {
@@ -30,6 +36,9 @@
       align-items: center;
       gap: 10px;
     }
+    .control-bar .left-controls { order: 1; }
+    .control-bar .center-controls { order: 2; }
+    .control-bar .right-controls { order: 3; }
     .control-btn {
       width: 42px;
       height: 42px;
@@ -53,6 +62,24 @@
     .control-btn:hover {
       background: #e0f2f1;
       transform: scale(1.12);
+    }
+    .fullscreen-main-panel {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      margin: 0 !important;
+      border-radius: 0 !important;
+      z-index: 200 !important;
+      max-width: 100vw !important;
+      box-shadow: none !important;
+      padding: 10px 0 0 0 !important;
+      background: #fff !important;
+      overflow: auto !important;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
     }
     .main-panel {
       margin: 90px auto 0 auto;
@@ -282,10 +309,12 @@
 <body>
   <div class="control-bar">
     <div class="left-controls">
+      <button class="control-btn" id="muteBtn" title="تشغيل/كتم الصوت">🔊</button>
+    </div>
+    <div class="center-controls">
       <button class="control-btn" id="backBtn" title="الرجوع للأنشطة">📚</button>
     </div>
     <div class="right-controls">
-      <button class="control-btn" id="muteBtn" title="تشغيل/كتم الصوت">🔊</button>
       <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">
         <svg viewBox="0 0 24 24" id="fullscreen-svg">
           <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
@@ -293,7 +322,7 @@
       </button>
     </div>
   </div>
-  <div class="main-panel">
+  <div class="main-panel" id="mainPanel">
     <div class="board-title">🧩 مسابقة الحروف</div>
     <form class="settings" id="settingsForm" autocomplete="off">
       <select id="classSelect" required>
@@ -337,11 +366,14 @@
     const backBtn = document.getElementById('backBtn');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
     const fullscreenSvg = document.getElementById('fullscreen-svg');
-    const clickSound = document.getElementById('clickSound');
-    let soundEnabled = true;
+    const mainPanel = document.getElementById('mainPanel');
+    const fullscreenEnterPath = 'M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z';
+    const fullscreenExitPath = 'M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z';
+
     muteBtn.onclick = toggleSoundBtn;
     backBtn.onclick = goBackBtn;
     fullscreenBtn.onclick = toggleFullscreenBtn;
+
     function playClick() {
       if (soundEnabled) {
         clickSound.currentTime = 0;
@@ -363,8 +395,6 @@
         window.location.href = "https://a7mdooh.github.io/entertainment-app/main.html";
       }, 300);
     }
-    const fullscreenEnterPath = 'M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z';
-    const fullscreenExitPath = 'M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z';
     function toggleFullscreenBtn() {
       playClick();
       const doc = document.documentElement;
@@ -372,20 +402,24 @@
         doc.requestFullscreen().then(() => {
           fullscreenSvg.setAttribute('d', fullscreenExitPath);
           fullscreenBtn.title = "خروج من ملء الشاشة";
+          mainPanel.classList.add('fullscreen-main-panel');
         }).catch(()=>{});
       } else {
         document.exitFullscreen();
         fullscreenSvg.setAttribute('d', fullscreenEnterPath);
         fullscreenBtn.title = "ملء الشاشة";
+        mainPanel.classList.remove('fullscreen-main-panel');
       }
     }
     document.addEventListener('fullscreenchange', () => {
       if (!document.fullscreenElement) {
         fullscreenSvg.setAttribute('d', fullscreenEnterPath);
         fullscreenBtn.title = "ملء الشاشة";
+        mainPanel.classList.remove('fullscreen-main-panel');
       } else {
         fullscreenSvg.setAttribute('d', fullscreenExitPath);
         fullscreenBtn.title = "خروج من ملء الشاشة";
+        mainPanel.classList.add('fullscreen-main-panel');
       }
     });
     document.querySelectorAll('button').forEach(button => {
