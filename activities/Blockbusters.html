@@ -195,6 +195,11 @@
       z-index: 1;
       outline: none;
     }
+    /* حواف الشبكة */
+    .hex-cell.top-edge { border-top: 6px solid #43a047 !important; }
+    .hex-cell.bottom-edge { border-bottom: 6px solid #43a047 !important; }
+    .hex-cell.left-edge { border-right: 6px solid #e53935 !important; }
+    .hex-cell.right-edge { border-left: 6px solid #e53935 !important; }
     .hex-cell.pulse {
       animation: pulse 1s infinite;
       z-index: 2;
@@ -287,8 +292,6 @@
       </select>
       <select id="modeSelect" required>
         <option value="">-- نوع المسابقة --</option>
-        <option value="single-manual">فردي انتقائي</option>
-        <option value="single-random">فردي عشوائي</option>
         <option value="team2-manual">طالب للفريق الأحمر / طالب للفريق الأخضر</option>
         <option value="team4-manual">طالبان للفريق الأحمر / طالبان للفريق الأخضر</option>
         <option value="team2-random">جماعي عشوائي (طالبان لكل فريق)</option>
@@ -302,13 +305,13 @@
       <div class="score-panel green" id="scoreGreen">
         <div class="score-title">الفريق الأخضر</div>
         <div class="score-points" id="greenPoints">0</div>
-        <div class="score-label">من الأعلى للأسفل</div>
+        <div class="score-label">اكمل صفاً أفقياً للفوز</div>
         <div class="player-names" id="greenNames"></div>
       </div>
       <div class="score-panel red" id="scoreRed">
         <div class="score-title">الفريق الأحمر</div>
         <div class="score-points" id="redPoints">0</div>
-        <div class="score-label">من اليمين لليسار</div>
+        <div class="score-label">اكمل عموداً رأسياً للفوز</div>
         <div class="player-names" id="redNames"></div>
       </div>
     </div>
@@ -412,11 +415,7 @@
           </select>`;
       }
 
-      if (mode === "single-manual") {
-        html = selectBox("player1", "اللاعب");
-      } else if (mode === "single-random") {
-        html = `<span style="color:#fff">سيتم اختيار لاعب عشوائي</span>`;
-      } else if (mode === "team2-manual") {
+      if (mode === "team2-manual") {
         html = selectBox("red1", "لاعب الفريق الأحمر") + selectBox("green1", "لاعب الفريق الأخضر");
       } else if (mode === "team4-manual") {
         html = selectBox("red1", "لاعب ١ أحمر") + selectBox("red2", "لاعب ٢ أحمر")
@@ -431,7 +430,7 @@
       document.getElementById("modeSelect").dispatchEvent(new Event('change'));
     };
 
-    // تحسين الشبكة: 5x5 خلايا
+    // شبكة 5x5 مع تلوين الحواف
     const ARABIC_LETTERS = ["أ","ب","ت","ث","ج","ح","خ","د","ذ","ر","ز","س","ش","ص","ض","ط","ظ","ع","غ","ف","ق","ك","ل","م","ن","هـ","و","ي"];
     const ARABIC_NUMBERS = ["١","٢","٣","٤","٥","٦","٧","٨","٩","٠"];
     function generateHexCells() {
@@ -459,6 +458,11 @@
           cell.innerHTML = cells[i];
           cell.dataset.index = i;
           cell.dataset.state = "empty";
+          // تلوين الحواف
+          if (row === 0) cell.classList.add("top-edge");
+          if (row === 4) cell.classList.add("bottom-edge");
+          if (col === 0) cell.classList.add("left-edge");
+          if (col === 4) cell.classList.add("right-edge");
           cell.addEventListener('click', () => onHexClick(cell));
           rowDiv.appendChild(cell);
           i++;
@@ -468,31 +472,8 @@
       }
     }
 
-    // منطق الشبكة
+    // منطق اللعب: فوز الفريق الأخضر عند اكتمال صف أفقي، الأحمر عند اكتمال عمود رأسي
     let selectedCell = null, greenScore = 0, redScore = 0;
-    function renderHexBoard() {
-      const board = document.getElementById("hexBoard");
-      board.innerHTML = "";
-      const cells = generateHexCells();
-      let i = 0;
-      for (let row = 0; row < 6; row++) {
-        const rowDiv = document.createElement("div");
-        rowDiv.className = "hex-row";
-        for (let col = 0; col < 4; col++) {
-          const cell = document.createElement("div");
-          cell.className = "hex-cell";
-          cell.tabIndex = 0;
-          cell.innerHTML = cells[i];
-          cell.dataset.index = i;
-          cell.dataset.state = "empty";
-          cell.addEventListener('click', () => onHexClick(cell));
-          rowDiv.appendChild(cell);
-          i++;
-        }
-        rowDiv.style.marginRight = (row % 2 === 0) ? "48px" : "0";
-        board.appendChild(rowDiv);
-      }
-    }
     function onHexClick(cell) {
       if (cell.classList.contains('green') || cell.classList.contains('red') || cell.classList.contains('pulse')) return;
       playClick();
@@ -527,22 +508,48 @@
       if (team === 'green') {
         greenScore++;
         document.getElementById('greenPoints').textContent = greenScore;
-        const path = hasWinningPath('green', 'top');
-        if (path) {
-          highlightWin(path);
+        const row = Math.floor(Number(selectedCell.dataset.index) / 5);
+        if (checkRowWin(row, 'green')) {
+          highlightRow(row, 'green');
           playWin();
         }
       } else {
         redScore++;
         document.getElementById('redPoints').textContent = redScore;
-        const path = hasWinningPath('red', 'left');
-        if (path) {
-          highlightWin(path);
+        const col = Number(selectedCell.dataset.index) % 5;
+        if (checkColWin(col, 'red')) {
+          highlightCol(col, 'red');
           playWin();
         }
       }
       removeTeamButtons();
       selectedCell = null;
+    }
+    function checkRowWin(row, team) {
+      const hexes = Array.from(document.querySelectorAll('.hex-cell'));
+      for (let col = 0; col < 5; col++) {
+        if (!hexes[row * 5 + col].classList.contains(team)) return false;
+      }
+      return true;
+    }
+    function checkColWin(col, team) {
+      const hexes = Array.from(document.querySelectorAll('.hex-cell'));
+      for (let row = 0; row < 5; row++) {
+        if (!hexes[row * 5 + col].classList.contains(team)) return false;
+      }
+      return true;
+    }
+    function highlightRow(row, team) {
+      const hexes = Array.from(document.querySelectorAll('.hex-cell'));
+      for (let col = 0; col < 5; col++) {
+        hexes[row * 5 + col].classList.add('win');
+      }
+    }
+    function highlightCol(col, team) {
+      const hexes = Array.from(document.querySelectorAll('.hex-cell'));
+      for (let row = 0; row < 5; row++) {
+        hexes[row * 5 + col].classList.add('win');
+      }
     }
     function playWin() {
       playSound('winSound');
@@ -555,65 +562,6 @@
     function playSound(id) {
       const audio = document.getElementById(id);
       if (audio) { audio.currentTime = 0; audio.play().catch(()=>{}); }
-    }
-    function indexToCoord(index) {
-      return [Math.floor(index / 4), index % 4];
-    }
-    function getNeighbors(index) {
-      const [row, col] = indexToCoord(index);
-      const neighbors = [];
-      const directions = [
-        [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0]
-      ];
-      if (row % 2 === 0) directions[1] = [-1, 0];
-      for (let [dr, dc] of directions) {
-        const r = row + dr;
-        const c = col + dc;
-        if (r >= 0 && r < 6 && c >= 0 && c < 4) {
-          neighbors.push(r * 4 + c);
-        }
-      }
-      return neighbors;
-    }
-    function hasWinningPath(teamClass, fromSide) {
-      const hexes = Array.from(document.querySelectorAll('.hex-cell'));
-      const visited = new Set();
-      const stack = [];
-      if (fromSide === 'left') {
-        for (let r = 0; r < 6; r++) {
-          const idx = r * 4 + 0;
-          if (hexes[idx].classList.contains(teamClass)) {
-            stack.push(idx);
-            visited.add(idx);
-          }
-        }
-      } else if (fromSide === 'top') {
-        for (let c = 0; c < 4; c++) {
-          const idx = 0 * 4 + c;
-          if (hexes[idx].classList.contains(teamClass)) {
-            stack.push(idx);
-            visited.add(idx);
-          }
-        }
-      }
-      while (stack.length) {
-        const current = stack.pop();
-        const [r, c] = indexToCoord(current);
-        if ((fromSide === 'left' && c === 3) || (fromSide === 'top' && r === 5)) {
-          return Array.from(visited);
-        }
-        for (let n of getNeighbors(current)) {
-          if (!visited.has(n) && hexes[n].classList.contains(teamClass)) {
-            visited.add(n);
-            stack.push(n);
-          }
-        }
-      }
-      return null;
-    }
-    function highlightWin(cells) {
-      const hexes = Array.from(document.querySelectorAll('.hex-cell'));
-      cells.forEach(i => hexes[i].classList.add('win'));
     }
     function resetGame() {
       greenScore = 0; redScore = 0;
@@ -631,14 +579,7 @@
       const cls = document.getElementById("classSelect").value;
       let greenNames = "", redNames = "";
       const students = studentData[cls] || [];
-      if (mode === "single-manual") {
-        greenNames = document.getElementById("player1").value;
-        redNames = "المعلم";
-      } else if (mode === "single-random") {
-        const idx = Math.floor(Math.random() * students.length);
-        greenNames = students[idx];
-        redNames = "المعلم";
-      } else if (mode === "team2-manual") {
+      if (mode === "team2-manual") {
         redNames = document.getElementById("red1").value;
         greenNames = document.getElementById("green1").value;
       } else if (mode === "team4-manual") {
