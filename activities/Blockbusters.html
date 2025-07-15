@@ -352,13 +352,72 @@
     .close-btn:hover {
       background: #b71c1c;
     }
+    .instructions-modal {
+      display: none;
+      position: fixed;
+      z-index: 3000;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.45);
+      align-items: center;
+      justify-content: center;
+    }
+    .instructions-modal .content {
+      background: #fff;
+      border-radius: 18px;
+      max-width: 95vw;
+      min-width: 320px;
+      padding: 32px 24px 18px 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      position: relative;
+      text-align: center;
+    }
+    .instructions-modal .close-btn {
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      background: #e53935;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      z-index: 10;
+      transition: background 0.2s;
+    }
+    .instructions-modal .close-btn:hover {
+      background: #b71c1c;
+    }
   </style>
 </head>
 <body>
+  <!-- نافذة تعليمات اللعبة المنبثقة -->
+  <div class="instructions-modal" id="instructionsModal" style="display:none;position:fixed;z-index:3000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:18px;max-width:95vw;min-width:320px;padding:32px 24px 18px 24px;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;text-align:center;">
+      <button style="position:absolute;left:12px;top:12px;background:#e53935;color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:1.5rem;cursor:pointer;z-index:10;transition:background 0.2s;" onclick="closeInstructions()" title="إغلاق">×</button>
+      <div style="font-size:2rem;margin-bottom:12px;color:#00796B;">📖 تعليمات اللعبة</div>
+      <ul style="text-align:right;direction:rtl;font-size:1.15rem;line-height:2;">
+        <li>اختر الصف الدراسي ونوع المسابقة من القائمة.</li>
+        <li>حدد أسماء الطلاب المشاركين أو اختر الوضع العشوائي.</li>
+        <li>اضغط على زر <b>ابدأ</b> لبدء اللعبة.</li>
+        <li>انقر على أي خلية في لوحة الحروف، ثم اختر الفريق المناسب (أخضر أو أحمر).</li>
+        <li>الفريق الأخضر يفوز عند إكمال صف أفقي بالكامل.</li>
+        <li>الفريق الأحمر يفوز عند إكمال عمود رأسي بالكامل.</li>
+        <li>عند فوز أحد الفرق ستظهر نافذة احتفالية مع لوحة الشرف.</li>
+        <li>يمكنك إعادة تعيين اللعبة في أي وقت بالضغط على زر "إعادة تعيين".</li>
+      </ul>
+      <button onclick="closeInstructions()" style="margin-top:18px;background:#43a047;color:#fff;padding:10px 28px;border:none;border-radius:8px;font-size:1.1rem;cursor:pointer;">فهمت</button>
+    </div>
+  </div>
   <!-- أزرار التحكم العائمة -->
   <div class="floating-controls">
     <div class="left">
       <button class="control-btn" id="muteBtn" title="تشغيل/كتم الصوت" type="button">🔊</button>
+      <button class="control-btn" id="instructionsBtn" title="تعليمات اللعبة" type="button" style="margin-right:8px;">❓</button>
     </div>
     <div class="center">
       <button class="control-btn" id="backBtn" title="الرجوع للأنشطة" type="button">📚</button>
@@ -373,16 +432,17 @@
   </div>
   <!-- نافذة الفوز الاحترافية -->
   <div class="win-modal" id="winModal">
-    <div class="win-modal-content">
+    <div class="win-modal-content" id="winModalContent">
       <button class="close-btn" id="closeWinModal" title="إغلاق">×</button>
-      <div class="fireworks">🎆🎇✨</div>
-      <div class="trophy">🏆</div>
-      <div class="winner-team" id="winnerTeam"></div>
-      <div class="winner-names" id="winnerNames"></div>
+      <div class="fireworks" id="fireworksAnim" style="font-size:2.5rem;margin-bottom:8px;">🎆🎇✨</div>
+      <div class="trophy" style="font-size:3rem;margin-bottom:8px;">🏆</div>
+      <div class="winner-team" id="winnerTeam" style="font-size:1.7rem;font-weight:bold;"></div>
+      <div class="winner-names" id="winnerNames" style="margin-bottom:10px;"></div>
       <div class="honor-board" id="honorBoard" style="margin-top:18px;">
         <div style="font-size:1.1rem;color:#888;">لوحة الشرف</div>
         <ul id="honorList" style="list-style:none;padding:0;margin:8px 0 0 0;"></ul>
       </div>
+      <button onclick="closeWinModal()" style="margin-top:18px;background:#43a047;color:#fff;padding:10px 28px;border:none;border-radius:8px;font-size:1.1rem;cursor:pointer;">إغلاق</button>
     </div>
   </div>
   <div class="main-panel" id="mainPanel" style="display: flex; flex-direction: row; align-items: flex-start; justify-content: center; gap: 32px;">
@@ -522,16 +582,64 @@
     addToHonorBoard(team, names);
     renderHonorBoard();
     document.getElementById('winModal').classList.add('active');
-    confetti({
-      particleCount: 250,
-      spread: 160,
-      origin: { y: 0.6 }
-    });
+    // احتفالية متحركة
+    playConfetti();
     playSound('winSound');
   }
-  document.getElementById('closeWinModal').onclick = function() {
+  function closeWinModal() {
     document.getElementById('winModal').classList.remove('active');
+  }
+  document.getElementById('closeWinModal').onclick = closeWinModal;
+
+  // احتفالية متحركة باستخدام confetti
+  function playConfetti() {
+    // عدة رشقات متتالية
+    let count = 0;
+    function burst() {
+      confetti({
+        particleCount: 80,
+        spread: 120 + Math.random()*40,
+        origin: { y: 0.6 + Math.random()*0.1 }
+      });
+      count++;
+      if (count < 5) setTimeout(burst, 350);
+    }
+    burst();
+    // إضافة وميض للنافذة
+    const fireworks = document.getElementById('fireworksAnim');
+    if (fireworks) {
+      fireworks.style.animation = "blinkFireworks 1s infinite alternate";
+    }
+  }
+  // إضافة CSS للوميض
+  const style = document.createElement('style');
+  style.innerHTML = `
+    @keyframes blinkFireworks {
+      from { opacity: 1; filter: drop-shadow(0 0 10px #ffe066); }
+      to { opacity: 0.5; filter: drop-shadow(0 0 30px #ffeb3b); }
+    }
+  `;
+  document.head.appendChild(style);
+
+  // تحسين منطق الفوز: استدعاء showWinModal عند الفوز
+  function playWin(team) {
+    let names = '';
+    if (team === 'green') {
+      names = document.getElementById('greenNames').textContent;
+    } else {
+      names = document.getElementById('redNames').textContent;
+    }
+    setAllowPlay(false);
+    showWinModal(team, names);
+  }
+
+  // نافذة التعليمات
+  document.getElementById('instructionsBtn').onclick = function() {
+    document.getElementById('instructionsModal').style.display = 'flex';
   };
+  function closeInstructions() {
+    document.getElementById('instructionsModal').style.display = 'none';
+  }
 
   // عند تحميل الصفحة: لا تظهر نافذة الفوز ولا لوحة الشرف
   window.onload = function() {
