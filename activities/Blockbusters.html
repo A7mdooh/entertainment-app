@@ -1,313 +1,396 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>مسابقة الحروف - بلوك باستر</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>Blockbusters - Letters Competition</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600&display=swap" rel="stylesheet">
   <style>
     body {
-      background: #3a4a5d;
-      font-family: 'Cairo', sans-serif;
-      margin: 0;
-      padding: 0;
+      background: linear-gradient(135deg, #283e51 0%, #485563 100%);
       min-height: 100vh;
-      text-align: center;
-    }
-    .control-btn {
-      position: fixed;
-      top: 20px;
-      width: 46px;
-      height: 46px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      background-color: white;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      border: none;
-      cursor: pointer;
-      z-index: 100;
-      transition: all 0.3s ease;
-      font-size: 1.4rem;
-    }
-    .control-btn:hover {
-      transform: scale(1.15);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-      background-color: #f5f5f5;
-    }
-    .control-btn:active {
-      transform: scale(1.05);
-    }
-    .control-btn svg {
-      width: 22px;
-      height: 22px;
-      fill: #00796B;
-    }
-    #muteBtn { right: 25px; }
-    #backBtn { left: 50%; transform: translateX(-50%); }
-    #fullscreenBtn { left: 25px; }
-    .main-panel {
-      margin: 60px auto 0 auto;
-      background: rgba(255,255,255,0.07);
-      border-radius: 18px;
-      padding: 30px 10px 10px 10px;
-      max-width: 700px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-    }
-    .settings {
-      margin-bottom: 30px;
-    }
-    select, button {
+      margin: 0;
       font-family: 'Cairo', sans-serif;
-      padding: 12px 18px;
-      font-size: 1.1rem;
-      margin: 10px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      transition: all 0.3s ease;
+      overflow-x: hidden;
     }
-    button {
-      background-color: #00796B;
-      color: white;
-      cursor: pointer;
-      border: none;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      transition: all 0.2s ease;
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      gap: 40px;
     }
-    button:hover {
-      background-color: #004d40;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    .score-panel {
+      background: rgba(255,255,255,0.10);
+      border-radius: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      padding: 40px 30px;
+      min-width: 180px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      transition: box-shadow 0.3s;
     }
-    .hex-grid {
+    .score-panel.green {
+      border: 4px solid #43a047;
+      box-shadow: 0 0 30px 0 #43a04744;
+    }
+    .score-panel.red {
+      border: 4px solid #e53935;
+      box-shadow: 0 0 30px 0 #e5393544;
+    }
+    .score-title {
+      font-size: 2.1rem;
+      font-weight: bold;
+      margin-bottom: 18px;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 8px #2222;
+    }
+    .score-points {
+      font-size: 4rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #fff;
+      text-shadow: 0 2px 12px #2228;
+      transition: color 0.3s;
+    }
+    .score-panel.green .score-points { color: #43a047; }
+    .score-panel.red .score-points { color: #e53935; }
+    .score-label {
+      font-size: 1.2rem;
+      color: #fff;
+      opacity: 0.8;
+      margin-bottom: 8px;
+    }
+    .board-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+    .board-title {
+      color: #ffe066;
+      font-size: 2.2rem;
+      font-weight: bold;
+      margin-bottom: 18px;
+      text-shadow: 0 2px 8px #222;
+      letter-spacing: 1px;
+    }
+    .hex-board {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 0;
       margin: 0 auto;
       user-select: none;
+      position: relative;
     }
     .hex-row {
       display: flex;
       flex-direction: row;
       justify-content: center;
-      margin-bottom: -18px;
+      margin-bottom: -22px;
     }
     .hex-cell {
-      width: 70px;
-      height: 80px;
+      width: 90px;
+      height: 104px;
       background: #ffe066;
       color: #1565c0;
-      font-size: 2.2rem;
+      font-size: 2.5rem;
       font-weight: bold;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 2px;
+      margin: 0 4px;
       clip-path: polygon(
         25% 5%, 75% 5%,
         100% 50%, 75% 95%,
         25% 95%, 0% 50%
       );
-      border: 4px solid #fff;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border: 5px solid #fff;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.10);
       position: relative;
-      transition: border-color 0.3s, background 0.3s;
       cursor: pointer;
+      transition: border-color 0.3s, background 0.3s, color 0.3s, box-shadow 0.3s;
+      z-index: 1;
+      outline: none;
     }
-    .hex-cell.red { background: #ff5252; color: #fff; }
-    .hex-cell.green { background: #43a047; color: #fff; }
-    .hex-cell.neutral { background: #b39ddb; color: #fff; }
-    .hex-cell.selected { outline: 3px solid #1565c0; }
-    .hex-cell .cell-label {
+    .hex-cell.pulse {
+      animation: pulse 1s infinite;
       z-index: 2;
-      position: relative;
+      box-shadow: 0 0 30px 10px #ffe06688, 0 0 0 8px #fff2;
     }
-    /* حدود خاصة للفريقين */
-    .hex-cell {
-      border-right: 5px solid #d32f2f; /* أحمر يمين ويسار */
-      border-left: 5px solid #d32f2f;
-      border-top: 5px solid #388e3c;   /* أخضر أعلى وأسفل */
-      border-bottom: 5px solid #388e3c;
+    @keyframes pulse {
+      0% { box-shadow: 0 0 30px 10px #ffe06688, 0 0 0 8px #fff2; }
+      50% { box-shadow: 0 0 50px 20px #ffe066cc, 0 0 0 14px #fff4; }
+      100% { box-shadow: 0 0 30px 10px #ffe06688, 0 0 0 8px #fff2; }
     }
-    .hex-cell.red { border-color: #d32f2f; }
-    .hex-cell.green { border-color: #388e3c; }
-    .hex-cell.neutral { border-color: #7b1fa2; }
-    @media (max-width: 600px) {
-      .main-panel { padding: 10px 2px; }
-      .hex-cell { width: 44px; height: 50px; font-size: 1.2rem; }
+    .hex-cell.green {
+      background: linear-gradient(135deg, #43a047 60%, #a5d6a7 100%);
+      color: #fff;
+      border-color: #43a047;
+      box-shadow: 0 0 30px 0 #43a04788;
+    }
+    .hex-cell.red {
+      background: linear-gradient(135deg, #e53935 60%, #ffcdd2 100%);
+      color: #fff;
+      border-color: #e53935;
+      box-shadow: 0 0 30px 0 #e5393588;
+    }
+    .hex-cell.win {
+      animation: blink 1s infinite alternate;
+      border: 5px solid #fff;
+      z-index: 3;
+    }
+    @keyframes blink {
+      from { box-shadow: 0 0 20px 10px #fff; }
+      to { box-shadow: 0 0 10px 5px #fff; }
+    }
+    .choose-team-btns {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -60%);
+      display: flex;
+      gap: 18px;
+      z-index: 10;
+    }
+    .choose-team-btn {
+      font-size: 2rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 2px 12px #2224;
+      transition: transform 0.2s, box-shadow 0.2s;
+      outline: none;
+      opacity: 0.95;
+    }
+    .choose-team-btn.green { background: #43a047; }
+    .choose-team-btn.red { background: #e53935; }
+    .choose-team-btn:active { transform: scale(0.93); }
+    .confetti-canvas {
+      position: fixed;
+      pointer-events: none;
+      left: 0; top: 0; width: 100vw; height: 100vh;
+      z-index: 9999;
+      display: block;
+    }
+    @media (max-width: 900px) {
+      .container { flex-direction: column; gap: 18px; }
+      .score-panel { min-width: 120px; padding: 20px 10px; }
+      .hex-cell { width: 54px; height: 62px; font-size: 1.3rem; }
+      .choose-team-btn { width: 38px; height: 38px; font-size: 1.2rem; }
     }
   </style>
 </head>
 <body>
-  <!-- صوت النقر -->
-  <audio id="clickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/Click.mp3"></audio>
-  <!-- أزرار التحكم الموحدة -->
-  <button class="control-btn" id="muteBtn" title="تشغيل/كتم الصوت">🔊</button>
-  <button class="control-btn" id="backBtn" title="الرجوع للأنشطة">📚</button>
-  <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">
-    <svg viewBox="0 0 24 24" id="fullscreen-svg">
-      <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
-    </svg>
-  </button>
-  <div class="main-panel">
-    <h1 style="color:#ffe066; text-shadow:1px 2px 8px #222;">🧩 مسابقة الحروف - بلوك باستر</h1>
-    <div class="settings">
-      <select id="classSelect">
-        <option value="">-- اختر الصف --</option>
-        <!-- الصفوف تملأ تلقائياً -->
-      </select>
-      <select id="modeSelect">
-        <option value="">-- نوع المسابقة --</option>
-        <option value="single-manual">فردي انتقائي</option>
-        <option value="single-random">فردي عشوائي</option>
-        <option value="team2-manual">طالب للفريق الأحمر / طالب للفريق الأخضر</option>
-        <option value="team4-manual">طالبان للفريق الأحمر / طالبان للفريق الأخضر</option>
-        <option value="team2-random">جماعي عشوائي (طالبان لكل فريق)</option>
-        <option value="team-free">فريق ضد فريق (بدون تحديد أسماء)</option>
-      </select>
-      <button id="startBtn">ابدأ</button>
+  <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
+  <div class="container">
+    <div class="score-panel green" id="scoreGreen">
+      <div class="score-title">🟢 Green</div>
+      <div class="score-points" id="greenPoints">0</div>
+      <div class="score-label">Top to Bottom</div>
     </div>
-    <div id="hexGrid" class="hex-grid"></div>
-    <div id="infoArea" style="margin-top:20px; color:#fff; font-size:1.2rem;"></div>
+    <div class="board-area">
+      <div class="board-title">Blockbusters</div>
+      <div class="hex-board" id="hexBoard"></div>
+    </div>
+    <div class="score-panel red" id="scoreRed">
+      <div class="score-title">🔴 Red</div>
+      <div class="score-points" id="redPoints">0</div>
+      <div class="score-label">Right to Left</div>
+    </div>
   </div>
+  <audio id="clickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/Click.mp3"></audio>
+  <audio id="successSound" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae5e2.mp3"></audio>
+  <audio id="winSound" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae5e2.mp3"></audio>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <script>
-    // واجهة التحكم الموحدة
-    const muteBtn = document.getElementById('muteBtn');
-    const backBtn = document.getElementById('backBtn');
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
-    const fullscreenSvg = document.getElementById('fullscreen-svg');
-    const clickSound = document.getElementById('clickSound');
-    let soundEnabled = true;
-    muteBtn.onclick = toggleSoundBtn;
-    backBtn.onclick = goBackBtn;
-    fullscreenBtn.onclick = toggleFullscreenBtn;
-    function playClick() {
-      if (soundEnabled) {
-        clickSound.currentTime = 0;
-        clickSound.play().catch(()=>{});
-      }
-    }
-    function toggleSoundBtn() {
-      soundEnabled = !soundEnabled;
-      muteBtn.textContent = soundEnabled ? '🔊' : '🔇';
-      muteBtn.title = soundEnabled ? 'كتم الصوت' : 'تشغيل الصوت';
-      document.querySelectorAll('audio').forEach(audio => {
-        audio.muted = !soundEnabled;
-      });
-      playClick();
-    }
-    function goBackBtn() {
-      playClick();
-      setTimeout(() => {
-        window.location.href = "https://a7mdooh.github.io/entertainment-app/main.html";
-      }, 300);
-    }
-    const fullscreenEnterPath = 'M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z';
-    const fullscreenExitPath = 'M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z';
-    function toggleFullscreenBtn() {
-      playClick();
-      const doc = document.documentElement;
-      if (!document.fullscreenElement) {
-        doc.requestFullscreen().then(() => {
-          fullscreenSvg.setAttribute('d', fullscreenExitPath);
-          fullscreenBtn.title = "خروج من ملء الشاشة";
-        }).catch(()=>{});
-      } else {
-        document.exitFullscreen();
-        fullscreenSvg.setAttribute('d', fullscreenEnterPath);
-        fullscreenBtn.title = "ملء الشاشة";
-      }
-    }
-    document.addEventListener('fullscreenchange', () => {
-      if (!document.fullscreenElement) {
-        fullscreenSvg.setAttribute('d', fullscreenEnterPath);
-        fullscreenBtn.title = "ملء الشاشة";
-      } else {
-        fullscreenSvg.setAttribute('d', fullscreenExitPath);
-        fullscreenBtn.title = "خروج من ملء الشاشة";
-      }
-    });
-    document.querySelectorAll('button').forEach(button => {
-      button.addEventListener('click', playClick);
-    });
-
-    // شبكة الحروف السداسية
+    // إعداد الحروف والأرقام
     const ARABIC_LETTERS = ["أ","ب","ت","ث","ج","ح","خ","د","ذ","ر","ز","س","ش","ص","ض","ط","ظ","ع","غ","ف"];
     const ARABIC_NUMBERS = ["١","٢","٣","٤","٥","٦","٧","٨","٩","٠"];
-    // 20 خلية: حروف أو أرقام عشوائية
+    // توليد 24 خلية عشوائية (6 صفوف × 4 أعمدة)
     function generateHexCells() {
-      let cells = [];
       let pool = [...ARABIC_LETTERS, ...ARABIC_NUMBERS];
-      while (cells.length < 20) {
+      let cells = [];
+      while (cells.length < 24) {
         const idx = Math.floor(Math.random() * pool.length);
         cells.push(pool.splice(idx,1)[0]);
+        if (pool.length === 0) pool = [...ARABIC_LETTERS, ...ARABIC_NUMBERS];
       }
       return cells;
     }
-    function renderHexGrid() {
-      const grid = document.getElementById("hexGrid");
-      grid.innerHTML = "";
+    // رسم الشبكة
+    function renderHexBoard() {
+      const board = document.getElementById("hexBoard");
+      board.innerHTML = "";
       const cells = generateHexCells();
-      // توزيع سداسي: 5 صفوف (4-4-4-4-4)
       let i = 0;
-      for (let row = 0; row < 5; row++) {
+      for (let row = 0; row < 6; row++) {
         const rowDiv = document.createElement("div");
         rowDiv.className = "hex-row";
         for (let col = 0; col < 4; col++) {
           const cell = document.createElement("div");
           cell.className = "hex-cell";
-          cell.innerHTML = `<span class="cell-label">${cells[i]}</span>`;
+          cell.tabIndex = 0;
+          cell.innerHTML = cells[i];
           cell.dataset.index = i;
-          cell.onclick = () => selectHexCell(cell, cells[i]);
+          cell.dataset.state = "empty";
+          cell.addEventListener('click', () => onHexClick(cell));
           rowDiv.appendChild(cell);
           i++;
         }
         // إزاحة الصفوف لتظهر بشكل سداسي
-        rowDiv.style.marginRight = (row % 2 === 0) ? "36px" : "0";
-        grid.appendChild(rowDiv);
+        rowDiv.style.marginRight = (row % 2 === 0) ? "48px" : "0";
+        board.appendChild(rowDiv);
       }
     }
-    // تلوين الخلايا حسب الفريق
-    let currentTeam = "green"; // يبدأ الأخضر افتراضياً
-    function selectHexCell(cell, label) {
-      if (cell.classList.contains("red") || cell.classList.contains("green")) return;
-      cell.classList.add(currentTeam);
-      cell.classList.remove("selected");
-      // هنا يمكن ربط السؤال أو المنطق الخاص بك
-      currentTeam = (currentTeam === "green") ? "red" : "green";
-      showInfo(`الدور الآن: <span style="color:${currentTeam==='green'?'#43a047':'#d32f2f'}">${currentTeam==='green'?'الفريق الأخضر':'الفريق الأحمر'}</span>`);
+    // منطق اختيار الخلية والفريق
+    let selectedCell = null;
+    let greenScore = 0, redScore = 0;
+    function onHexClick(cell) {
+      if (cell.classList.contains('green') || cell.classList.contains('red') || cell.classList.contains('pulse')) return;
+      playSound('clickSound');
+      clearPulse();
+      cell.classList.add('pulse');
+      selectedCell = cell;
+      showTeamButtons(cell);
     }
-    function showInfo(msg) {
-      document.getElementById("infoArea").innerHTML = msg;
+    function clearPulse() {
+      document.querySelectorAll('.hex-cell.pulse').forEach(c => c.classList.remove('pulse'));
+      removeTeamButtons();
     }
-
-    // تحميل الصفوف من قاعدة البيانات (نموذج)
-    async function loadClasses() {
-      const res = await fetch('https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/data/studentData.json');
-      const data = await res.json();
-      const classSelect = document.getElementById("classSelect");
-      for (const cls in data) {
-        const opt = document.createElement("option");
-        opt.value = cls;
-        opt.textContent = `الصف ${cls}`;
-        classSelect.appendChild(opt);
+    // زر اختيار الفريق
+    function showTeamButtons(cell) {
+      removeTeamButtons();
+      const btns = document.createElement('div');
+      btns.className = 'choose-team-btns';
+      btns.innerHTML = `
+        <button class="choose-team-btn green" title="Green" onclick="window.chooseTeam('green')">🟢</button>
+        <button class="choose-team-btn red" title="Red" onclick="window.chooseTeam('red')">🔴</button>
+      `;
+      cell.appendChild(btns);
+    }
+    function removeTeamButtons() {
+      document.querySelectorAll('.choose-team-btns').forEach(b => b.remove());
+    }
+    // اختيار الفريق الفائز للخلية
+    window.chooseTeam = function(team) {
+      if (!selectedCell) return;
+      selectedCell.classList.remove('pulse');
+      selectedCell.classList.add(team);
+      selectedCell.dataset.state = team;
+      playSound('successSound');
+      if (team === 'green') {
+        greenScore++;
+        document.getElementById('greenPoints').textContent = greenScore;
+        const path = hasWinningPath('green', 'top');
+        if (path) {
+          highlightWin(path);
+          playWin();
+        }
+      } else {
+        redScore++;
+        document.getElementById('redPoints').textContent = redScore;
+        const path = hasWinningPath('red', 'left');
+        if (path) {
+          highlightWin(path);
+          playWin();
+        }
       }
+      removeTeamButtons();
+      selectedCell = null;
     }
-
+    // مؤثرات الفوز
+    function playWin() {
+      playSound('winSound');
+      confetti({
+        particleCount: 200,
+        spread: 120,
+        origin: { y: 0.6 }
+      });
+    }
+    function playSound(id) {
+      const audio = document.getElementById(id);
+      if (audio) { audio.currentTime = 0; audio.play().catch(()=>{}); }
+    }
+    // منطق المسار الفائز
+    function indexToCoord(index) {
+      return [Math.floor(index / 4), index % 4];
+    }
+    function getNeighbors(index) {
+      const [row, col] = indexToCoord(index);
+      const neighbors = [];
+      const directions = [
+        [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0]
+      ];
+      if (row % 2 === 0) directions[1] = [-1, 0]; // adjust even rows
+      for (let [dr, dc] of directions) {
+        const r = row + dr;
+        const c = col + dc;
+        if (r >= 0 && r < 6 && c >= 0 && c < 4) {
+          neighbors.push(r * 4 + c);
+        }
+      }
+      return neighbors;
+    }
+    function hasWinningPath(teamClass, fromSide) {
+      const hexes = Array.from(document.querySelectorAll('.hex-cell'));
+      const visited = new Set();
+      const stack = [];
+      if (fromSide === 'left') {
+        for (let r = 0; r < 6; r++) {
+          const idx = r * 4 + 0;
+          if (hexes[idx].classList.contains(teamClass)) {
+            stack.push(idx);
+            visited.add(idx);
+          }
+        }
+      } else if (fromSide === 'top') {
+        for (let c = 0; c < 4; c++) {
+          const idx = 0 * 4 + c;
+          if (hexes[idx].classList.contains(teamClass)) {
+            stack.push(idx);
+            visited.add(idx);
+          }
+        }
+      }
+      while (stack.length) {
+        const current = stack.pop();
+        const [r, c] = indexToCoord(current);
+        if ((fromSide === 'left' && c === 3) || (fromSide === 'top' && r === 5)) {
+          return Array.from(visited);
+        }
+        for (let n of getNeighbors(current)) {
+          if (!visited.has(n) && hexes[n].classList.contains(teamClass)) {
+            visited.add(n);
+            stack.push(n);
+          }
+        }
+      }
+      return null;
+    }
+    function highlightWin(cells) {
+      const hexes = Array.from(document.querySelectorAll('.hex-cell'));
+      cells.forEach(i => hexes[i].classList.add('win'));
+    }
+    // إعادة تعيين اللعبة
+    function resetGame() {
+      greenScore = 0; redScore = 0;
+      document.getElementById('greenPoints').textContent = 0;
+      document.getElementById('redPoints').textContent = 0;
+      renderHexBoard();
+    }
     // بدء اللعبة
-    document.getElementById("startBtn").onclick = function() {
-      const cls = document.getElementById("classSelect").value;
-      const mode = document.getElementById("modeSelect").value;
-      if (!cls || !mode) return alert("يرجى اختيار الصف ونوع المسابقة");
-      renderHexGrid();
-      showInfo("الدور الآن: <span style='color:#43a047'>الفريق الأخضر</span>");
-    };
-
-    window.onload = function() {
-      loadClasses();
-    };
+    renderHexBoard();
+    // إعادة تعيين بالضغط على R
+    document.addEventListener('keydown', e => {
+      if (e.key.toLowerCase() === 'r') resetGame();
+    });
   </script>
 </body>
 </html>
