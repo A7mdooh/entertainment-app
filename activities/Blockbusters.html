@@ -340,14 +340,14 @@
       <div style="margin-top:10px;font-size:1.1rem;color:#888;">لوحة الشرف - تهانينا للفريق الفائز!</div>
     </div>
   </div>
-  <div class="main-panel" id="mainPanel">
-    <div class="score-panel green" id="scoreGreen">
+  <div class="main-panel" id="mainPanel" style="display: flex; flex-direction: row; align-items: flex-start; justify-content: center; gap: 32px;">
+    <div class="score-panel green" id="scoreGreen" style="position:static;">
       <div class="score-title">الفريق الأخضر</div>
       <div class="score-points" id="greenPoints">0</div>
       <div class="score-label">اكمل صفاً أفقياً للفوز</div>
       <div class="player-names" id="greenNames"></div>
     </div>
-    <div class="center-area">
+    <div class="center-area" style="flex:1;display:flex;flex-direction:column;align-items:center;">
       <div class="board-title">🧩 مسابقة الحروف</div>
       <form class="settings" id="settingsForm" autocomplete="off">
         <select id="classSelect" required>
@@ -366,7 +366,7 @@
       </form>
       <div class="hex-board" id="hexBoard"></div>
     </div>
-    <div class="score-panel red" id="scoreRed">
+    <div class="score-panel red" id="scoreRed" style="position:static;">
       <div class="score-title">الفريق الأحمر</div>
       <div class="score-points" id="redPoints">0</div>
       <div class="score-label">اكمل عموداً رأسياً للفوز</div>
