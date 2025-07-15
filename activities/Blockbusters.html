@@ -12,162 +12,104 @@
       font-family: 'Cairo', sans-serif;
       overflow-x: hidden;
     }
-    /* أزرار التحكم العائمة */
-    .floating-controls {
-      position: fixed;
-      top: 24px;
-      left: 24px;
-      right: 24px;
-      z-index: 1000;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      pointer-events: none;
-    }
-    .floating-controls .left,
-    .floating-controls .center,
-    .floating-controls .right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      pointer-events: auto;
-    }
-    .floating-controls .center {
-      flex: 1;
-      justify-content: center;
-    }
-    .control-btn {
-      width: 44px;
-      height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      background-color: #f5f7fa;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-      border: none;
-      cursor: pointer;
-      font-size: 1.5rem;
-      color: #00796B;
-      transition: all 0.3s;
-    }
-    .control-btn svg {
-      width: 22px;
-      height: 22px;
-      fill: #00796B;
-    }
-    .control-btn:hover {
-      background: #e0f2f1;
-      transform: scale(1.12);
-    }
-    /* نافذة الفوز */
-    .win-modal {
-      display: none;
-      position: fixed;
-      z-index: 3000;
-      left: 0; top: 0; width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.45);
-      align-items: center;
-      justify-content: center;
-      animation: fadeIn 0.5s;
-    }
-    .win-modal.active {
-      display: flex;
-    }
-    .win-modal-content {
-      background: #fff;
-      border-radius: 18px;
-      box-shadow: 0 8px 32px #0002;
-      padding: 40px 24px 32px 24px;
-      min-width: 320px;
-      max-width: 90vw;
-      text-align: center;
-      position: relative;
-      animation: popIn 0.7s;
-    }
-    .win-modal .close-btn {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      background: #e53935;
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 36px;
-      height: 36px;
-      font-size: 1.5rem;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .win-modal .close-btn:hover {
-      background: #b71c1c;
-    }
-    .win-modal .trophy {
-      font-size: 3.5rem;
-      margin-bottom: 12px;
-      animation: tada 1.2s;
-    }
-    .win-modal .winner-names {
-      font-size: 1.3rem;
-      color: #00796B;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
-    .win-modal .winner-team {
-      font-size: 1.7rem;
-      font-weight: bold;
-      margin-bottom: 12px;
-      color: #43a047;
-    }
-    .win-modal .fireworks {
-      font-size: 2.2rem;
-      margin-bottom: 10px;
-      animation: fireworks 1.5s infinite alternate;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    @keyframes popIn {
-      from { transform: scale(0.7);}
-      to { transform: scale(1);}
-    }
-    @keyframes tada {
-      0% { transform: scale(1);}
-      10%, 20% { transform: scale(0.9) rotate(-3deg);}
-      30%, 50%, 70%, 90% { transform: scale(1.1) rotate(3deg);}
-      40%, 60%, 80% { transform: scale(1.1) rotate(-3deg);}
-      100% { transform: scale(1);}
-    }
-    @keyframes fireworks {
-      from { filter: drop-shadow(0 0 8px #ffe066); }
-      to { filter: drop-shadow(0 0 24px #ff9800); }
-    }
-    .fullscreen-main-panel {
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      width: 100vw !important;
-      height: 100vh !important;
-      margin: 0 !important;
-      border-radius: 0 !important;
-      z-index: 200 !important;
-      max-width: 100vw !important;
-      box-shadow: none !important;
-      padding: 10px 0 0 0 !important;
-      background: #fff !important;
-      overflow: auto !important;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-    }
     .main-panel {
       margin: 90px auto 0 auto;
       background: #fff;
       border-radius: 18px;
       padding: 30px 10px 10px 10px;
-      max-width: 900px;
+      max-width: 1100px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 32px;
+    }
+    .score-panels {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      min-width: 200px;
+      align-items: stretch;
+      justify-content: flex-start;
+      background: linear-gradient(135deg, #e0f7fa 60%, #fff 100%);
+      border-radius: 24px;
+      box-shadow: 0 4px 24px #43a04711;
+      padding: 24px 10px;
+      height: fit-content;
+    }
+    .score-panel {
+      background: linear-gradient(120deg, #f5f7fa 70%, #e0f2f1 100%);
+      border-radius: 18px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      padding: 22px 10px 18px 10px;
+      min-width: 160px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border: 3px solid #e0e0e0;
+      transition: box-shadow 0.3s, border 0.3s;
+      margin-bottom: 0;
+      position: relative;
+    }
+    .score-panel.green {
+      border: 3px solid #43a047;
+      box-shadow: 0 0 20px 0 #43a04722;
+      background: linear-gradient(120deg, #e8f5e9 60%, #fff 100%);
+    }
+    .score-panel.red {
+      border: 3px solid #e53935;
+      box-shadow: 0 0 20px 0 #e5393522;
+      background: linear-gradient(120deg, #ffebee 60%, #fff 100%);
+    }
+    .score-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+      color: #222;
+      text-shadow: 0 2px 8px #e0f2f1;
+    }
+    .score-points {
+      font-size: 3.2rem;
+      font-weight: bold;
+      margin-bottom: 6px;
+      color: #222;
+      transition: color 0.3s;
+      text-shadow: 0 2px 8px #fff;
+    }
+    .score-panel.green .score-points { color: #43a047; }
+    .score-panel.red .score-points { color: #e53935; }
+    .score-label {
+      font-size: 1.1rem;
+      color: #888;
+      opacity: 0.9;
+      margin-bottom: 8px;
+    }
+    .player-names {
+      color: #00796B;
+      font-size: 1.1rem;
+      margin-top: 4px;
+      min-height: 24px;
+      text-align: center;
+      font-weight: bold;
+    }
+    .center-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-width: 320px;
+    }
+    .board-title {
+      color: #00796B;
+      font-size: 2.2rem;
+      font-weight: bold;
+      margin-bottom: 18px;
+      letter-spacing: 1px;
+      text-align: center;
+      text-shadow: 0 2px 8px #e0f2f1;
     }
     .settings {
       margin-bottom: 30px;
@@ -201,73 +143,6 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 8px rgba(0,0,0,0.12);
     }
-    .score-panels {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 18px;
-      gap: 18px;
-    }
-    .score-panel {
-      background: #f5f7fa;
-      border-radius: 24px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-      padding: 24px 18px;
-      min-width: 160px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-      transition: box-shadow 0.3s;
-      border: 3px solid #e0e0e0;
-    }
-    .score-panel.green {
-      border: 3px solid #43a047;
-      box-shadow: 0 0 20px 0 #43a04722;
-    }
-    .score-panel.red {
-      border: 3px solid #e53935;
-      box-shadow: 0 0 20px 0 #e5393522;
-    }
-    .score-title {
-      font-size: 1.5rem;
-      font-weight: bold;
-      margin-bottom: 8px;
-      letter-spacing: 1px;
-      color: #222;
-    }
-    .score-points {
-      font-size: 2.8rem;
-      font-weight: bold;
-      margin-bottom: 6px;
-      color: #222;
-      transition: color 0.3s;
-    }
-    .score-panel.green .score-points { color: #43a047; }
-    .score-panel.red .score-points { color: #e53935; }
-    .score-label {
-      font-size: 1.1rem;
-      color: #888;
-      opacity: 0.9;
-      margin-bottom: 8px;
-    }
-    .player-names {
-      color: #00796B;
-      font-size: 1.1rem;
-      margin-top: 4px;
-      min-height: 24px;
-      text-align: center;
-      font-weight: bold;
-    }
-    .board-title {
-      color: #00796B;
-      font-size: 2.2rem;
-      font-weight: bold;
-      margin-bottom: 18px;
-      letter-spacing: 1px;
-      text-align: center;
-      text-shadow: 0 2px 8px #e0f2f1;
-    }
     .hex-board {
       display: flex;
       flex-direction: column;
@@ -276,12 +151,16 @@
       margin: 0 auto;
       user-select: none;
       position: relative;
+      background: linear-gradient(120deg, #f5f7fa 80%, #e0f2f1 100%);
+      border-radius: 18px;
+      box-shadow: 0 2px 16px #43a04711;
+      padding: 24px 0 24px 0;
     }
     .hex-row {
       display: flex;
       flex-direction: row;
       justify-content: center;
-      margin-bottom: -22px;
+      margin-bottom: -28px;
     }
     .hex-cell {
       width: 80px;
@@ -293,7 +172,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 4px;
+      margin: 0 8px;
       clip-path: polygon(
         25% 5%, 75% 5%,
         100% 50%, 75% 95%,
@@ -306,6 +185,9 @@
       transition: border-color 0.3s, background 0.3s, color 0.3s, box-shadow 0.3s;
       z-index: 1;
       outline: none;
+    }
+    .hex-row:nth-child(even) .hex-cell {
+      margin-right: 44px;
     }
     /* حواف الشبكة */
     .hex-cell.top-edge { border-top: 6px solid #43a047 !important; }
@@ -376,13 +258,21 @@
       z-index: 9999;
       display: block;
     }
-    @media (max-width: 900px) {
+    @media (max-width: 1100px) {
+      .main-panel { flex-direction: column; gap: 10px; align-items: stretch; }
+      .score-panels { flex-direction: row; gap: 10px; min-width: 0; justify-content: center; }
+      .center-area { min-width: 0; }
+      .hex-board { padding: 10px 0; }
+      .hex-row .hex-cell { margin: 0 2px; }
+      .hex-row:nth-child(even) .hex-cell { margin-right: 22px; }
+    }
+    @media (max-width: 700px) {
       .main-panel { padding: 10px 2px; }
-      .score-panels { flex-direction: column; gap: 10px; }
       .score-panel { min-width: 120px; padding: 10px 5px; }
       .hex-cell { width: 44px; height: 52px; font-size: 1.1rem; }
       .choose-team-btn { width: 32px; height: 32px; font-size: 1rem; }
       .control-bar { padding: 4px 6px; }
+      .hex-row:nth-child(even) .hex-cell { margin-right: 10px; }
     }
   </style>
 </head>
@@ -415,22 +305,6 @@
     </div>
   </div>
   <div class="main-panel" id="mainPanel">
-    <div class="board-title">🧩 مسابقة الحروف</div>
-    <form class="settings" id="settingsForm" autocomplete="off">
-      <select id="classSelect" required>
-        <option value="">-- اختر الصف --</option>
-      </select>
-      <select id="modeSelect" required>
-        <option value="">-- نوع المسابقة --</option>
-        <option value="team2-manual">طالب للفريق الأحمر / طالب للفريق الأخضر</option>
-        <option value="team4-manual">طالبان للفريق الأحمر / طالبان للفريق الأخضر</option>
-        <option value="team2-random">جماعي عشوائي (طالبان لكل فريق)</option>
-        <option value="team-free">فريق ضد فريق (بدون تحديد أسماء)</option>
-      </select>
-      <span id="playersInputs"></span>
-      <button type="submit" id="startBtn">ابدأ</button>
-      <button type="button" onclick="resetGame()" style="background:#607d8b">إعادة تعيين</button>
-    </form>
     <div class="score-panels">
       <div class="score-panel green" id="scoreGreen">
         <div class="score-title">الفريق الأخضر</div>
@@ -445,7 +319,25 @@
         <div class="player-names" id="redNames"></div>
       </div>
     </div>
-    <div class="hex-board" id="hexBoard"></div>
+    <div class="center-area">
+      <div class="board-title">🧩 مسابقة الحروف</div>
+      <form class="settings" id="settingsForm" autocomplete="off">
+        <select id="classSelect" required>
+          <option value="">-- اختر الصف --</option>
+        </select>
+        <select id="modeSelect" required>
+          <option value="">-- نوع المسابقة --</option>
+          <option value="team2-manual">طالب للفريق الأحمر / طالب للفريق الأخضر</option>
+          <option value="team4-manual">طالبان للفريق الأحمر / طالبان للفريق الأخضر</option>
+          <option value="team2-random">جماعي عشوائي (طالبان لكل فريق)</option>
+          <option value="team-free">فريق ضد فريق (بدون تحديد أسماء)</option>
+        </select>
+        <span id="playersInputs"></span>
+        <button type="submit" id="startBtn">ابدأ</button>
+        <button type="button" onclick="resetGame()" style="background:#607d8b">إعادة تعيين</button>
+      </form>
+      <div class="hex-board" id="hexBoard"></div>
+    </div>
   </div>
   <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
   <audio id="clickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/Click.mp3"></audio>
