@@ -333,6 +333,7 @@
     let soundEnabled = true;
     let tickSoundInterval = null;
     let currentColor = 'var(--primary-color)';
+    let tickingActive = false; // للتحكم في صوت العد التنازلي
 
     // عناصر واجهة المستخدم
     const timerDisplay = document.getElementById('timer');
@@ -361,18 +362,19 @@
       muteBtn.addEventListener('click', toggleSound);
       backBtn.addEventListener('click', goBack);
       fullscreenBtn.addEventListener('click', toggleFullscreen);
-      
+
       document.querySelectorAll('button').forEach(btn => {
         btn.addEventListener('click', playClick);
       });
-      
+
       [startSound, endSound, clickSound, tickSound].forEach(audio => {
         audio.load().catch(e => console.log("تعذر تحميل الصوت:", e));
       });
-      
+
       duration = parseInt(timeSelect.value);
       timeLeft = duration;
       updateDisplay();
+      updateMuteIcon();
     }
 
     function formatTime(seconds) {
@@ -391,27 +393,44 @@
       progressCircle.style.stroke = currentColor;
     }
 
+    function updateMuteIcon() {
+      muteBtn.textContent = soundEnabled ? '🔊' : '🔇';
+      muteBtn.title = soundEnabled ? 'كتم الصوت' : 'تشغيل الصوت';
+    }
+
     function manageTickSound() {
-      if (tickSoundInterval) clearInterval(tickSoundInterval);
-      
-      const inFirst10 = mode === 'countdown' ? (duration - timeLeft) <= 10 : elapsed <= 10;
-      const inLast10 = mode === 'countdown' ? timeLeft <= 10 : (duration - elapsed) <= 10;
-      
-      if ((inFirst10 || inLast10) && !isPaused) {
-        currentColor = inFirst10 ? 'var(--success-color)' : 'var(--warning-color)';
+      // إيقاف أي صوت سابق
+      if (tickSoundInterval) {
+        clearInterval(tickSoundInterval);
+        tickSoundInterval = null;
+      }
+      tickSound.pause();
+      tickSound.currentTime = 0;
+      tickingActive = false;
+
+      // تحديد متى يبدأ صوت العد التنازلي (آخر 10 ثواني فقط)
+      let shouldTick = false;
+      if (mode === 'countdown') {
+        shouldTick = timeLeft <= 10 && timeLeft > 0;
+      } else {
+        shouldTick = (duration - elapsed) <= 10 && (duration - elapsed) > 0;
+      }
+
+      if (shouldTick && !isPaused) {
+        currentColor = 'var(--warning-color)';
         progressCircle.classList.add('shake');
-        
+        tickingActive = true;
         tickSoundInterval = setInterval(() => {
-          if (soundEnabled) {
+          if (soundEnabled && tickingActive) {
             tickSound.currentTime = 0;
-            tickSound.play().catch(e => console.log("تعذر تشغيل صوت المؤقت:", e));
+            tickSound.play().catch(e => {});
           }
         }, 1000);
       } else {
         currentColor = 'var(--primary-color)';
         progressCircle.classList.remove('shake');
       }
-      
+
       updateDisplay();
     }
 
@@ -431,14 +450,14 @@
           showModal();
         }
       }
-      
       manageTickSound();
     }
 
     function showModal() {
-      // إيقاف صوت المؤقت نهائيًا عند انتهاء الوقت
-      clearInterval(tickSoundInterval);
+      // إيقاف صوت العد التنازلي نهائياً عند انتهاء الوقت
+      if (tickSoundInterval) clearInterval(tickSoundInterval);
       tickSoundInterval = null;
+      tickingActive = false;
       tickSound.pause();
       tickSound.currentTime = 0;
 
@@ -463,9 +482,9 @@
       elapsed = 0;
       isPaused = false;
       currentColor = 'var(--primary-color)';
-      
-      interval = setInterval(timerTick, 1000);
       pauseResumeBtn.textContent = 'إيقاف';
+
+      interval = setInterval(timerTick, 1000);
       updateDisplay();
       manageTickSound();
     }
@@ -482,14 +501,21 @@
         stopTimer();
         pauseResumeBtn.textContent = 'استئناف';
         isPaused = true;
+        // عند الإيقاف المؤقت، أوقف صوت العد التنازلي فوراً
+        if (tickSoundInterval) clearInterval(tickSoundInterval);
+        tickSoundInterval = null;
+        tickingActive = false;
+        tickSound.pause();
+        tickSound.currentTime = 0;
       }
     }
 
     function stopTimer() {
       clearInterval(interval);
-      clearInterval(tickSoundInterval);
       interval = null;
+      if (tickSoundInterval) clearInterval(tickSoundInterval);
       tickSoundInterval = null;
+      tickingActive = false;
       tickSound.pause();
       tickSound.currentTime = 0;
       isPaused = false;
@@ -508,29 +534,33 @@
 
     function toggleSound() {
       soundEnabled = !soundEnabled;
-      muteBtn.textContent = soundEnabled ? '🔊' : '🔇';
-      muteBtn.title = soundEnabled ? 'كتم الصوت' : 'تشغيل الصوت';
+      updateMuteIcon();
       playClick();
+      // إذا تم كتم الصوت أثناء العد التنازلي، أوقف صوت العد فوراً
+      if (!soundEnabled) {
+        tickSound.pause();
+        tickSound.currentTime = 0;
+      }
     }
 
     function playClick() {
       if (soundEnabled) {
         clickSound.currentTime = 0;
-        clickSound.play().catch(e => console.log("تعذر تشغيل صوت النقر:", e));
+        clickSound.play().catch(e => {});
       }
     }
 
     function playStart() {
       if (soundEnabled) {
         startSound.currentTime = 0;
-        startSound.play().catch(e => console.log("تعذر تشغيل صوت البدء:", e));
+        startSound.play().catch(e => {});
       }
     }
 
     function playEnd() {
       if (soundEnabled) {
         endSound.currentTime = 0;
-        endSound.play().catch(e => console.log("تعذر تشغيل صوت النهاية:", e));
+        endSound.play().catch(e => {});
       }
     }
 
@@ -544,7 +574,7 @@
     function toggleFullscreen() {
       playClick();
       const doc = document.documentElement;
-      
+
       if (!document.fullscreenElement) {
         doc.requestFullscreen().then(() => {
           fullscreenBtn.textContent = "🗗";
@@ -563,6 +593,9 @@
       if (!document.fullscreenElement) {
         fullscreenBtn.textContent = "⛶";
         fullscreenBtn.title = "ملء الشاشة";
+      } else {
+        fullscreenBtn.textContent = "🗗";
+        fullscreenBtn.title = "خروج من ملء الشاشة";
       }
     });
 
