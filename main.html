@@ -81,7 +81,7 @@
   <button class="control-btn" id="homeBtn" title="العودة للصفحة الرئيسية">🏠</button>
   
   <!-- زر ملء الشاشة (على اليسار) -->
-  <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">⛶</button>
+  <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة/الخروج">🖥️</button>
 
   <div class="header">
     <h1>📚 الأنشطة الصفية</h1>
@@ -96,6 +96,12 @@
   <div class="activity-card" onclick="window.location.href='activities/timer.html'">
     <div class="activity-title">⏱️ المؤقت</div>
     <div class="activity-desc">مؤقت مرئي يساعد في ضبط الأنشطة والمهام الصفية</div>
+  </div>
+
+  <!-- مسابقة الحروف أصبحت النشاط الثالث -->
+  <div class="activity-card" onclick="window.location.href='activities/Blockbusters.html'">
+    <div class="activity-title">🧩 مسابقة الحروف</div>
+    <div class="activity-desc">لعبة تفاعلية بين فريقين تعتمد على الحروف والسرعة</div>
   </div>
 
   <div class="activity-card" onclick="window.location.href='activities/challenges.html'">
@@ -133,26 +139,17 @@
     <div class="activity-desc">عرض صور تعليمية ممتعة للطلاب</div>
   </div>
 
-  <div class="activity-card" onclick="window.location.href='activities/Blockbusters.html'">
-    <div class="activity-title">🧩 مسابقة الحروف</div>
-    <div class="activity-desc">لعبة تفاعلية بين فريقين تعتمد على الحروف والسرعة</div>
-  </div>
-
   <script>
-    // وظيفة ملء الشاشة
-    document.getElementById('fullscreenBtn').addEventListener('click', toggleFullScreen);
-    
-    function toggleFullScreen() {
+    // وظيفة ملء الشاشة/الخروج منها
+    document.getElementById('fullscreenBtn').addEventListener('click', function() {
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(err => {
           console.log('خطأ في ملء الشاشة:', err);
         });
       } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        }
+        document.exitFullscreen();
       }
-    }
+    });
 
     // تفعيل ملء الشاشة عند أول تفاعل للمستخدم
     function requestFullscreenOnFirstInteraction() {
@@ -179,7 +176,6 @@
     document.addEventListener('fullscreenchange', function() {
       const homeBtn = document.getElementById('homeBtn');
       const fullscreenBtn = document.getElementById('fullscreenBtn');
-      
       if (document.fullscreenElement) {
         homeBtn.style.display = 'none';
         fullscreenBtn.style.display = 'none';
