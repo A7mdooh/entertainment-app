@@ -463,7 +463,7 @@
       <div class="winner-team" id="winnerTeam" style="font-size:1.7rem;font-weight:bold;"></div>
       <div class="winner-names" id="winnerNames" style="margin-bottom:10px;"></div>
       <div class="honor-board" id="honorBoard" style="margin-top:18px;">
-        <div style="font-size:1.1rem;color:#888;">لوحة الشرف</div>
+        <div style="font-size:1.1rem;color:#888;">الفريق الفائز وأسماء أعضائه</div>
         <ul id="honorList" style="list-style:none;padding:0;margin:8px 0 0 0;"></ul>
       </div>
       <button onclick="closeWinModal()" style="margin-top:18px;background:#43a047;color:#fff;padding:10px 28px;border:none;border-radius:8px;font-size:1.1rem;cursor:pointer;">إغلاق</button>
@@ -588,14 +588,19 @@
     const honor = JSON.parse(localStorage.getItem('honorBoard') || '[]');
     const honorList = document.getElementById('honorList');
     honorList.innerHTML = '';
-    honor.forEach(item => {
+    if (honor.length) {
+      // فقط الفريق الفائز الأخير
+      const item = honor[0];
+      const teamName = item.team === 'green' ? 'الفريق الأخضر' : 'الفريق الأحمر';
+      const color = item.team === 'green' ? '#43a047' : '#e53935';
       const li = document.createElement('li');
       li.style.marginBottom = '4px';
-      li.innerHTML = `<span style="color:${item.team==='green'?'#43a047':'#e53935'};font-weight:bold">${item.team==='green'?'الأخضر':'الأحمر'}</span>
-        - ${item.names} <span style="color:#888;font-size:0.95em">(${item.date})</span>`;
+      li.innerHTML = `<span style="color:${color};font-weight:bold">${teamName}</span> - ${item.names}`;
       honorList.appendChild(li);
-    });
-    document.getElementById('honorBoard').style.display = honor.length ? 'block' : 'none';
+      document.getElementById('honorBoard').style.display = 'block';
+    } else {
+      document.getElementById('honorBoard').style.display = 'none';
+    }
   }
 
   // نافذة الفوز: أظهر لوحة الشرف عند الفوز فقط
