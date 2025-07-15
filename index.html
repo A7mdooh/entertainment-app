@@ -387,8 +387,6 @@
     });
 
     // وظيفة ملء الشاشة
-    document.getElementById('fullscreenBtn').addEventListener('click', toggleFullScreen);
-    
     function toggleFullScreen() {
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(err => {
@@ -401,14 +399,8 @@
       }
     }
 
-    // تأثير الانتقال بين الصفحات
-    document.getElementById('startBtn').addEventListener('click', function(e) {
-      e.preventDefault();
-      document.body.classList.add('fly-out');
-      setTimeout(() => {
-        window.location.href = this.href;
-      }, 700);
-    });
-  </script>
-</body>
-</html>
+    // تشغيل ملء الشاشة تلقائياً عند فتح الصفحة
+    window.addEventListener('DOMContentLoaded', () => {
+      // محاولة الدخول في وضع ملء الشاشة تلقائياً
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(()=>{});
