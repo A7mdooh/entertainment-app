@@ -52,7 +52,7 @@
       cursor: pointer;
       transition: transform 0.3s;
       padding: 5px;
-      z-index: 100;
+      z-index: 2147483647; /* أعلى قيمة لجعلها فوق كل شيء حتى في ملء الشاشة */
     }
     .control-btn:hover {
       transform: scale(1.1);
@@ -172,13 +172,16 @@
       window.location.href = 'https://a7mdooh.github.io/entertainment-app/';
     });
 
-    // إظهار الأزرار دائمًا حتى في وضع ملء الشاشة
+    // لم يعد هناك حاجة لتغيير إظهار الأزرار عند fullscreen
+    // يمكن حذف أو تعطيل الكود التالي إذا كان موجوداً:
+    /*
     document.addEventListener('fullscreenchange', function() {
       const homeBtn = document.getElementById('homeBtn');
       const fullscreenBtn = document.getElementById('fullscreenBtn');
       homeBtn.style.display = 'block';
       fullscreenBtn.style.display = 'block';
     });
+    */
   </script>
 </body>
 </html>
