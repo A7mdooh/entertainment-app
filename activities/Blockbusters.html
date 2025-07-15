@@ -581,13 +581,13 @@
 
     async function loadClasses() {
       try {
-        const res = await fetch('/studentData.json');
+        // استخدم نفس المسار كما في الأنشطة السابقة
+        const res = await fetch('https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/data/studentData.json');
         if (!res.ok) throw new Error('فشل في تحميل بيانات الطلاب');
         classData = await res.json();
         fillClassSelect();
       } catch (e) {
-        alert("تعذر تحميل بيانات الصفوف والطلاب. تأكد من وجود ملف studentData.json في جذر الموقع.");
-        // إيقاف باقي منطق الصفحة حتى لا تظهر أخطاء
+        alert("تعذر تحميل بيانات الصفوف والطلاب. تأكد من وجود اتصال بالإنترنت أو صحة ملف studentData.json.");
         document.getElementById('classSelect').innerHTML = '<option value="">لا توجد بيانات صفوف</option>';
         document.getElementById('modeSelect').disabled = true;
         document.getElementById('startBtn').disabled = true;
@@ -595,7 +595,6 @@
       }
     }
 
-    // تعبئة قائمة الصفوف
     function fillClassSelect() {
       const classSelect = document.getElementById('classSelect');
       classSelect.innerHTML = '<option value="">-- اختر الصف --</option>';
@@ -609,13 +608,11 @@
       document.getElementById('startBtn').disabled = false;
     }
 
-    // عند تغيير الصف، أعد تعيين اختيار النمط واللاعبين
     document.getElementById("classSelect").onchange = function() {
       document.getElementById("modeSelect").selectedIndex = 0;
       document.getElementById("playersInputs").innerHTML = "";
     };
 
-    // منطق اختيار اللاعبين حسب النمط
     document.getElementById("modeSelect").onchange = function() {
       const mode = this.value;
       const playersInputs = document.getElementById("playersInputs");
@@ -642,16 +639,12 @@
       playersInputs.innerHTML = html;
     };
 
-    // عند تحميل الصفحة
     window.onload = function() {
-      // تعطيل النمط والبدء حتى تحميل البيانات
       document.getElementById('modeSelect').disabled = true;
       document.getElementById('startBtn').disabled = true;
       loadClasses();
       renderHexBoard();
     };
-
-    // ...باقي الكود كما هو...
   </script>
 </body>
 </html>
