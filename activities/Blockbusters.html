@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Blockbusters - Letters Competition</title>
+  <title>مسابقة الحروف - بلوك باستر</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600&display=swap" rel="stylesheet">
   <style>
     body {
@@ -12,19 +12,92 @@
       font-family: 'Cairo', sans-serif;
       overflow-x: hidden;
     }
-    .container {
+    .control-bar {
+      position: fixed;
+      top: 0; right: 0; left: 0;
+      background: rgba(40,62,81,0.97);
+      z-index: 100;
       display: flex;
-      justify-content: center;
       align-items: center;
-      min-height: 100vh;
-      gap: 40px;
+      justify-content: flex-end;
+      padding: 8px 24px;
+      gap: 10px;
+      box-shadow: 0 2px 12px #2222;
+    }
+    .control-btn {
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background-color: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border: none;
+      cursor: pointer;
+      font-size: 1.4rem;
+      transition: all 0.3s;
+    }
+    .control-btn svg {
+      width: 22px;
+      height: 22px;
+      fill: #00796B;
+    }
+    .control-btn:hover {
+      background: #f5f5f5;
+      transform: scale(1.12);
+    }
+    .main-panel {
+      margin: 80px auto 0 auto;
+      background: rgba(255,255,255,0.07);
+      border-radius: 18px;
+      padding: 30px 10px 10px 10px;
+      max-width: 900px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    }
+    .settings {
+      margin-bottom: 30px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+    }
+    select, button, input {
+      font-family: 'Cairo', sans-serif;
+      padding: 10px 16px;
+      font-size: 1.1rem;
+      margin: 5px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      transition: all 0.3s;
+    }
+    button {
+      background-color: #00796B;
+      color: white;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: all 0.2s;
+    }
+    button:hover {
+      background-color: #004d40;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    .score-panels {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      gap: 18px;
     }
     .score-panel {
       background: rgba(255,255,255,0.10);
       border-radius: 24px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-      padding: 40px 30px;
-      min-width: 180px;
+      padding: 24px 18px;
+      min-width: 160px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -40,16 +113,17 @@
       box-shadow: 0 0 30px 0 #e5393544;
     }
     .score-title {
-      font-size: 2.1rem;
+      font-size: 1.5rem;
       font-weight: bold;
-      margin-bottom: 18px;
+      margin-bottom: 8px;
       letter-spacing: 1px;
       text-shadow: 0 2px 8px #2222;
+      color: #fff;
     }
     .score-points {
-      font-size: 4rem;
+      font-size: 2.8rem;
       font-weight: bold;
-      margin-bottom: 10px;
+      margin-bottom: 6px;
       color: #fff;
       text-shadow: 0 2px 12px #2228;
       transition: color 0.3s;
@@ -57,16 +131,17 @@
     .score-panel.green .score-points { color: #43a047; }
     .score-panel.red .score-points { color: #e53935; }
     .score-label {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       color: #fff;
       opacity: 0.8;
       margin-bottom: 8px;
     }
-    .board-area {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 18px;
+    .player-names {
+      color: #fff;
+      font-size: 1.1rem;
+      margin-top: 4px;
+      min-height: 24px;
+      text-align: center;
     }
     .board-title {
       color: #ffe066;
@@ -75,6 +150,7 @@
       margin-bottom: 18px;
       text-shadow: 0 2px 8px #222;
       letter-spacing: 1px;
+      text-align: center;
     }
     .hex-board {
       display: flex;
@@ -180,40 +256,167 @@
       display: block;
     }
     @media (max-width: 900px) {
-      .container { flex-direction: column; gap: 18px; }
-      .score-panel { min-width: 120px; padding: 20px 10px; }
+      .main-panel { padding: 10px 2px; }
+      .score-panels { flex-direction: column; gap: 10px; }
+      .score-panel { min-width: 120px; padding: 10px 5px; }
       .hex-cell { width: 54px; height: 62px; font-size: 1.3rem; }
       .choose-team-btn { width: 38px; height: 38px; font-size: 1.2rem; }
     }
   </style>
 </head>
 <body>
-  <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
-  <div class="container">
-    <div class="score-panel green" id="scoreGreen">
-      <div class="score-title">🟢 Green</div>
-      <div class="score-points" id="greenPoints">0</div>
-      <div class="score-label">Top to Bottom</div>
-    </div>
-    <div class="board-area">
-      <div class="board-title">Blockbusters</div>
-      <div class="hex-board" id="hexBoard"></div>
-    </div>
-    <div class="score-panel red" id="scoreRed">
-      <div class="score-title">🔴 Red</div>
-      <div class="score-points" id="redPoints">0</div>
-      <div class="score-label">Right to Left</div>
-    </div>
+  <div class="control-bar">
+    <button class="control-btn" id="muteBtn" title="تشغيل/كتم الصوت">🔊</button>
+    <button class="control-btn" id="backBtn" title="الرجوع للأنشطة">📚</button>
+    <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">
+      <svg viewBox="0 0 24 24" id="fullscreen-svg">
+        <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+      </svg>
+    </button>
   </div>
+  <div class="main-panel">
+    <div class="board-title">🧩 مسابقة الحروف - بلوك باستر</div>
+    <form class="settings" id="settingsForm" autocomplete="off">
+      <select id="classSelect" required>
+        <option value="">-- اختر الصف --</option>
+      </select>
+      <select id="modeSelect" required>
+        <option value="">-- نوع المسابقة --</option>
+        <option value="single-manual">فردي انتقائي</option>
+        <option value="single-random">فردي عشوائي</option>
+        <option value="team2-manual">طالب للفريق الأحمر / طالب للفريق الأخضر</option>
+        <option value="team4-manual">طالبان للفريق الأحمر / طالبان للفريق الأخضر</option>
+        <option value="team2-random">جماعي عشوائي (طالبان لكل فريق)</option>
+        <option value="team-free">فريق ضد فريق (بدون تحديد أسماء)</option>
+      </select>
+      <span id="playersInputs"></span>
+      <button type="submit" id="startBtn">ابدأ</button>
+      <button type="button" onclick="resetGame()" style="background:#607d8b">إعادة تعيين</button>
+    </form>
+    <div class="score-panels">
+      <div class="score-panel green" id="scoreGreen">
+        <div class="score-title">الفريق الأخضر</div>
+        <div class="score-points" id="greenPoints">0</div>
+        <div class="score-label">من الأعلى للأسفل</div>
+        <div class="player-names" id="greenNames"></div>
+      </div>
+      <div class="score-panel red" id="scoreRed">
+        <div class="score-title">الفريق الأحمر</div>
+        <div class="score-points" id="redPoints">0</div>
+        <div class="score-label">من اليمين لليسار</div>
+        <div class="player-names" id="redNames"></div>
+      </div>
+    </div>
+    <div class="hex-board" id="hexBoard"></div>
+  </div>
+  <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
   <audio id="clickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/Click.mp3"></audio>
   <audio id="successSound" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae5e2.mp3"></audio>
   <audio id="winSound" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae5e2.mp3"></audio>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <script>
-    // إعداد الحروف والأرقام
+    // واجهة التحكم الموحدة
+    const muteBtn = document.getElementById('muteBtn');
+    const backBtn = document.getElementById('backBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const fullscreenSvg = document.getElementById('fullscreen-svg');
+    const clickSound = document.getElementById('clickSound');
+    let soundEnabled = true;
+    muteBtn.onclick = toggleSoundBtn;
+    backBtn.onclick = goBackBtn;
+    fullscreenBtn.onclick = toggleFullscreenBtn;
+    function playClick() {
+      if (soundEnabled) {
+        clickSound.currentTime = 0;
+        clickSound.play().catch(()=>{});
+      }
+    }
+    function toggleSoundBtn() {
+      soundEnabled = !soundEnabled;
+      muteBtn.textContent = soundEnabled ? '🔊' : '🔇';
+      muteBtn.title = soundEnabled ? 'كتم الصوت' : 'تشغيل الصوت';
+      document.querySelectorAll('audio').forEach(audio => {
+        audio.muted = !soundEnabled;
+      });
+      playClick();
+    }
+    function goBackBtn() {
+      playClick();
+      setTimeout(() => {
+        window.location.href = "https://a7mdooh.github.io/entertainment-app/main.html";
+      }, 300);
+    }
+    const fullscreenEnterPath = 'M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z';
+    const fullscreenExitPath = 'M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z';
+    function toggleFullscreenBtn() {
+      playClick();
+      const doc = document.documentElement;
+      if (!document.fullscreenElement) {
+        doc.requestFullscreen().then(() => {
+          fullscreenSvg.setAttribute('d', fullscreenExitPath);
+          fullscreenBtn.title = "خروج من ملء الشاشة";
+        }).catch(()=>{});
+      } else {
+        document.exitFullscreen();
+        fullscreenSvg.setAttribute('d', fullscreenEnterPath);
+        fullscreenBtn.title = "ملء الشاشة";
+      }
+    }
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement) {
+        fullscreenSvg.setAttribute('d', fullscreenEnterPath);
+        fullscreenBtn.title = "ملء الشاشة";
+      } else {
+        fullscreenSvg.setAttribute('d', fullscreenExitPath);
+        fullscreenBtn.title = "خروج من ملء الشاشة";
+      }
+    });
+    document.querySelectorAll('button').forEach(button => {
+      button.addEventListener('click', playClick);
+    });
+
+    // تحميل الصفوف من قاعدة بيانات الطلاب
+    let studentData = {};
+    async function loadClasses() {
+      const res = await fetch('https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/data/studentData.json');
+      studentData = await res.json();
+      const classSelect = document.getElementById("classSelect");
+      for (const cls in studentData) {
+        const opt = document.createElement("option");
+        opt.value = cls;
+        opt.textContent = `الصف ${cls}`;
+        classSelect.appendChild(opt);
+      }
+    }
+
+    // منطق اختيار اللاعبين حسب النمط
+    document.getElementById("modeSelect").onchange = function() {
+      const mode = this.value;
+      const playersInputs = document.getElementById("playersInputs");
+      playersInputs.innerHTML = "";
+      if (!mode || mode === "team-free") return;
+      let html = "";
+      if (mode === "single-manual") {
+        html = `<input type="text" required placeholder="اسم اللاعب" id="player1" style="width:120px">`;
+      } else if (mode === "single-random") {
+        html = `<span style="color:#fff">سيتم اختيار لاعب عشوائي</span>`;
+      } else if (mode === "team2-manual") {
+        html = `<input type="text" required placeholder="لاعب الفريق الأحمر" id="red1" style="width:120px">
+                <input type="text" required placeholder="لاعب الفريق الأخضر" id="green1" style="width:120px">`;
+      } else if (mode === "team4-manual") {
+        html = `<input type="text" required placeholder="لاعب ١ أحمر" id="red1" style="width:110px">
+                <input type="text" required placeholder="لاعب ٢ أحمر" id="red2" style="width:110px">
+                <input type="text" required placeholder="لاعب ١ أخضر" id="green1" style="width:110px">
+                <input type="text" required placeholder="لاعب ٢ أخضر" id="green2" style="width:110px">`;
+      } else if (mode === "team2-random") {
+        html = `<span style="color:#fff">سيتم اختيار لاعبين عشوائيًا لكل فريق</span>`;
+      }
+      playersInputs.innerHTML = html;
+    };
+
+    // منطق الشبكة
     const ARABIC_LETTERS = ["أ","ب","ت","ث","ج","ح","خ","د","ذ","ر","ز","س","ش","ص","ض","ط","ظ","ع","غ","ف"];
     const ARABIC_NUMBERS = ["١","٢","٣","٤","٥","٦","٧","٨","٩","٠"];
-    // توليد 24 خلية عشوائية (6 صفوف × 4 أعمدة)
     function generateHexCells() {
       let pool = [...ARABIC_LETTERS, ...ARABIC_NUMBERS];
       let cells = [];
@@ -224,7 +427,7 @@
       }
       return cells;
     }
-    // رسم الشبكة
+    let selectedCell = null, greenScore = 0, redScore = 0;
     function renderHexBoard() {
       const board = document.getElementById("hexBoard");
       board.innerHTML = "";
@@ -244,17 +447,13 @@
           rowDiv.appendChild(cell);
           i++;
         }
-        // إزاحة الصفوف لتظهر بشكل سداسي
         rowDiv.style.marginRight = (row % 2 === 0) ? "48px" : "0";
         board.appendChild(rowDiv);
       }
     }
-    // منطق اختيار الخلية والفريق
-    let selectedCell = null;
-    let greenScore = 0, redScore = 0;
     function onHexClick(cell) {
       if (cell.classList.contains('green') || cell.classList.contains('red') || cell.classList.contains('pulse')) return;
-      playSound('clickSound');
+      playClick();
       clearPulse();
       cell.classList.add('pulse');
       selectedCell = cell;
@@ -264,21 +463,19 @@
       document.querySelectorAll('.hex-cell.pulse').forEach(c => c.classList.remove('pulse'));
       removeTeamButtons();
     }
-    // زر اختيار الفريق
     function showTeamButtons(cell) {
       removeTeamButtons();
       const btns = document.createElement('div');
       btns.className = 'choose-team-btns';
       btns.innerHTML = `
-        <button class="choose-team-btn green" title="Green" onclick="window.chooseTeam('green')">🟢</button>
-        <button class="choose-team-btn red" title="Red" onclick="window.chooseTeam('red')">🔴</button>
+        <button class="choose-team-btn green" title="الفريق الأخضر" onclick="window.chooseTeam('green')">🟢</button>
+        <button class="choose-team-btn red" title="الفريق الأحمر" onclick="window.chooseTeam('red')">🔴</button>
       `;
       cell.appendChild(btns);
     }
     function removeTeamButtons() {
       document.querySelectorAll('.choose-team-btns').forEach(b => b.remove());
     }
-    // اختيار الفريق الفائز للخلية
     window.chooseTeam = function(team) {
       if (!selectedCell) return;
       selectedCell.classList.remove('pulse');
@@ -305,7 +502,6 @@
       removeTeamButtons();
       selectedCell = null;
     }
-    // مؤثرات الفوز
     function playWin() {
       playSound('winSound');
       confetti({
@@ -318,7 +514,6 @@
       const audio = document.getElementById(id);
       if (audio) { audio.currentTime = 0; audio.play().catch(()=>{}); }
     }
-    // منطق المسار الفائز
     function indexToCoord(index) {
       return [Math.floor(index / 4), index % 4];
     }
@@ -328,7 +523,7 @@
       const directions = [
         [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0]
       ];
-      if (row % 2 === 0) directions[1] = [-1, 0]; // adjust even rows
+      if (row % 2 === 0) directions[1] = [-1, 0];
       for (let [dr, dc] of directions) {
         const r = row + dr;
         const c = col + dc;
@@ -378,15 +573,66 @@
       const hexes = Array.from(document.querySelectorAll('.hex-cell'));
       cells.forEach(i => hexes[i].classList.add('win'));
     }
-    // إعادة تعيين اللعبة
     function resetGame() {
       greenScore = 0; redScore = 0;
       document.getElementById('greenPoints').textContent = 0;
       document.getElementById('redPoints').textContent = 0;
+      document.getElementById('greenNames').textContent = '';
+      document.getElementById('redNames').textContent = '';
       renderHexBoard();
     }
-    // بدء اللعبة
-    renderHexBoard();
+
+    // منطق بدء اللعبة وتوزيع اللاعبين
+    document.getElementById("settingsForm").onsubmit = function(e) {
+      e.preventDefault();
+      // أسماء الفرق
+      const mode = document.getElementById("modeSelect").value;
+      const cls = document.getElementById("classSelect").value;
+      let greenNames = "", redNames = "";
+      if (mode === "single-manual") {
+        greenNames = document.getElementById("player1").value;
+        redNames = "المعلم";
+      } else if (mode === "single-random") {
+        const students = studentData[cls];
+        const idx = Math.floor(Math.random() * students.length);
+        greenNames = students[idx];
+        redNames = "المعلم";
+      } else if (mode === "team2-manual") {
+        redNames = document.getElementById("red1").value;
+        greenNames = document.getElementById("green1").value;
+      } else if (mode === "team4-manual") {
+        redNames = document.getElementById("red1").value + "، " + document.getElementById("red2").value;
+        greenNames = document.getElementById("green1").value + "، " + document.getElementById("green2").value;
+      } else if (mode === "team2-random") {
+        const students = [...studentData[cls]];
+        shuffle(students);
+        redNames = students.slice(0,2).join("، ");
+        greenNames = students.slice(2,4).join("، ");
+      } else if (mode === "team-free") {
+        redNames = "الفريق الأحمر";
+        greenNames = "الفريق الأخضر";
+      }
+      document.getElementById('greenNames').textContent = greenNames;
+      document.getElementById('redNames').textContent = redNames;
+      greenScore = 0; redScore = 0;
+      document.getElementById('greenPoints').textContent = 0;
+      document.getElementById('redPoints').textContent = 0;
+      renderHexBoard();
+    };
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
+
+    // تحميل الصفوف عند بدء الصفحة
+    window.onload = function() {
+      loadClasses();
+      renderHexBoard();
+    };
+
     // إعادة تعيين بالضغط على R
     document.addEventListener('keydown', e => {
       if (e.key.toLowerCase() === 'r') resetGame();
