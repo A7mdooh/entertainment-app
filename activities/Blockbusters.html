@@ -511,6 +511,9 @@
   <audio id="clickSound" src="https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/assets/media/sounds/Click.mp3"></audio>
   <audio id="successSound" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae5e2.mp3"></audio>
   <audio id="winSound" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae5e2.mp3"></audio>
+  <audio id="greenPointSound" src="https://github.com/A7mdooh/entertainment-app/raw/main/assets/media/sounds/g.mp3"></audio>
+  <audio id="redPointSound" src="https://github.com/A7mdooh/entertainment-app/raw/main/assets/media/sounds/r.mp3"></audio>
+  <audio id="celebrateWinSound" src="https://github.com/A7mdooh/entertainment-app/raw/main/assets/media/sounds/win.mp3"></audio>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <script>
   // أزرار التحكم
@@ -618,7 +621,7 @@
     document.getElementById('winModal').classList.add('active');
     // احتفالية متحركة
     playConfetti();
-    playSound('winSound');
+    playSound('celebrateWinSound'); // صوت الاحتفال بالفوز
   }
   function closeWinModal() {
     document.getElementById('winModal').classList.remove('active');
@@ -704,6 +707,7 @@
     if (team === 'green') {
       greenScore++;
       document.getElementById('greenPoints').textContent = greenScore;
+      playSound('greenPointSound'); // صوت الفريق الأخضر
       const row = Math.floor(Number(selectedCell.dataset.index) / 5);
       if (checkRowWin(row, 'green')) {
         highlightRow(row, 'green');
@@ -712,6 +716,7 @@
     } else {
       redScore++;
       document.getElementById('redPoints').textContent = redScore;
+      playSound('redPointSound'); // صوت الفريق الأحمر
       const col = Number(selectedCell.dataset.index) % 5;
       if (checkColWin(col, 'red')) {
         highlightCol(col, 'red');
