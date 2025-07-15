@@ -388,22 +388,22 @@
 </head>
 <body>
   <!-- أزرار التحكم العائمة -->
-  <div class="floating-controls">
-    <div class="left">
-      <button class="control-btn" id="muteBtn" title="تشغيل/كتم الصوت">🔊</button>
+  <div class="floating-controls" style="pointer-events: none;">
+    <div class="left" style="pointer-events: auto;">
+      <button class="control-btn" id="muteBtn" title="تشغيل/كتم الصوت" type="button">🔊</button>
     </div>
-    <div class="center">
-      <button class="control-btn" id="backBtn" title="الرجوع للأنشطة">📚</button>
+    <div class="center" style="pointer-events: auto;">
+      <button class="control-btn" id="backBtn" title="الرجوع للأنشطة" type="button">📚</button>
     </div>
-    <div class="right">
-      <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">
+    <div class="right" style="pointer-events: auto;">
+      <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة" type="button">
         <svg viewBox="0 0 24 24" id="fullscreen-svg">
           <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
         </svg>
       </button>
     </div>
   </div>
-  <!-- نافذة الفوز -->
+  <!-- نافذة الفوز الاحترافية -->
   <div class="win-modal" id="winModal">
     <div class="win-modal-content">
       <button class="close-btn" id="closeWinModal" title="إغلاق">×</button>
@@ -537,7 +537,7 @@
       document.getElementById('winModal').classList.remove('active');
     };
 
-    // عدل دالة playWin لعرض النافذة مع الأسماء
+    // عدل playWin ليعرض النافذة مع الأسماء
     function playWin(team) {
       let names = '';
       if (team === 'green') {
@@ -548,14 +548,8 @@
       showWinModal(team, names);
     }
 
-    // عدل استدعاء playWin في دوال الفوز:
-    // ابحث عن:
-    // playWin();
-    // واستبدلها بـ:
-    // playWin('green'); أو playWin('red'); حسب الفريق
-
-    // مثال (ضع هذا التغيير في دالة chooseTeam):
-    // ...
+    // عدل استدعاء playWin في منطق الفوز:
+    // في chooseTeam:
     window.chooseTeam = function(team) {
       if (!selectedCell) return;
       selectedCell.classList.remove('pulse');
@@ -568,7 +562,7 @@
         const row = Math.floor(Number(selectedCell.dataset.index) / 5);
         if (checkRowWin(row, 'green')) {
           highlightRow(row, 'green');
-          playWin('green'); // تم التعديل هنا
+          playWin('green');
         }
       } else {
         redScore++;
@@ -576,7 +570,7 @@
         const col = Number(selectedCell.dataset.index) % 5;
         if (checkColWin(col, 'red')) {
           highlightCol(col, 'red');
-          playWin('red'); // تم التعديل هنا
+          playWin('red');
         }
       }
       removeTeamButtons();
