@@ -799,9 +799,14 @@
 
     // تهيئة الصفحة عند التحميل
     window.onload = function() {
+      // تعطيل الزر الرئيسي مبدئياً
+      mainControlBtn.disabled = true;
+      mainControlBtn.style.opacity = '0.6';
+      mainControlBtn.textContent = "🚀 اختر الصف أولاً";
+      
       loadStudents();
       
-      // أحداث الأزرار
+      // باقي أحداث الأزرار...
       mainControlBtn.addEventListener('click', handleMainControl);
       muteBtn.addEventListener('click', muteToggle);
       backBtn.addEventListener('click', goBack);
@@ -817,7 +822,7 @@
       continueBtn.addEventListener('click', function() {
         playClick();
         confirmModal.style.display = "none";
-        startRolling(); // بدء الدوران تلقائياً عند الضغط على متابعة
+        startRolling();
       });
       
       // إغلاق النافذة عند النقر خارجها
