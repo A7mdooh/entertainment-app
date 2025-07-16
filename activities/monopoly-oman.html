@@ -508,6 +508,122 @@
             padding: 20px;
             margin: 15px 0;
         }
+
+        /* تحسينات إضافية للبحث والتصفية */
+        .search-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .search-input {
+            padding: 12px 15px;
+            border: 2px solid var(--oman-green);
+            border-radius: 25px;
+            width: 300px;
+            text-align: center;
+            font-family: 'Cairo', sans-serif;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--oman-red);
+            box-shadow: 0 0 10px rgba(219, 31, 31, 0.3);
+            transform: scale(1.02);
+        }
+
+        .student-counter {
+            text-align: center;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--oman-green) 0%, var(--light-green) 100%);
+            color: white;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .selection-status {
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 15px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .selection-complete {
+            background: linear-gradient(135deg, var(--oman-green) 0%, var(--light-green) 100%);
+            color: white;
+        }
+
+        .selection-incomplete {
+            background: linear-gradient(135deg, var(--gold) 0%, #FFB347 100%);
+            color: var(--dark-blue);
+        }
+
+        /* تحسين بطاقات الطلاب */
+        .student-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid var(--oman-green);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .student-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.6s;
+        }
+
+        .student-card:hover::before {
+            left: 100%;
+        }
+
+        .student-card:hover {
+            background: linear-gradient(135deg, var(--oman-green) 0%, var(--light-green) 100%);
+            color: white;
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .student-card.selected {
+            background: linear-gradient(135deg, var(--oman-red) 0%, #a01717 100%);
+            color: white;
+            border-color: var(--oman-red);
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(219, 31, 31, 0.4);
+        }
+
+        .student-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: white;
+            color: var(--oman-red);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
         @media (max-width: 768px) {
             .game-container {
                 flex-direction: column;
@@ -747,14 +863,54 @@
         // بيانات الطلاب (سيتم تحميلها من الملف)
         let studentData = [];
 
-        // تحميل بيانات الطلاب
+        // تحميل بيانات الطلاب المحدث
         async function loadStudentData() {
             try {
-                const response = await fetch('../data/studentData.json');
-                studentData = await response.json();
+                // المحاولة الأولى: تحميل من الملف المحلي
+                let response = await fetch('../data/studentData.json');
+                
+                if (!response.ok) {
+                    // المحاولة الثانية: تحميل من GitHub
+                    console.log('لم يتم العثور على الملف المحلي، جاري التحميل من GitHub...');
+                    response = await fetch('https://raw.githubusercontent.com/A7mdooh/entertainment-app/main/data/studentData.json');
+                }
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    studentData = Array.isArray(data) ? data : [];
+                    
+                    if (studentData.length > 0) {
+                        console.log(`تم تحميل ${studentData.length} طالب من قاعدة البيانات`);
+                        
+                        // تحديث واجهة المستخدم لإظهار إمكانية استخدام قائمة الصف
+                        useStudentDataBtn.style.display = 'inline-block';
+                        useStudentDataBtn.disabled = false;
+                        
+                        // إضافة مؤشر نجاح التحميل
+                        useStudentDataBtn.innerHTML = '📚 استخدام قائمة الصف ✅';
+                    } else {
+                        throw new Error('قائمة الطلاب فارغة');
+                    }
+                } else {
+                    throw new Error(`فشل في تحميل البيانات: ${response.status}`);
+                }
+                
             } catch (error) {
-                console.log('لم يتم العثور على ملف بيانات الطلاب، سيتم استخدام الأسماء اليدوية');
+                console.log('خطأ في تحميل بيانات الطلاب:', error.message);
                 studentData = [];
+                
+                // تحديث واجهة المستخدم عند فشل التحميل
+                useStudentDataBtn.style.display = 'inline-block';
+                useStudentDataBtn.disabled = true;
+                useStudentDataBtn.innerHTML = '📚 قائمة الصف غير متوفرة ❌';
+                useStudentDataBtn.style.opacity = '0.6';
+                
+                // إظهار رسالة للمستخدم
+                setTimeout(() => {
+                    if (studentData.length === 0) {
+                        console.log('تم تعيين الإدخال اليدوي كالخيار الوحيد المتاح');
+                    }
+                }, 1000);
             }
         }
 
@@ -1122,19 +1278,101 @@
             }
         }
 
-        // عرض شبكة الطلاب للاختيار اليدوي
+        // عرض شبكة الطلاب للاختيار اليدوي (محدث)
         function showStudentGrid() {
+            if (studentData.length === 0) {
+                alert('⚠️ لا توجد بيانات طلاب متاحة. يرجى التأكد من الاتصال بالإنترنت أو استخدام الإدخال اليدوي.');
+                return;
+            }
+            
             studentGrid.style.display = 'block';
             studentGrid.innerHTML = '';
             studentGrid.className = 'student-grid';
             
-            studentData.forEach((student, index) => {
+            // إضافة عداد الطلاب
+            const counterDiv = document.createElement('div');
+            counterDiv.style.cssText = `
+                text-align: center; 
+                padding: 10px; 
+                background: var(--oman-green); 
+                color: white; 
+                border-radius: 10px; 
+                margin-bottom: 15px;
+                font-weight: bold;
+            `;
+            counterDiv.textContent = `إجمالي الطلاب: ${studentData.length} | المطلوب اختيار: ${playerCountSelect.value}`;
+            studentGrid.appendChild(counterDiv);
+            
+            // إضافة شريط البحث
+            const searchDiv = document.createElement('div');
+            searchDiv.style.cssText = 'margin-bottom: 15px; text-align: center;';
+            const searchInput = document.createElement('input');
+            searchInput.type = 'text';
+            searchInput.placeholder = '🔍 ابحث عن طالب...';
+            searchInput.style.cssText = `
+                padding: 10px; 
+                border: 2px solid var(--oman-green); 
+                border-radius: 25px; 
+                width: 250px; 
+                text-align: center;
+                font-family: Cairo, sans-serif;
+            `;
+            
+            searchInput.addEventListener('input', function() {
+                filterStudents(this.value);
+            });
+            
+            searchDiv.appendChild(searchInput);
+            studentGrid.appendChild(searchDiv);
+            
+            // حاوية بطاقات الطلاب
+            const cardsContainer = document.createElement('div');
+            cardsContainer.id = 'student-cards-container';
+            cardsContainer.className = 'student-grid';
+            studentGrid.appendChild(cardsContainer);
+            
+            // عرض جميع الطلاب
+            displayStudentCards(studentData, cardsContainer);
+        }
+
+        // عرض بطاقات الطلاب
+        function displayStudentCards(students, container) {
+            container.innerHTML = '';
+            
+            if (students.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">لا توجد نتائج مطابقة للبحث</div>';
+                return;
+            }
+            
+            students.forEach((student, index) => {
                 const studentCard = document.createElement('div');
                 studentCard.className = 'student-card';
-                studentCard.textContent = student.name;
+                studentCard.innerHTML = `
+                    <div style="font-weight: bold; margin-bottom: 5px;">${student.name}</div>
+                    <div style="font-size: 12px; opacity: 0.8;">رقم: ${student.number || 'غير محدد'}</div>
+                `;
+                
+                // التحقق من الاختيار المسبق
+                if (selectedStudents.find(s => s.name === student.name)) {
+                    studentCard.classList.add('selected');
+                }
+                
                 studentCard.onclick = () => toggleStudentSelection(student, studentCard);
-                studentGrid.appendChild(studentCard);
+                container.appendChild(studentCard);
             });
+        }
+
+        // تصفية الطلاب حسب البحث
+        function filterStudents(searchTerm) {
+            const filtered = studentData.filter(student => 
+                student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (student.number && student.number.toString().includes(searchTerm))
+            );
+            
+            const container = document.getElementById('student-cards-container');
+            if (container) {
+                displayStudentCards(filtered, container);
+            }
         }
 
         // تبديل اختيار الطالب
@@ -1159,32 +1397,54 @@
             updateSelectedStudentsDisplay();
         }
 
-        // تحديث عرض الطلاب المختارين
+        // تحديث عرض الطلاب المختارين (محدث)
         function updateSelectedStudentsDisplay() {
             selectedStudentsList.innerHTML = '';
+            
+            if (selectedStudents.length === 0) {
+                selectedStudentsList.innerHTML = '<div style="text-align: center; padding: 10px; color: #666;">لم يتم اختيار أي طلاب بعد</div>';
+                return;
+            }
             
             selectedStudents.forEach((student, index) => {
                 const chip = document.createElement('div');
                 chip.className = 'selected-student-chip';
+                chip.style.cssText += `border: 2px solid ${playerColors[index]};`;
                 chip.innerHTML = `
-                    <button class="remove-btn" onclick="removeSelectedStudent(${index})">&times;</button>
-                    <span style="font-size: 20px; margin-left: 5px;">${playerTokens[index]}</span>
-                    ${student.name}
+                    <button class="remove-btn" onclick="removeSelectedStudent(${index})" title="إزالة الطالب">&times;</button>
+                    <span style="font-size: 20px; margin: 0 8px; color: ${playerColors[index]};">${playerTokens[index]}</span>
+                    <span style="font-weight: bold;">${student.name}</span>
+                    ${student.number ? `<span style="font-size: 12px; opacity: 0.8; margin-right: 5px;">(${student.number})</span>` : ''}
                 `;
                 selectedStudentsList.appendChild(chip);
             });
+            
+            // إضافة عداد
+            const counterDiv = document.createElement('div');
+            counterDiv.style.cssText = `
+                text-align: center; 
+                margin-top: 10px; 
+                padding: 8px; 
+                background: ${selectedStudents.length === parseInt(playerCountSelect.value) ? 'var(--oman-green)' : 'var(--gold)'}; 
+                color: white; 
+                border-radius: 15px; 
+                font-weight: bold;
+            `;
+            counterDiv.textContent = `تم اختيار ${selectedStudents.length} من ${playerCountSelect.value} طلاب`;
+            selectedStudentsList.appendChild(counterDiv);
         }
 
-        // إزالة طالب مختار
+        // إزالة طالب مختار (محدث)
         function removeSelectedStudent(index) {
             playClickSound();
             const removedStudent = selectedStudents[index];
             selectedStudents.splice(index, 1);
             
             // إزالة التحديد من الشبكة
-            const studentCards = studentGrid.querySelectorAll('.student-card');
+            const studentCards = document.querySelectorAll('.student-card');
             studentCards.forEach(card => {
-                if (card.textContent === removedStudent.name) {
+                const cardName = card.querySelector('div')?.textContent || card.textContent;
+                if (cardName === removedStudent.name) {
                     card.classList.remove('selected');
                 }
             });
@@ -1192,10 +1452,15 @@
             updateSelectedStudentsDisplay();
         }
 
-        // اختيار طلاب عشوائي
+        // اختيار طلاب عشوائي (محدث)
         function selectRandomStudents() {
             playClickSound();
             const playerCount = parseInt(playerCountSelect.value);
+            
+            if (studentData.length === 0) {
+                alert('⚠️ لا توجد بيانات طلاب متاحة للاختيار العشوائي!');
+                return;
+            }
             
             if (studentData.length < playerCount) {
                 alert(`⚠️ عدد الطلاب في القائمة (${studentData.length}) أقل من العدد المطلوب (${playerCount})`);
@@ -1208,22 +1473,32 @@
                 card.classList.remove('selected');
             });
             
-            // اختيار عشوائي
-            const shuffled = [...studentData].sort(() => 0.5 - Math.random());
-            selectedStudents = shuffled.slice(0, playerCount);
+            // اختيار عشوائي مع ضمان عدم التكرار
+            const availableStudents = [...studentData];
+            selectedStudents = [];
+            
+            for (let i = 0; i < playerCount; i++) {
+                const randomIndex = Math.floor(Math.random() * availableStudents.length);
+                const selectedStudent = availableStudents.splice(randomIndex, 1)[0];
+                selectedStudents.push(selectedStudent);
+            }
             
             // تحديث العرض
             selectedStudents.forEach(student => {
-                const studentCards = studentGrid.querySelectorAll('.student-card');
+                const studentCards = document.querySelectorAll('.student-card');
                 studentCards.forEach(card => {
-                    if (card.textContent === student.name) {
+                    const cardName = card.querySelector('div')?.textContent || card.textContent;
+                    if (cardName === student.name) {
                         card.classList.add('selected');
                     }
                 });
             });
             
             updateSelectedStudentsDisplay();
-            alert(`🎲 تم اختيار ${playerCount} طلاب عشوائياً!`);
+            
+            // رسالة نجاح مع أسماء المختارين
+            const selectedNames = selectedStudents.map(s => s.name).join(', ');
+            alert(`🎲 تم اختيار ${playerCount} طلاب عشوائياً!\n\nالطلاب المختارون:\n${selectedNames}`);
         }
 
         // بدء اللعبة مع اللاعبين المحددين (محدث)
@@ -1292,10 +1567,13 @@
             helpModal.style.display = 'block';
         });
 
-        // أزرار التحكم
+        // أزرار التحكم (محدث)
         document.addEventListener('DOMContentLoaded', function() {
-            // تحميل بيانات الطلاب
-            loadStudentData();
+            // تحميل بيانات الطلاب مع مؤشر التحميل
+            console.log('🔄 جاري تحميل بيانات الطلاب...');
+            loadStudentData().then(() => {
+                console.log('✅ اكتمل تحميل بيانات الطلاب');
+            });
 
             // إضافة أزرار التحكم
             const homeBtn = document.getElementById('homeBtn');
@@ -1319,20 +1597,28 @@
                 }
             });
 
-            // أزرار اختيار نوع الإدخال
+            // أزرار اختيار نوع الإدخال (محدث)
             useStudentDataBtn.addEventListener('click', function() {
                 playClickSound();
+                
+                if (studentData.length === 0) {
+                    alert('⚠️ لم يتم تحميل بيانات الطلاب بعد. يرجى الانتظار قليلاً أو استخدام الإدخال اليدوي.');
+                    return;
+                }
+                
                 useStudentData = true;
                 studentSelectionSection.style.display = 'block';
                 playerNamesContainer.style.display = 'none';
                 
+                // إعادة تعيين الاختيارات عند التبديل
+                selectedStudents = [];
+                updateSelectedStudentsDisplay();
+                
                 useStudentDataBtn.style.background = 'linear-gradient(135deg, var(--oman-red) 0%, #a01717 100%)';
                 manualEntryBtn.style.background = 'linear-gradient(135deg, var(--oman-green) 0%, var(--light-green) 100%)';
                 
-                if (studentData.length === 0) {
-                    alert('⚠️ لم يتم العثور على بيانات الطلاب. يرجى استخدام الإدخال اليدوي.');
-                    return;
-                }
+                // إخفاء شبكة الطلاب مبدئياً
+                studentGrid.style.display = 'none';
             });
 
             manualEntryBtn.addEventListener('click', function() {
