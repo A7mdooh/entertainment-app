@@ -1033,12 +1033,6 @@
                             <div id="selected-students-list" style="min-height: 60px; border: 1px solid #ddd; border-radius: 8px; padding: 10px; background: #f9f9f9;">
                                 <p style="color: #666; text-align: center; margin: 0;">لم يتم اختيار لاعبين بعد</p>
                             </div>
-                            <!-- زر البدء مع الطلاب المختارين -->
-                            <div id="start-game-container" style="margin-top: 15px; text-align: center; display: none;">
-                                <button onclick="startGameWithSelectedStudents()" class="oman-btn" style="background: linear-gradient(135deg, var(--oman-green) 0%, var(--light-green) 100%); font-size: 16px; padding: 12px 30px;">
-                                    🎮 البدء باللعبة
-                                </button>
-                            </div>
                         </div>
                         
                         <!-- حالة الاختيار -->
@@ -1417,7 +1411,6 @@
         // تحديث عرض الطلاب المختارين - دالة محسنة موحدة
         function updateSelectedStudentsDisplay() {
             const displayContainer = document.getElementById('selected-students-list');
-            const startGameContainer = document.getElementById('start-game-container');
             
             if (!displayContainer) {
                 console.error('العنصر selected-students-list غير موجود');
@@ -1427,7 +1420,6 @@
             if (selectedStudents.length === 0) {
                 displayContainer.innerHTML = '<p style="color: #666; text-align: center; margin: 0;">لم يتم اختيار لاعبين بعد</p>';
                 displayContainer.classList.remove('has-students');
-                if (startGameContainer) startGameContainer.style.display = 'none';
                 return;
             }
             
@@ -1479,11 +1471,9 @@
                 displayContainer.appendChild(studentItem);
             });
             
-            // إظهار زر البدء إذا تم اختيار لاعبين كافيين
-            if (startGameContainer && selectedStudents.length >= 2) {
-                startGameContainer.style.display = 'block';
-            } else if (startGameContainer) {
-                startGameContainer.style.display = 'none';
+            // إظهار زر البدء الرئيسي إذا تم اختيار لاعبين كافيين
+            if (selectedStudents.length >= 2) {
+                console.log('تم اختيار عدد كافي من اللاعبين - يمكن بدء اللعبة');
             }
             
             console.log('تم تحديث عرض الطلاب المختارين:', selectedStudents);
