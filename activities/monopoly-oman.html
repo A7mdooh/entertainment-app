@@ -1010,7 +1010,6 @@
                             <label for="selection-mode" style="display: block; margin-bottom: 10px; font-weight: bold; color: var(--oman-green);">⚙️ الخطوة 2: اختر طريقة الاختيار</label>
                             <select id="selection-mode" class="oman-btn" style="width: 280px; text-align: center;">
                                 <option value="">-- اختر طريقة الاختيار --</option>
-                                <option value="random">🎲 اختيار عشوائي حسب العدد المطلوب</option>
                                 <option value="manual">👆 اختيار يدوي من قوائم منسدلة</option>
                                 <option value="free">🆓 أسماء افتراضية (لاعب 1، لاعب 2...)</option>
                             </select>
@@ -2463,11 +2462,7 @@
                     // إخفاء جميع الحاويات
                     document.getElementById('manual-selection-container').style.display = 'none';
                     
-                    if (mode === 'random') {
-                        // الاختيار العشوائي - تنفيذ فوري
-                        selectRandomStudents();
-                        
-                    } else if (mode === 'manual') {
+                    if (mode === 'manual') {
                         // الاختيار اليدوي - إظهار القوائم المنسدلة
                         createPlayerDropdowns();
                         
@@ -2708,10 +2703,6 @@
                         showHelpMessage('تم اختيار الاختيار اليدوي. اختر الطلاب من القوائم', 'info');
                         if (manualContainer) manualContainer.style.display = 'block';
                         createPlayerDropdowns();
-                    } else if (mode === 'random') {
-                        showHelpMessage('تم اختيار الاختيار العشوائي. اضغط "اختيار عشوائي" للبدء', 'info');
-                        if (manualContainer) manualContainer.style.display = 'none';
-                        document.getElementById('selected-students').innerHTML = '';
                     } else {
                         if (manualContainer) manualContainer.style.display = 'none';
                         document.getElementById('selected-students').innerHTML = '';
