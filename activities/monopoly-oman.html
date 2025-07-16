@@ -446,7 +446,68 @@
             color: var(--oman-green);
         }
 
-        /* تحسينات للاستجابة */
+        /* تحسينات إضافية لواجهة اختيار الطلاب */
+        .student-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            padding: 15px;
+        }
+
+        .student-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid var(--oman-green);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .student-card:hover {
+            background: linear-gradient(135deg, var(--oman-green) 0%, var(--light-green) 100%);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+
+        .student-card.selected {
+            background: linear-gradient(135deg, var(--oman-red) 0%, #a01717 100%);
+            color: white;
+            border-color: var(--oman-red);
+        }
+
+        .selected-student-chip {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--oman-green) 0%, var(--light-green) 100%);
+            color: white;
+            padding: 5px 15px;
+            margin: 5px;
+            border-radius: 20px;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .selected-student-chip .remove-btn {
+            background: var(--oman-red);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .player-setup-section {
+            background: rgba(0, 128, 0, 0.05);
+            border: 2px solid var(--oman-green);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+        }
         @media (max-width: 768px) {
             .game-container {
                 flex-direction: column;
@@ -569,23 +630,49 @@
     <!-- نافذة اختيار اللاعبين -->
     <div id="setup-modal" class="modal">
         <div class="modal-content">
-            <h2>إعداد اللعبة</h2>
+            <h2>🎮 إعداد اللعبة</h2>
             <div class="modal-body">
                 <div id="player-setup">
-                    <h3>اختر عدد اللاعبين (2-4):</h3>
-                    <select id="player-count">
+                    <h3>اختر عدد اللاعبين (2-6):</h3>
+                    <select id="player-count" class="oman-btn" style="width: 200px; text-align: center;">
                         <option value="2">2 لاعبين</option>
                         <option value="3">3 لاعبين</option>
                         <option value="4">4 لاعبين</option>
+                        <option value="5">5 لاعبين</option>
+                        <option value="6">6 لاعبين</option>
                     </select>
                     
+                    <div style="margin: 20px 0;">
+                        <button id="use-student-data-btn" class="oman-btn secondary">📚 استخدام قائمة الصف</button>
+                        <button id="manual-entry-btn" class="oman-btn">✏️ إدخال يدوي</button>
+                    </div>
+                    
+                    <!-- قسم استخدام بيانات الطلاب -->
+                    <div id="student-selection-section" style="display: none;">
+                        <h4>🎯 اختيار الطلاب من القائمة:</h4>
+                        <div style="margin: 15px 0;">
+                            <button id="random-students-btn" class="oman-btn">🎲 اختيار عشوائي</button>
+                            <button id="manual-students-btn" class="oman-btn secondary">👆 اختيار يدوي</button>
+                        </div>
+                        
+                        <div id="student-grid" style="display: none; max-height: 300px; overflow-y: auto; border: 2px solid var(--oman-green); border-radius: 10px; padding: 10px; margin: 10px 0;">
+                            <!-- سيتم ملؤها ديناميكياً -->
+                        </div>
+                        
+                        <div id="selected-students-display" style="margin: 15px 0;">
+                            <h5>الطلاب المختارون:</h5>
+                            <div id="selected-students-list"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- قسم الإدخال اليدوي -->
                     <div id="player-names-container">
                         <!-- سيتم إضافة حقول أسماء اللاعبين هنا -->
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="start-game-btn" class="oman-btn">ابدأ اللعبة</button>
+                <button id="start-game-btn" class="oman-btn primary">🚀 ابدأ اللعبة</button>
             </div>
         </div>
     </div>
@@ -623,7 +710,18 @@
         let gameStarted = false;
         let currentProperty = null;
 
-        // عناصر DOM
+        // متغيرات اختيار الطلاب
+        let selectedStudents = [];
+        let useStudentData = false;
+
+        // عناصر DOM الجديدة
+        const useStudentDataBtn = document.getElementById('use-student-data-btn');
+        const manualEntryBtn = document.getElementById('manual-entry-btn');
+        const studentSelectionSection = document.getElementById('student-selection-section');
+        const randomStudentsBtn = document.getElementById('random-students-btn');
+        const manualStudentsBtn = document.getElementById('manual-students-btn');
+        const studentGrid = document.getElementById('student-grid');
+        const selectedStudentsList = document.getElementById('selected-students-list');
         const gameBoard = document.getElementById('game-board');
         const rollBtn = document.getElementById('roll-btn');
         const endTurnBtn = document.getElementById('end-turn-btn');
@@ -642,8 +740,23 @@
         const buyPropertyBtn = document.getElementById('buy-property-btn');
         const auctionPropertyBtn = document.getElementById('auction-property-btn');
 
-        // ألوان اللاعبين
-        const playerColors = ['#FF0000', '#0000FF', '#00FF00', '#FFFF00'];
+        // ألوان اللاعبين (موسعة لـ 6 لاعبين)
+        const playerColors = ['#FF0000', '#0000FF', '#00FF00', '#FFFF00', '#FF00FF', '#FFA500'];
+        const playerTokens = ['🗡️', '⛵', '🐪', '🏰', '💎', '🌟'];
+
+        // بيانات الطلاب (سيتم تحميلها من الملف)
+        let studentData = [];
+
+        // تحميل بيانات الطلاب
+        async function loadStudentData() {
+            try {
+                const response = await fetch('../data/studentData.json');
+                studentData = await response.json();
+            } catch (error) {
+                console.log('لم يتم العثور على ملف بيانات الطلاب، سيتم استخدام الأسماء اليدوية');
+                studentData = [];
+            }
+        }
 
         // تهيئة اللعبة
         function initGame() {
@@ -957,7 +1070,7 @@
             if (players.length === 0) return;
             
             const player = players[currentPlayerIndex];
-            currentPlayerName.textContent = player.name;
+            currentPlayerName.textContent = `${player.token} ${player.name}`;
             currentPlayerBalance.textContent = player.money;
             
             // تحديث قائمة العقارات المملوكة
@@ -979,41 +1092,182 @@
             alert(`مبروك! ${winner.name} فاز باللعبة!`);
         }
 
-        // إعداد اللاعبين
+        // إعداد اللاعبين المحدث
         function setupPlayers() {
             const playerCount = parseInt(playerCountSelect.value);
+            
+            if (!useStudentData) {
+                // الطريقة اليدوية التقليدية
+                setupManualPlayers(playerCount);
+            }
+        }
+
+        // إعداد اللاعبين اليدوي
+        function setupManualPlayers(playerCount) {
             playerNamesContainer.innerHTML = '';
+            playerNamesContainer.style.display = 'block';
             
             for (let i = 0; i < playerCount; i++) {
                 const div = document.createElement('div');
+                div.className = 'player-setup-section';
                 div.innerHTML = `
-                    <label for="player-${i}-name">اسم اللاعب ${i + 1}:</label>
-                    <input type="text" id="player-${i}-name" required>
-                    <select id="player-${i}-token">
-                        <option value="${playerColors[i]}">${['خنجر', 'سفينة', 'جمل', 'قلعة'][i]}</option>
-                    </select>
+                    <label for="player-${i}-name">🎮 اسم اللاعب ${i + 1}:</label>
+                    <input type="text" id="player-${i}-name" class="oman-btn" style="margin: 10px; padding: 8px; width: 200px;" placeholder="أدخل الاسم" required>
+                    <div style="margin: 10px 0;">
+                        <label>اختر الرمز: ${playerTokens[i]}</label>
+                        <span style="font-size: 24px; margin: 0 10px; color: ${playerColors[i]};">●</span>
+                    </div>
                 `;
                 playerNamesContainer.appendChild(div);
             }
         }
 
-        // بدء اللعبة مع اللاعبين المحددين
+        // عرض شبكة الطلاب للاختيار اليدوي
+        function showStudentGrid() {
+            studentGrid.style.display = 'block';
+            studentGrid.innerHTML = '';
+            studentGrid.className = 'student-grid';
+            
+            studentData.forEach((student, index) => {
+                const studentCard = document.createElement('div');
+                studentCard.className = 'student-card';
+                studentCard.textContent = student.name;
+                studentCard.onclick = () => toggleStudentSelection(student, studentCard);
+                studentGrid.appendChild(studentCard);
+            });
+        }
+
+        // تبديل اختيار الطالب
+        function toggleStudentSelection(student, cardElement) {
+            playClickSound();
+            const playerCount = parseInt(playerCountSelect.value);
+            
+            if (selectedStudents.find(s => s.name === student.name)) {
+                // إزالة الطالب
+                selectedStudents = selectedStudents.filter(s => s.name !== student.name);
+                cardElement.classList.remove('selected');
+            } else {
+                // إضافة الطالب
+                if (selectedStudents.length < playerCount) {
+                    selectedStudents.push(student);
+                    cardElement.classList.add('selected');
+                } else {
+                    alert(`⚠️ لا يمكن اختيار أكثر من ${playerCount} طلاب!`);
+                }
+            }
+            
+            updateSelectedStudentsDisplay();
+        }
+
+        // تحديث عرض الطلاب المختارين
+        function updateSelectedStudentsDisplay() {
+            selectedStudentsList.innerHTML = '';
+            
+            selectedStudents.forEach((student, index) => {
+                const chip = document.createElement('div');
+                chip.className = 'selected-student-chip';
+                chip.innerHTML = `
+                    <button class="remove-btn" onclick="removeSelectedStudent(${index})">&times;</button>
+                    <span style="font-size: 20px; margin-left: 5px;">${playerTokens[index]}</span>
+                    ${student.name}
+                `;
+                selectedStudentsList.appendChild(chip);
+            });
+        }
+
+        // إزالة طالب مختار
+        function removeSelectedStudent(index) {
+            playClickSound();
+            const removedStudent = selectedStudents[index];
+            selectedStudents.splice(index, 1);
+            
+            // إزالة التحديد من الشبكة
+            const studentCards = studentGrid.querySelectorAll('.student-card');
+            studentCards.forEach(card => {
+                if (card.textContent === removedStudent.name) {
+                    card.classList.remove('selected');
+                }
+            });
+            
+            updateSelectedStudentsDisplay();
+        }
+
+        // اختيار طلاب عشوائي
+        function selectRandomStudents() {
+            playClickSound();
+            const playerCount = parseInt(playerCountSelect.value);
+            
+            if (studentData.length < playerCount) {
+                alert(`⚠️ عدد الطلاب في القائمة (${studentData.length}) أقل من العدد المطلوب (${playerCount})`);
+                return;
+            }
+            
+            // إعادة تعيين الاختيارات
+            selectedStudents = [];
+            document.querySelectorAll('.student-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // اختيار عشوائي
+            const shuffled = [...studentData].sort(() => 0.5 - Math.random());
+            selectedStudents = shuffled.slice(0, playerCount);
+            
+            // تحديث العرض
+            selectedStudents.forEach(student => {
+                const studentCards = studentGrid.querySelectorAll('.student-card');
+                studentCards.forEach(card => {
+                    if (card.textContent === student.name) {
+                        card.classList.add('selected');
+                    }
+                });
+            });
+            
+            updateSelectedStudentsDisplay();
+            alert(`🎲 تم اختيار ${playerCount} طلاب عشوائياً!`);
+        }
+
+        // بدء اللعبة مع اللاعبين المحددين (محدث)
         function startGameWithPlayers() {
             const playerCount = parseInt(playerCountSelect.value);
             players = [];
             
-            for (let i = 0; i < playerCount; i++) {
-                const name = document.getElementById(`player-${i}-name`).value || `اللاعب ${i + 1}`;
-                const color = playerColors[i];
+            if (useStudentData) {
+                // استخدام بيانات الطلاب
+                if (selectedStudents.length !== playerCount) {
+                    alert(`⚠️ يرجى اختيار ${playerCount} طلاب بالضبط!`);
+                    return;
+                }
                 
-                players.push({
-                    id: i,
-                    name: name,
-                    color: color,
-                    money: 1500,
-                    position: 0,
-                    properties: []
+                selectedStudents.forEach((student, i) => {
+                    players.push({
+                        id: i,
+                        name: student.name,
+                        color: playerColors[i],
+                        token: playerTokens[i],
+                        money: 1500,
+                        position: 0,
+                        properties: []
+                    });
                 });
+            } else {
+                // الإدخال اليدوي
+                for (let i = 0; i < playerCount; i++) {
+                    const nameInput = document.getElementById(`player-${i}-name`);
+                    if (!nameInput || !nameInput.value.trim()) {
+                        alert(`⚠️ يرجى إدخال اسم اللاعب ${i + 1}!`);
+                        return;
+                    }
+                    
+                    players.push({
+                        id: i,
+                        name: nameInput.value.trim(),
+                        color: playerColors[i],
+                        token: playerTokens[i],
+                        money: 1500,
+                        position: 0,
+                        properties: []
+                    });
+                }
             }
             
             initGame();
@@ -1040,6 +1294,9 @@
 
         // أزرار التحكم
         document.addEventListener('DOMContentLoaded', function() {
+            // تحميل بيانات الطلاب
+            loadStudentData();
+
             // إضافة أزرار التحكم
             const homeBtn = document.getElementById('homeBtn');
             const fullscreenBtn = document.getElementById('fullscreenBtn');
@@ -1060,6 +1317,40 @@
                 } else {
                     document.exitFullscreen();
                 }
+            });
+
+            // أزرار اختيار نوع الإدخال
+            useStudentDataBtn.addEventListener('click', function() {
+                playClickSound();
+                useStudentData = true;
+                studentSelectionSection.style.display = 'block';
+                playerNamesContainer.style.display = 'none';
+                
+                useStudentDataBtn.style.background = 'linear-gradient(135deg, var(--oman-red) 0%, #a01717 100%)';
+                manualEntryBtn.style.background = 'linear-gradient(135deg, var(--oman-green) 0%, var(--light-green) 100%)';
+                
+                if (studentData.length === 0) {
+                    alert('⚠️ لم يتم العثور على بيانات الطلاب. يرجى استخدام الإدخال اليدوي.');
+                    return;
+                }
+            });
+
+            manualEntryBtn.addEventListener('click', function() {
+                playClickSound();
+                useStudentData = false;
+                studentSelectionSection.style.display = 'none';
+                setupPlayers();
+                
+                manualEntryBtn.style.background = 'linear-gradient(135deg, var(--oman-red) 0%, #a01717 100%)';
+                useStudentDataBtn.style.background = 'linear-gradient(135deg, var(--oman-green) 0%, var(--light-green) 100%)';
+            });
+
+            // أزرار اختيار الطلاب
+            randomStudentsBtn.addEventListener('click', selectRandomStudents);
+            
+            manualStudentsBtn.addEventListener('click', function() {
+                playClickSound();
+                showStudentGrid();
             });
 
             // إضافة الصوت لجميع الأزرار
@@ -1112,6 +1403,9 @@
         window.addEventListener('DOMContentLoaded', () => {
             setupPlayers();
             setupModal.style.display = 'block';
+            
+            // تعيين الإدخال اليدوي كافتراضي
+            manualEntryBtn.style.background = 'linear-gradient(135deg, var(--oman-red) 0%, #a01717 100%)';
         });
     </script>
 </body>
