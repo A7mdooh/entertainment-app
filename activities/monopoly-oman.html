@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مونوبولي سلطنة عُمان</title>
+    <style>
+        :root {
+            --oman-red: #db1f1f;
+            --oman-green: #008000;
+            --oman-white: #ffffff;
+            --gold: #FFD700;
+            --dark-blue: #003366;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        header {
+            background-color: var(--oman-red);
+            color: var(--oman-white);
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .oman-btn {
+            background-color: var(--oman-green);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .oman-btn:hover {
+            background-color: #006400;
+            transform: translateY(-2px);
+        }
+
+        .game-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 1200px;
+            margin: 20px auto;
+            gap: 20px;
+        }
+
+        .game-board {
+            width: 600px;
+            height: 600px;
+            background-color: #f9f3e9;
+            position: relative;
+            border: 10px solid var(--dark-blue);
+            border-radius: 5px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            display: grid;
+            grid-template-columns: repeat(11, 1fr);
+            grid-template-rows: repeat(11, 1fr);
+        }
+
+        .board-cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #ccc;
+            font-size: 10px;
+            text-align: center;
+            padding: 2px;
+            position: relative;
+            background-color: rgba(255,255,255,0.8);
+        }
+
+        .corner-cell {
+            background-color: var(--oman-red);
+            color: white;
+            font-weight: bold;
+        }
+
+        .property-cell {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .property-cell:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+
+        .player-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 250px;
+        }
+
+        .dice-container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        .dice {
+            width: 50px;
+            height: 50px;
+            background-color: white;
+            border: 2px solid #333;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+
+        .player-info {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 250px;
+        }
+
+        .current-player {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        #properties-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #properties-list li {
+            padding: 5px 0;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .player-token {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            position: absolute;
+            transition: all 0.5s;
+            z-index: 5;
+        }
+
+        /* أنماط النوافذ المنبثقة */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            overflow: auto;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 5px solid var(--oman-red);
+            border-radius: 10px;
+            width: 80%;
+            max-width: 700px;
+            position: relative;
+            animation: modalopen 0.5s;
+        }
+
+        @keyframes modalopen {
+            from {opacity: 0; transform: translateY(-50px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+
+        .close {
+            color: #aaa;
+            float: left;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .modal-header {
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .modal-body {
+            padding: 20px 0;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            padding: 10px 0;
+            border-top: 1px solid #ddd;
+            text-align: center;
+        }
+
+        /* تصميم عُماني خاص للنوافذ */
+        .modal-content {
+            background-color: #f9f3e9;
+            color: #333;
+        }
+
+        .modal h2 {
+            color: var(--oman-red);
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .modal h3 {
+            color: var(--oman-green);
+            margin-top: 20px;
+        }
+
+        .close-btn {
+            background-color: var(--oman-red);
+        }
+
+        .close-btn:hover {
+            background-color: #c11a1a;
+        }
+
+        /* ألوان العقارات */
+        .property-brown {
+            background-color: #8B4513;
+            color: white;
+        }
+
+        .property-lightblue {
+            background-color: #ADD8E6;
+        }
+
+        .property-pink {
+            background-color: #FFC0CB;
+        }
+
+        .property-orange {
+            background-color: #FFA500;
+        }
+
+        .property-red {
+            background-color: #FF0000;
+            color: white;
+        }
+
+        .property-yellow {
+            background-color: #FFFF00;
+        }
+
+        .property-green {
+            background-color: #008000;
+            color: white;
+        }
+
+        .property-darkblue {
+            background-color: #00008B;
+            color: white;
+        }
+
+        .property-station {
+            background-color: #333333;
+            color: white;
+        }
+
+        .property-utility {
+            background-color: #FFFFFF;
+            border: 2px dashed #333;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>مونوبولي سلطنة عُمان</h1>
+        <button id="help-btn" class="oman-btn">تعليمات اللعبة</button>
+    </header>
+
+    <main>
+        <div class="game-container">
+            <div class="game-board" id="game-board">
+                <!-- سيتم توليد لوحة اللعب ديناميكيًا -->
+            </div>
+
+            <div class="player-controls">
+                <div class="dice-container">
+                    <div class="dice" id="dice1">1</div>
+                    <div class="dice" id="dice2">2</div>
+                </div>
+                <button id="roll-btn" class="oman-btn">اطر النرد</button>
+                <button id="end-turn-btn" class="oman-btn">انهي دورك</button>
+            </div>
+
+            <div class="player-info">
+                <div class="current-player">
+                    <h3>اللاعب الحالي: <span id="current-player-name">...</span></h3>
+                    <p>الرصيد: <span id="current-player-balance">0</span> ريال عُماني</p>
+                </div>
+                <div class="properties-owned">
+                    <h4>العقارات المملوكة:</h4>
+                    <ul id="properties-list"></ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- نافذة التعليمات المنبثقة -->
+    <div id="help-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>تعليمات لعبة مونوبولي عُمان</h2>
+            <div class="modal-body">
+                <h3>🎲 كيفية اللعب:</h3>
+                <p>1. تبدأ اللعبة باختيار عدد اللاعبين وأسمائهم.</p>
+                <p>2. يرمي اللاعب النرد ويتحرك حسب العدد الظاهر.</p>
+                <p>3. عند الوقوف على عقار غير مملوك، يمكنك شراؤه أو بيعه في المزاد.</p>
+                <p>4. إذا كان العقار مملوكًا لخصم، تدفع له إيجارًا حسب قيمة المربع.</p>
+                
+                <h3>🏰 المعالم العُمانية:</h3>
+                <p>تحتوي اللعبة على أشهر المعالم في عُمان مثل:</p>
+                <ul>
+                    <li>قصر العلم</li>
+                    <li>سوق مطرح</li>
+                    <li>جبال الحجر</li>
+                    <li>وادي شاب</li>
+                    <li>قلعة نزوى</li>
+                    <li>شاطئ المغسيل</li>
+                </ul>
+                
+                <h3>💰 العملة:</h3>
+                <p>تستخدم اللعبة الريال العُماني كعملة رئيسية.</p>
+                
+                <h3>🏆 الفوز:</h3>
+                <p>يفوز آخر لاعب قادر على دفع ديونه وتبقى لديه أموال وعقارات.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="oman-btn close-btn">حسناً</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة اختيار اللاعبين -->
+    <div id="setup-modal" class="modal">
+        <div class="modal-content">
+            <h2>إعداد اللعبة</h2>
+            <div class="modal-body">
+                <div id="player-setup">
+                    <h3>اختر عدد اللاعبين (2-4):</h3>
+                    <select id="player-count">
+                        <option value="2">2 لاعبين</option>
+                        <option value="3">3 لاعبين</option>
+                        <option value="4">4 لاعبين</option>
+                    </select>
+                    
+                    <div id="player-names-container">
+                        <!-- سيتم إضافة حقول أسماء اللاعبين هنا -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="start-game-btn" class="oman-btn">ابدأ اللعبة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة شراء العقار -->
+    <div id="buy-property-modal" class="modal">
+        <div class="modal-content">
+            <h2>شراء عقار</h2>
+            <div class="modal-body">
+                <p id="property-description"></p>
+                <p id="property-price"></p>
+            </div>
+            <div class="modal-footer">
+                <button id="buy-property-btn" class="oman-btn">شراء العقار</button>
+                <button id="auction-property-btn" class="oman-btn">بيع بالمزاد</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // متغيرات اللعبة
+        let currentPlayerIndex = 0;
+        let players = [];
+        let properties = [];
+        let gameStarted = false;
+        let currentProperty = null;
+
+        // عناصر DOM
+        const gameBoard = document.getElementById('game-board');
+        const rollBtn = document.getElementById('roll-btn');
+        const endTurnBtn = document.getElementById('end-turn-btn');
+        const currentPlayerName = document.getElementById('current-player-name');
+        const currentPlayerBalance = document.getElementById('current-player-balance');
+        const propertiesList = document.getElementById('properties-list');
+        const playerCountSelect = document.getElementById('player-count');
+        const playerNamesContainer = document.getElementById('player-names-container');
+        const startGameBtn = document.getElementById('start-game-btn');
+        const helpBtn = document.getElementById('help-btn');
+        const helpModal = document.getElementById('help-modal');
+        const setupModal = document.getElementById('setup-modal');
+        const buyPropertyModal = document.getElementById('buy-property-modal');
+        const propertyDescription = document.getElementById('property-description');
+        const propertyPrice = document.getElementById('property-price');
+        const buyPropertyBtn = document.getElementById('buy-property-btn');
+        const auctionPropertyBtn = document.getElementById('auction-property-btn');
+
+        // ألوان اللاعبين
+        const playerColors = ['#FF0000', '#0000FF', '#00FF00', '#FFFF00'];
+
+        // تهيئة اللعبة
+        function initGame() {
+            createProperties();
+            renderBoard();
+            updatePlayerInfo();
+            setupModal.style.display = 'none';
+            gameStarted = true;
+        }
+
+        // إنشاء العقارات العُمانية
+        function createProperties() {
+            properties = [
+                { id: 0, name: 'البدء', type: 'corner', action: 'collect', amount: 200 },
+                { id: 1, name: 'مطار مسقط الدولي', price: 200, rent: 25, color: 'brown', ownedBy: null, houses: 0 },
+                { id: 2, name: 'سوق مطرح', price: 60, rent: 10, color: 'brown', ownedBy: null, houses: 0 },
+                { id: 3, name: 'خزينة المجتمع', type: 'chest' },
+                { id: 4, name: 'ضريبة الدخل', type: 'tax', amount: 200 },
+                { id: 5, name: 'ميناء صحار', price: 200, rent: 25, type: 'station', ownedBy: null },
+                { id: 6, name: 'وادي شاب', price: 100, rent: 30, color: 'lightblue', ownedBy: null, houses: 0 },
+                { id: 7, name: 'فرصة', type: 'chance' },
+                { id: 8, name: 'جبال الحجر', price: 100, rent: 30, color: 'lightblue', ownedBy: null, houses: 0 },
+                { id: 9, name: 'وادي بني خالد', price: 120, rent: 40, color: 'lightblue', ownedBy: null, houses: 0 },
+                { id: 10, name: 'السجن', type: 'jail' },
+                { id: 11, name: 'قلعة نزوى', price: 140, rent: 50, color: 'pink', ownedBy: null, houses: 0 },
+                { id: 12, name: 'شركة الكهرباء', price: 150, rent: 0, type: 'utility', ownedBy: null },
+                { id: 13, name: 'قصر العلم', price: 140, rent: 50, color: 'pink', ownedBy: null, houses: 0 },
+                { id: 14, name: 'متحف عُمان الوطني', price: 160, rent: 60, color: 'pink', ownedBy: null, houses: 0 },
+                { id: 15, name: 'ميناء السلطان قابوس', price: 200, rent: 25, type: 'station', ownedBy: null },
+                { id: 16, name: 'شاطئ المغسيل', price: 180, rent: 70, color: 'orange', ownedBy: null, houses: 0 },
+                { id: 17, name: 'خزينة المجتمع', type: 'chest' },
+                { id: 18, name: 'خور المغسيل', price: 180, rent: 70, color: 'orange', ownedBy: null, houses: 0 },
+                { id: 19, name: 'وادي دوكة', price: 200, rent: 80, color: 'orange', ownedBy: null, houses: 0 },
+                { id: 20, name: 'الراحة', type: 'free' },
+                { id: 21, name: 'سوق نزوى', price: 220, rent: 90, color: 'red', ownedBy: null, houses: 0 },
+                { id: 22, name: 'فرصة', type: 'chance' },
+                { id: 23, name: 'وادي بني عوف', price: 220, rent: 90, color: 'red', ownedBy: null, houses: 0 },
+                { id: 24, name: 'وادي تنوف', price: 240, rent: 100, color: 'red', ownedBy: null, houses: 0 },
+                { id: 25, name: 'ميناء الدقم', price: 200, rent: 25, type: 'station', ownedBy: null },
+                { id: 26, name: 'جبل شمس', price: 260, rent: 110, color: 'yellow', ownedBy: null, houses: 0 },
+                { id: 27, name: 'جبل الأخضر', price: 260, rent: 110, color: 'yellow', ownedBy: null, houses: 0 },
+                { id: 28, name: 'شركة المياه', price: 150, rent: 0, type: 'utility', ownedBy: null },
+                { id: 29, name: 'وادي السحتن', price: 280, rent: 120, color: 'yellow', ownedBy: null, houses: 0 },
+                { id: 30, name: 'اذهب إلى السجن', type: 'goToJail' },
+                { id: 31, name: 'مدينة المعرفة', price: 300, rent: 130, color: 'green', ownedBy: null, houses: 0 },
+                { id: 32, name: 'المنطقة الاقتصادية', price: 300, rent: 130, color: 'green', ownedBy: null, houses: 0 },
+                { id: 33, name: 'خزينة المجتمع', type: 'chest' },
+                { id: 34, name: 'جامعة السلطان قابوس', price: 320, rent: 150, color: 'green', ownedBy: null, houses: 0 },
+                { id: 35, name: 'مطار صلالة', price: 200, rent: 25, type: 'station', ownedBy: null },
+                { id: 36, name: 'فرصة', type: 'chance' },
+                { id: 37, name: 'خور روري', price: 350, rent: 175, color: 'darkblue', ownedBy: null, houses: 0 },
+                { id: 38, name: 'ضريبة الرفاهية', type: 'tax', amount: 100 },
+                { id: 39, name: 'شاطئ البستان', price: 400, rent: 200, color: 'darkblue', ownedBy: null, houses: 0 }
+            ];
+        }
+
+        // عرض لوحة اللعب
+        function renderBoard() {
+            gameBoard.innerHTML = '';
+            
+            // إنشاء لوحة 11x11 (مبسطة للعرض)
+            for (let row = 0; row < 11; row++) {
+                for (let col = 0; col < 11; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'board-cell';
+                    
+                    // تحديد الزوايا
+                    if ((row === 0 && col === 0) || (row === 0 && col === 10) || 
+                        (row === 10 && col === 0) || (row === 10 && col === 10)) {
+                        cell.classList.add('corner-cell');
+                        
+                        if (row === 10 && col === 10) cell.textContent = 'البدء';
+                        else if (row === 10 && col === 0) cell.textContent = 'السجن';
+                        else if (row === 0 && col === 0) cell.textContent = 'الراحة';
+                        else if (row === 0 && col === 10) cell.textContent = 'اذهب إلى السجن';
+                    } 
+                    // تحديد الجوانب
+                    else if (row === 0 || row === 10 || col === 0 || col === 10) {
+                        const property = findPropertyByPosition(row, col);
+                        if (property) {
+                            cell.textContent = property.name;
+                            cell.classList.add('property-cell');
+                            
+                            if (property.color) cell.classList.add(`property-${property.color}`);
+                            if (property.type === 'station') cell.classList.add('property-station');
+                            if (property.type === 'utility') cell.classList.add('property-utility');
+                        }
+                    }
+                    
+                    gameBoard.appendChild(cell);
+                }
+            }
+            
+            // وضع قطع اللاعبين
+            players.forEach(player => {
+                const token = document.createElement('div');
+                token.className = 'player-token';
+                token.id = `token-${player.id}`;
+                token.style.backgroundColor = player.color;
+                gameBoard.appendChild(token);
+                movePlayerToken(player.id, player.position || 0);
+            });
+        }
+
+        // دالة مساعدة للعثور على العقار حسب الموضع
+        function findPropertyByPosition(row, col) {
+            // هذه دالة مبسطة، تحتاج لتحسين دقيق لمواقع المربعات
+            if (row === 10 && col > 0 && col < 10) return properties[col];
+            if (row === 0 && col > 0 && col < 10) return properties[20 + (10 - col)];
+            if (col === 10 && row > 0 && row < 10) return properties[30 + (10 - row)];
+            if (col === 0 && row > 0 && row < 10) return properties[10 + row];
+            return null;
+        }
+
+        // دالة لتحريك قطعة اللاعب
+        function movePlayerToken(playerId, position) {
+            const token = document.getElementById(`token-${playerId}`);
+            if (!token) return;
+            
+            // تحديد الموضع بناءً على رقم المربع (0-39)
+            // هذه دالة مبسطة، تحتاج لتحسين دقيق لمواقع المربعات
+            let row, col;
+            
+            if (position < 10) {
+                row = 10;
+                col = 10 - position;
+            } else if (position < 20) {
+                row = 20 - position;
+                col = 0;
+            } else if (position < 30) {
+                row = 0;
+                col = position - 20;
+            } else {
+                row = position - 30;
+                col = 10;
+            }
+            
+            token.style.gridRow = row + 1;
+            token.style.gridColumn = col + 1;
+        }
+
+        // دالة لرمي النرد
+        function rollDice() {
+            if (!gameStarted) return;
+            
+            const dice1 = Math.floor(Math.random() * 6) + 1;
+            const dice2 = Math.floor(Math.random() * 6) + 1;
+            
+            document.getElementById('dice1').textContent = dice1;
+            document.getElementById('dice2').textContent = dice2;
+            
+            const total = dice1 + dice2;
+            movePlayer(total);
+        }
+
+        // دالة لتحريك اللاعب
+        function movePlayer(spaces) {
+            const player = players[currentPlayerIndex];
+            player.position = (player.position + spaces) % 40;
+            movePlayerToken(player.id, player.position);
+            
+            // التحقق من العقار الذي وقف عليه اللاعب
+            handlePropertyLanding(player.position);
+        }
+
+        // دالة للتحقق من العقار
+        function handlePropertyLanding(position) {
+            const property = properties[position];
+            if (!property) return;
+            
+            currentProperty = property;
+            
+            if (property.type === 'corner' || property.type === 'free') {
+                // لا شيء يحدث
+            } else if (property.type === 'tax') {
+                players[currentPlayerIndex].money -= property.amount;
+                updatePlayerInfo();
+                alert(`دفعت ضريبة مقدارها ${property.amount} ريال`);
+            } else if (property.type === 'goToJail') {
+                players[currentPlayerIndex].position = 10; // السجن
+                movePlayerToken(players[currentPlayerIndex].id, 10);
+                alert('اذهب إلى السجن!');
+                endTurn();
+            } else if (property.ownedBy === null && (property.price || property.type === 'station' || property.type === 'utility')) {
+                // عرض نافذة لشراء العقار
+                showBuyPropertyModal(property);
+            } else if (property.ownedBy !== null && property.ownedBy !== players[currentPlayerIndex].id) {
+                // دفع الإيجار
+                payRent(property);
+            } else if (property.type === 'chance' || property.type === 'chest') {
+                drawCard(property.type);
+            }
+        }
+
+        // عرض نافذة شراء العقار
+        function showBuyPropertyModal(property) {
+            propertyDescription.textContent = `وقفت على ${property.name}`;
+            propertyPrice.textContent = `سعر الشراء: ${property.price} ريال`;
+            buyPropertyModal.style.display = 'block';
+        }
+
+        // دفع الإيجار
+        function payRent(property) {
+            const owner = players.find(p => p.id === property.ownedBy);
+            const currentPlayer = players[currentPlayerIndex];
+            
+            let rent = property.rent;
+            if (property.type === 'station') {
+                // احتساب الإيجار لمحطات القطار
+                const ownedStations = properties.filter(p => p.type === 'station' && p.ownedBy === owner.id).length;
+                rent = 25 * Math.pow(2, ownedStations - 1);
+            } else if (property.type === 'utility') {
+                // احتساب الإيجار للمرافق
+                const diceTotal = parseInt(document.getElementById('dice1').textContent) + 
+                                  parseInt(document.getElementById('dice2').textContent);
+                const ownedUtilities = properties.filter(p => p.type === 'utility' && p.ownedBy === owner.id).length;
+                rent = ownedUtilities === 1 ? diceTotal * 4 : diceTotal * 10;
+            }
+            
+            currentPlayer.money -= rent;
+            owner.money += rent;
+            
+            alert(`دفعت إيجار ${rent} ريال لـ ${owner.name} عن ${property.name}`);
+            updatePlayerInfo();
+            
+            if (currentPlayer.money < 0) {
+                alert(`يا للأسف! ${currentPlayer.name} أعلن إفلاسه!`);
+                // إزالة اللاعب من اللعبة
+                players.splice(currentPlayerIndex, 1);
+                if (players.length === 1) {
+                    endGame(players[0]);
+                    return;
+                }
+                if (currentPlayerIndex >= players.length) currentPlayerIndex = 0;
+            }
+            
+            endTurn();
+        }
+
+        // سحب بطاقة فرصة أو خزينة المجتمع
+        function drawCard(type) {
+            const cards = {
+                chance: [
+                    "تقدم إلى قصر العلم. إذا مررت بالبدء، استلم 200 ريال",
+                    "اذهب مباشرة إلى السجن. لا تمر بالبدء ولا تستلم 200 ريال",
+                    "احصل على رخصة بناء. يمكنك بناء منزل إضافي في أي عقار تمتلكه",
+                    "لقد فزت بجائزة مهرجان مسقط. استلم 50 ريال",
+                    "تم اختيارك سفيراً للسياحة العمانية. استلم 100 ريال من كل لاعب"
+                ],
+                chest: [
+                    "ورثت أرضاً في صلالة. استلم 100 ريال",
+                    "دفعت رسوم مدرسة لأطفالك. ادفع 50 ريال",
+                    "بيعك لبعض المنتجات التقليدية. استلم 20 ريال",
+                    "سددت لك البنك قرضاً. استلم 150 ريال",
+                    "دفعت فاتورة كهرباء. ادفع 100 ريال"
+                ]
+            };
+            
+            const randomCard = cards[type][Math.floor(Math.random() * cards[type].length)];
+            alert(randomCard);
+            
+            // معالجة بعض التأثيرات (مبسطة)
+            if (randomCard.includes("استلم")) {
+                const amount = parseInt(randomCard.match(/\d+/)[0]);
+                players[currentPlayerIndex].money += amount;
+            } else if (randomCard.includes("ادفع")) {
+                const amount = parseInt(randomCard.match(/\d+/)[0]);
+                players[currentPlayerIndex].money -= amount;
+            } else if (randomCard.includes("اذهب مباشرة إلى السجن")) {
+                players[currentPlayerIndex].position = 10;
+                movePlayerToken(players[currentPlayerIndex].id, 10);
+            }
+            
+            updatePlayerInfo();
+            endTurn();
+        }
+
+        // دالة لإنهاء الدور
+        function endTurn() {
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+            updatePlayerInfo();
+        }
+
+        // دالة لتحديث معلومات اللاعب الحالي
+        function updatePlayerInfo() {
+            if (players.length === 0) return;
+            
+            const player = players[currentPlayerIndex];
+            currentPlayerName.textContent = player.name;
+            currentPlayerBalance.textContent = player.money;
+            
+            // تحديث قائمة العقارات المملوكة
+            propertiesList.innerHTML = '';
+            const ownedProperties = properties.filter(p => p.ownedBy === player.id);
+            ownedProperties.forEach(prop => {
+                const li = document.createElement('li');
+                li.textContent = `${prop.name}`;
+                if (prop.type === 'station' || prop.type === 'utility' || prop.houses > 0) {
+                    li.textContent += ` (${prop.rent} ريال إيجار)`;
+                }
+                propertiesList.appendChild(li);
+            });
+        }
+
+        // نهاية اللعبة
+        function endGame(winner) {
+            gameStarted = false;
+            alert(`مبروك! ${winner.name} فاز باللعبة!`);
+        }
+
+        // إعداد اللاعبين
+        function setupPlayers() {
+            const playerCount = parseInt(playerCountSelect.value);
+            playerNamesContainer.innerHTML = '';
+            
+            for (let i = 0; i < playerCount; i++) {
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <label for="player-${i}-name">اسم اللاعب ${i + 1}:</label>
+                    <input type="text" id="player-${i}-name" required>
+                    <select id="player-${i}-token">
+                        <option value="${playerColors[i]}">${['خنجر', 'سفينة', 'جمل', 'قلعة'][i]}</option>
+                    </select>
+                `;
+                playerNamesContainer.appendChild(div);
+            }
+        }
+
+        // بدء اللعبة مع اللاعبين المحددين
+        function startGameWithPlayers() {
+            const playerCount = parseInt(playerCountSelect.value);
+            players = [];
+            
+            for (let i = 0; i < playerCount; i++) {
+                const name = document.getElementById(`player-${i}-name`).value || `اللاعب ${i + 1}`;
+                const color = playerColors[i];
+                
+                players.push({
+                    id: i,
+                    name: name,
+                    color: color,
+                    money: 1500,
+                    position: 0,
+                    properties: []
+                });
+            }
+            
+            initGame();
+        }
+
+        // أحداث DOM
+        rollBtn.addEventListener('click', rollDice);
+        endTurnBtn.addEventListener('click', endTurn);
+        playerCountSelect.addEventListener('change', setupPlayers);
+        startGameBtn.addEventListener('click', startGameWithPlayers);
+        helpBtn.addEventListener('click', () => helpModal.style.display = 'block');
+        
+        // إغلاق النوافذ المنبثقة
+        document.querySelectorAll('.close, .close-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.closest('.modal').style.display = 'none';
+            });
+        });
+        
+        // شراء العقار
+        buyPropertyBtn.addEventListener('click', function() {
+            const player = players[currentPlayerIndex];
+            const property = currentProperty;
+            
+            if (player.money >= property.price) {
+                player.money -= property.price;
+                property.ownedBy = player.id;
+                player.properties.push(property.id);
+                
+                alert(`تم شراء ${property.name} بـ ${property.price} ريال`);
+                updatePlayerInfo();
+                buyPropertyModal.style.display = 'none';
+                renderBoard(); // لتحديث ألوان العقارات
+            } else {
+                alert('ليس لديك ما يكفي من المال لشراء هذا العقار!');
+            }
+        });
+        
+        // بدء المزاد (مبسطة)
+        auctionPropertyBtn.addEventListener('click', function() {
+            alert('المزاد سيبدأ (هذه الميزة تحتاج لتطوير إضافي)');
+            buyPropertyModal.style.display = 'none';
+            endTurn();
+        });
+
+        // تهيئة اللعبة عند تحميل الصفحة
+        window.addEventListener('DOMContentLoaded', () => {
+            setupPlayers();
+            setupModal.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
