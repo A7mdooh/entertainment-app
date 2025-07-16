@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مونوبولي سلطنة عُمان</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --oman-red: #db1f1f;
@@ -11,90 +12,166 @@
             --oman-white: #ffffff;
             --gold: #FFD700;
             --dark-blue: #003366;
+            --light-green: #00a65a;
+            --shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
         body {
-            font-family: 'Tajawal', sans-serif;
-            background-color: #f5f5f5;
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #e8f5e8 100%);
             margin: 0;
             padding: 0;
             color: #333;
+            min-height: 100vh;
+        }
+
+        /* أزرار التحكم */
+        .control-btn {
+            position: fixed;
+            top: 15px;
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 8px;
+            z-index: 2147483647;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.9);
+            box-shadow: var(--shadow);
+        }
+        
+        .control-btn:hover {
+            transform: scale(1.1);
+            background-color: var(--oman-red);
+            color: white;
+        }
+        
+        #homeBtn {
+            right: 15px;
+        }
+        
+        #fullscreenBtn {
+            left: 15px;
         }
 
         header {
-            background-color: var(--oman-red);
+            background: linear-gradient(135deg, var(--oman-red) 0%, #a01717 100%);
             color: var(--oman-white);
-            padding: 1rem;
+            padding: 1.5rem;
             text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
         .oman-btn {
-            background-color: var(--oman-green);
+            background: linear-gradient(135deg, var(--oman-green) 0%, var(--light-green) 100%);
             color: white;
             border: none;
-            padding: 10px 20px;
-            margin: 5px;
-            border-radius: 5px;
+            padding: 12px 24px;
+            margin: 8px;
+            border-radius: 25px;
             cursor: pointer;
-            font-family: 'Tajawal', sans-serif;
+            font-family: 'Cairo', sans-serif;
             font-size: 16px;
-            transition: all 0.3s;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .oman-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .oman-btn:hover::before {
+            left: 100%;
         }
 
         .oman-btn:hover {
-            background-color: #006400;
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .oman-btn:active {
+            transform: translateY(0);
         }
 
         .game-container {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            max-width: 1200px;
-            margin: 20px auto;
-            gap: 20px;
+            max-width: 1400px;
+            margin: 30px auto;
+            gap: 30px;
+            padding: 0 20px;
         }
 
         .game-board {
-            width: 600px;
-            height: 600px;
-            background-color: #f9f3e9;
+            width: 700px;
+            height: 700px;
+            background: linear-gradient(135deg, #f9f3e9 0%, #fff8e1 100%);
             position: relative;
-            border: 10px solid var(--dark-blue);
-            border-radius: 5px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            border: 15px solid var(--dark-blue);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             display: grid;
             grid-template-columns: repeat(11, 1fr);
             grid-template-rows: repeat(11, 1fr);
+            animation: boardGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes boardGlow {
+            0% { box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+            100% { box-shadow: 0 10px 40px rgba(219, 31, 31, 0.3); }
         }
 
         .board-cell {
             display: flex;
             justify-content: center;
             align-items: center;
-            border: 1px solid #ccc;
-            font-size: 10px;
+            border: 1px solid #ddd;
+            font-size: 11px;
             text-align: center;
-            padding: 2px;
+            padding: 3px;
             position: relative;
-            background-color: rgba(255,255,255,0.8);
+            background-color: rgba(255,255,255,0.9);
+            transition: all 0.3s ease;
+            font-weight: 600;
         }
 
         .corner-cell {
-            background-color: var(--oman-red);
+            background: linear-gradient(135deg, var(--oman-red) 0%, #a01717 100%);
             color: white;
             font-weight: bold;
+            font-size: 12px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
         }
 
         .property-cell {
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
 
         .property-cell:hover {
-            transform: scale(1.05);
+            transform: scale(1.1);
             z-index: 10;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
         .player-controls {
@@ -102,68 +179,123 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            width: 250px;
+            background: linear-gradient(135deg, white 0%, #f8f9fa 100%);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            width: 280px;
+            border: 3px solid var(--oman-green);
+        }
+
+        .player-controls h3 {
+            color: var(--oman-red);
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            font-weight: 700;
         }
 
         .dice-container {
             display: flex;
             justify-content: space-around;
             width: 100%;
-            margin: 20px 0;
+            margin: 25px 0;
+            gap: 15px;
         }
 
         .dice {
-            width: 50px;
-            height: 50px;
-            background-color: white;
-            border: 2px solid #333;
-            border-radius: 5px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, white 0%, #f0f0f0 100%);
+            border: 3px solid var(--oman-red);
+            border-radius: 12px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 24px;
+            font-size: 28px;
             font-weight: bold;
-            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            animation: diceFloat 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes diceFloat {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-5px); }
+        }
+
+        .dice:hover {
+            transform: scale(1.1) translateY(-5px);
         }
 
         .player-info {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            width: 250px;
+            background: linear-gradient(135deg, white 0%, #f8f9fa 100%);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            width: 280px;
+            border: 3px solid var(--gold);
         }
 
         .current-player {
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #eee;
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 2px solid #eee;
+            text-align: center;
+        }
+
+        .current-player h3 {
+            color: var(--oman-red);
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .current-player p {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--oman-green);
         }
 
         #properties-list {
             list-style-type: none;
             padding: 0;
+            max-height: 200px;
+            overflow-y: auto;
         }
 
         #properties-list li {
-            padding: 5px 0;
-            border-bottom: 1px dashed #eee;
+            padding: 8px 12px;
+            margin: 5px 0;
+            background-color: rgba(0, 128, 0, 0.1);
+            border-right: 4px solid var(--oman-green);
+            border-radius: 5px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        #properties-list li:hover {
+            background-color: rgba(0, 128, 0, 0.2);
+            transform: translateX(5px);
         }
 
         .player-token {
-            width: 20px;
-            height: 20px;
+            width: 25px;
+            height: 25px;
             border-radius: 50%;
             position: absolute;
-            transition: all 0.5s;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 5;
+            border: 3px solid white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            animation: tokenPulse 2s ease-in-out infinite alternate;
         }
 
-        /* أنماط النوافذ المنبثقة */
+        @keyframes tokenPulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        /* أنماط النوافذ المنبثقة المحدثة */
         .modal {
             display: none;
             position: fixed;
@@ -172,134 +304,202 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.7);
+            background-color: rgba(0,0,0,0.8);
             overflow: auto;
+            backdrop-filter: blur(5px);
         }
 
         .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
+            background: linear-gradient(135deg, #fefefe 0%, #f8f9fa 100%);
+            margin: 3% auto;
+            padding: 30px;
             border: 5px solid var(--oman-red);
-            border-radius: 10px;
-            width: 80%;
-            max-width: 700px;
+            border-radius: 20px;
+            width: 85%;
+            max-width: 800px;
             position: relative;
-            animation: modalopen 0.5s;
+            animation: modalSlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
 
-        @keyframes modalopen {
-            from {opacity: 0; transform: translateY(-50px);}
-            to {opacity: 1; transform: translateY(0);}
+        @keyframes modalSlideIn {
+            from {opacity: 0; transform: translateY(-100px) scale(0.8);}
+            to {opacity: 1; transform: translateY(0) scale(1);}
         }
 
         .close {
-            color: #aaa;
+            color: var(--oman-red);
             float: left;
-            font-size: 28px;
+            font-size: 32px;
             font-weight: bold;
             cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 5px;
+            border-radius: 50%;
         }
 
         .close:hover {
-            color: black;
+            background-color: var(--oman-red);
+            color: white;
+            transform: scale(1.2);
         }
 
         .modal-header {
-            padding: 10px 0;
-            border-bottom: 1px solid #ddd;
+            padding: 15px 0;
+            border-bottom: 3px solid var(--oman-green);
         }
 
         .modal-body {
-            padding: 20px 0;
+            padding: 25px 0;
             max-height: 60vh;
             overflow-y: auto;
         }
 
         .modal-footer {
-            padding: 10px 0;
-            border-top: 1px solid #ddd;
+            padding: 15px 0;
+            border-top: 3px solid var(--oman-green);
             text-align: center;
-        }
-
-        /* تصميم عُماني خاص للنوافذ */
-        .modal-content {
-            background-color: #f9f3e9;
-            color: #333;
         }
 
         .modal h2 {
             color: var(--oman-red);
             text-align: center;
-            font-size: 28px;
+            font-size: 2.2rem;
             margin-bottom: 20px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
 
         .modal h3 {
             color: var(--oman-green);
-            margin-top: 20px;
+            margin-top: 25px;
+            font-weight: 600;
+            font-size: 1.3rem;
         }
 
         .close-btn {
-            background-color: var(--oman-red);
+            background: linear-gradient(135deg, var(--oman-red) 0%, #a01717 100%);
         }
 
         .close-btn:hover {
-            background-color: #c11a1a;
+            background: linear-gradient(135deg, #a01717 0%, #8b1414 100%);
         }
 
-        /* ألوان العقارات */
+        /* تحسين ألوان العقارات */
         .property-brown {
-            background-color: #8B4513;
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
             color: white;
+            border: 2px solid #654321;
         }
 
         .property-lightblue {
-            background-color: #ADD8E6;
+            background: linear-gradient(135deg, #ADD8E6 0%, #87CEEB 100%);
+            color: #003366;
+            border: 2px solid #4682B4;
         }
 
         .property-pink {
-            background-color: #FFC0CB;
+            background: linear-gradient(135deg, #FFC0CB 0%, #FFB6C1 100%);
+            color: #8B008B;
+            border: 2px solid #DA70D6;
         }
 
         .property-orange {
-            background-color: #FFA500;
+            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+            color: white;
+            border: 2px solid #FF6347;
         }
 
         .property-red {
-            background-color: #FF0000;
+            background: linear-gradient(135deg, #FF0000 0%, #DC143C 100%);
             color: white;
+            border: 2px solid #B22222;
         }
 
         .property-yellow {
-            background-color: #FFFF00;
+            background: linear-gradient(135deg, #FFFF00 0%, #FFD700 100%);
+            color: #8B4513;
+            border: 2px solid #DAA520;
         }
 
         .property-green {
-            background-color: #008000;
+            background: linear-gradient(135deg, #008000 0%, #228B22 100%);
             color: white;
+            border: 2px solid #006400;
         }
 
         .property-darkblue {
-            background-color: #00008B;
+            background: linear-gradient(135deg, #00008B 0%, #191970 100%);
             color: white;
+            border: 2px solid #000080;
         }
 
         .property-station {
-            background-color: #333333;
+            background: linear-gradient(135deg, #333333 0%, #555555 100%);
             color: white;
+            border: 2px solid #000000;
         }
 
         .property-utility {
-            background-color: #FFFFFF;
-            border: 2px dashed #333;
+            background: linear-gradient(135deg, #FFFFFF 0%, #F0F0F0 100%);
+            border: 3px dashed var(--oman-green);
+            color: var(--oman-green);
+        }
+
+        /* تحسينات للاستجابة */
+        @media (max-width: 768px) {
+            .game-container {
+                flex-direction: column;
+                align-items: center;
+                padding: 10px;
+            }
+            
+            .game-board {
+                width: 90vw;
+                height: 90vw;
+                max-width: 500px;
+                max-height: 500px;
+            }
+            
+            .player-controls, .player-info {
+                width: 90%;
+                max-width: 400px;
+            }
+            
+            .control-btn {
+                font-size: 20px;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        /* تأثيرات إضافية */
+        .game-board:hover {
+            transform: scale(1.02);
+            transition: transform 0.3s ease;
+        }
+
+        .oman-btn.primary {
+            background: linear-gradient(135deg, var(--oman-red) 0%, #a01717 100%);
+        }
+
+        .oman-btn.secondary {
+            background: linear-gradient(135deg, var(--gold) 0%, #FFB347 100%);
+            color: var(--dark-blue);
         }
     </style>
 </head>
 <body>
+    <!-- أزرار التحكم -->
+    <button class="control-btn" id="homeBtn" title="العودة للصفحة الرئيسية">🏠</button>
+    <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة/الخروج">⛶</button>
+
     <header>
-        <h1>مونوبولي سلطنة عُمان</h1>
-        <button id="help-btn" class="oman-btn">تعليمات اللعبة</button>
+        <h1>🏰 مونوبولي سلطنة عُمان 🎲</h1>
+        <p>اكتشف معالم عُمان الجميلة واستثمر في أشهر المواقع السياحية</p>
+        <button id="help-btn" class="oman-btn">📚 تعليمات اللعبة</button>
     </header>
 
     <main>
@@ -309,21 +509,22 @@
             </div>
 
             <div class="player-controls">
+                <h3>🎮 تحكم اللاعب</h3>
                 <div class="dice-container">
-                    <div class="dice" id="dice1">1</div>
-                    <div class="dice" id="dice2">2</div>
+                    <div class="dice" id="dice1">🎲</div>
+                    <div class="dice" id="dice2">🎲</div>
                 </div>
-                <button id="roll-btn" class="oman-btn">اطر النرد</button>
-                <button id="end-turn-btn" class="oman-btn">انهي دورك</button>
+                <button id="roll-btn" class="oman-btn primary">🎯 اطر النرد</button>
+                <button id="end-turn-btn" class="oman-btn secondary">⏭️ انهي دورك</button>
             </div>
 
             <div class="player-info">
                 <div class="current-player">
-                    <h3>اللاعب الحالي: <span id="current-player-name">...</span></h3>
-                    <p>الرصيد: <span id="current-player-balance">0</span> ريال عُماني</p>
+                    <h3>👤 اللاعب الحالي: <span id="current-player-name">...</span></h3>
+                    <p>💰 الرصيد: <span id="current-player-balance">0</span> ريال عُماني</p>
                 </div>
                 <div class="properties-owned">
-                    <h4>العقارات المملوكة:</h4>
+                    <h4>🏘️ العقارات المملوكة:</h4>
                     <ul id="properties-list"></ul>
                 </div>
             </div>
@@ -405,6 +606,16 @@
     </div>
 
     <script>
+        // إنشاء كائن الصوت
+        const clickSound = new Audio('../assets/media/sounds/Click.mp3');
+        clickSound.preload = 'auto';
+
+        // وظيفة تشغيل الصوت
+        function playClickSound() {
+            clickSound.currentTime = 0;
+            clickSound.play().catch(() => {});
+        }
+
         // متغيرات اللعبة
         let currentPlayerIndex = 0;
         let players = [];
@@ -574,18 +785,43 @@
             token.style.gridColumn = col + 1;
         }
 
-        // دالة لرمي النرد
+        // دالة لرمي النرد مع تأثيرات بصرية
         function rollDice() {
             if (!gameStarted) return;
             
-            const dice1 = Math.floor(Math.random() * 6) + 1;
-            const dice2 = Math.floor(Math.random() * 6) + 1;
+            // تأثير رول النرد
+            const dice1El = document.getElementById('dice1');
+            const dice2El = document.getElementById('dice2');
             
-            document.getElementById('dice1').textContent = dice1;
-            document.getElementById('dice2').textContent = dice2;
-            
-            const total = dice1 + dice2;
-            movePlayer(total);
+            // أنيميشن النرد
+            let rollCount = 0;
+            const rollInterval = setInterval(() => {
+                dice1El.textContent = Math.floor(Math.random() * 6) + 1;
+                dice2El.textContent = Math.floor(Math.random() * 6) + 1;
+                rollCount++;
+                
+                if (rollCount > 10) {
+                    clearInterval(rollInterval);
+                    
+                    const dice1 = Math.floor(Math.random() * 6) + 1;
+                    const dice2 = Math.floor(Math.random() * 6) + 1;
+                    
+                    dice1El.textContent = dice1;
+                    dice2El.textContent = dice2;
+                    
+                    const total = dice1 + dice2;
+                    
+                    // إضافة تأثير بصري
+                    dice1El.style.transform = 'scale(1.2)';
+                    dice2El.style.transform = 'scale(1.2)';
+                    
+                    setTimeout(() => {
+                        dice1El.style.transform = 'scale(1)';
+                        dice2El.style.transform = 'scale(1)';
+                        movePlayer(total);
+                    }, 500);
+                }
+            }, 100);
         }
 
         // دالة لتحريك اللاعب
@@ -784,21 +1020,69 @@
         }
 
         // أحداث DOM
-        rollBtn.addEventListener('click', rollDice);
-        endTurnBtn.addEventListener('click', endTurn);
+        rollBtn.addEventListener('click', () => {
+            playClickSound();
+            rollDice();
+        });
+        endTurnBtn.addEventListener('click', () => {
+            playClickSound();
+            endTurn();
+        });
         playerCountSelect.addEventListener('change', setupPlayers);
-        startGameBtn.addEventListener('click', startGameWithPlayers);
-        helpBtn.addEventListener('click', () => helpModal.style.display = 'block');
+        startGameBtn.addEventListener('click', () => {
+            playClickSound();
+            startGameWithPlayers();
+        });
+        helpBtn.addEventListener('click', () => {
+            playClickSound();
+            helpModal.style.display = 'block';
+        });
+
+        // أزرار التحكم
+        document.addEventListener('DOMContentLoaded', function() {
+            // إضافة أزرار التحكم
+            const homeBtn = document.getElementById('homeBtn');
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+            // زر العودة للصفحة الرئيسية
+            homeBtn.addEventListener('click', function() {
+                playClickSound();
+                window.location.href = '../main.html';
+            });
+
+            // زر ملء الشاشة
+            fullscreenBtn.addEventListener('click', function() {
+                playClickSound();
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.log('خطأ في ملء الشاشة:', err);
+                    });
+                } else {
+                    document.exitFullscreen();
+                }
+            });
+
+            // إضافة الصوت لجميع الأزرار
+            document.querySelectorAll('.oman-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    if (!e.target.hasAttribute('data-no-sound')) {
+                        playClickSound();
+                    }
+                });
+            });
+        });
         
         // إغلاق النوافذ المنبثقة
         document.querySelectorAll('.close, .close-btn').forEach(btn => {
             btn.addEventListener('click', function() {
+                playClickSound();
                 this.closest('.modal').style.display = 'none';
             });
         });
         
         // شراء العقار
         buyPropertyBtn.addEventListener('click', function() {
+            playClickSound();
             const player = players[currentPlayerIndex];
             const property = currentProperty;
             
@@ -807,18 +1091,19 @@
                 property.ownedBy = player.id;
                 player.properties.push(property.id);
                 
-                alert(`تم شراء ${property.name} بـ ${property.price} ريال`);
+                alert(`🎉 تم شراء ${property.name} بـ ${property.price} ريال`);
                 updatePlayerInfo();
                 buyPropertyModal.style.display = 'none';
                 renderBoard(); // لتحديث ألوان العقارات
             } else {
-                alert('ليس لديك ما يكفي من المال لشراء هذا العقار!');
+                alert('❌ ليس لديك ما يكفي من المال لشراء هذا العقار!');
             }
         });
         
         // بدء المزاد (مبسطة)
         auctionPropertyBtn.addEventListener('click', function() {
-            alert('المزاد سيبدأ (هذه الميزة تحتاج لتطوير إضافي)');
+            playClickSound();
+            alert('🔨 المزاد سيبدأ (هذه الميزة تحتاج لتطوير إضافي)');
             buyPropertyModal.style.display = 'none';
             endTurn();
         });
