@@ -140,8 +140,19 @@
   </div>
 
   <script>
+    // إنشاء كائن الصوت
+    const clickSound = new Audio('assets/media/sounds/Click.mp3');
+    clickSound.preload = 'auto';
+
+    // وظيفة تشغيل الصوت
+    function playClickSound() {
+      clickSound.currentTime = 0; // إعادة تعيين الصوت للبداية
+      clickSound.play().catch(() => {}); // تجاهل الأخطاء
+    }
+
     // وظيفة ملء الشاشة/الخروج منها
     document.getElementById('fullscreenBtn').addEventListener('click', function() {
+      playClickSound(); // تشغيل الصوت
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(err => {
           console.log('خطأ في ملء الشاشة:', err);
@@ -169,7 +180,18 @@
 
     // وظيفة العودة للصفحة الرئيسية
     document.getElementById('homeBtn').addEventListener('click', function() {
+      playClickSound(); // تشغيل الصوت
       window.location.href = 'https://a7mdooh.github.io/entertainment-app/';
+    });
+
+    // إضافة الصوت لجميع بطاقات الأنشطة
+    document.addEventListener('DOMContentLoaded', function() {
+      const activityCards = document.querySelectorAll('.activity-card');
+      activityCards.forEach(card => {
+        card.addEventListener('click', function() {
+          playClickSound(); // تشغيل الصوت عند النقر على أي بطاقة نشاط
+        });
+      });
     });
 
     // لم يعد هناك حاجة لتغيير إظهار الأزرار عند fullscreen
