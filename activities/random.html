@@ -108,96 +108,105 @@
       opacity: 0.9;
     }
     
+    /* تصميم القائمة المنسدلة البسيط والأنيق */
     #classSelect {
-      padding: 15px;
-      font-size: 1.2rem;
-      border-radius: 8px;
-      border: 2px solid #ddd;
-      margin-bottom: 20px;
-      width: 80%;
-      max-width: 400px;
-      background: white;
-      box-shadow: var(--shadow);
-      transition: var(--transition);
+      width: 100%;
+      max-width: 450px;
+      padding: 20px 25px;
+      margin: 25px auto;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--text-color);
       
-      /* تحسينات لشاشات التلفزيون */
+      /* التصميم */
+      background: white;
+      border: 2px solid #e1e5e9;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      
+      /* إزالة التصميم الافتراضي */
       -webkit-appearance: none;
       -moz-appearance: none;
       appearance: none;
-      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-      background-position: left 12px center;
-      background-repeat: no-repeat;
-      background-size: 16px 12px;
-      padding-left: 40px;
-      cursor: pointer;
       
-      /* إعدادات خاصة للتلفزيون */
-      user-select: none;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      touch-action: manipulation;
-      pointer-events: auto;
-      z-index: 10;
+      /* السهم البسيط */
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23666' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+      background-position: left 20px center;
+      background-repeat: no-repeat;
+      background-size: 20px;
+      padding-left: 55px;
+      
+      /* التفاعل */
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+    
+    #classSelect:hover {
+      border-color: var(--primary-color);
+      box-shadow: 0 4px 15px rgba(0,121,107,0.12);
     }
     
     #classSelect:focus {
+      outline: none;
       border-color: var(--primary-color);
-      outline: 3px solid rgba(0,121,107,0.3);
-      box-shadow: 0 0 0 3px rgba(0,121,107,0.2);
+      box-shadow: 0 0 0 3px rgba(0,121,107,0.1);
     }
     
-    /* خيارات القائمة المنسدلة */
+    /* خيارات القائمة */
     #classSelect option {
       padding: 15px;
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       background: white;
       color: var(--text-color);
-      border: none;
     }
     
-    #classSelect option:hover,
-    #classSelect option:focus {
-      background-color: var(--primary-color);
-      color: white;
+    #classSelect option:first-child {
+      color: #999;
+      font-style: italic;
     }
     
-    /* تحسينات خاصة لشاشات التلفزيون الكبيرة */
+    /* للشاشات الكبيرة */
     @media screen and (min-width: 1920px) {
       #classSelect {
-        font-size: 1.8rem;
-        padding: 25px;
-        padding-left: 60px;
         max-width: 600px;
-        background-size: 24px 18px;
-        background-position: left 20px center;
+        padding: 28px 35px;
+        padding-left: 75px;
+        font-size: 1.8rem;
+        background-size: 28px;
+        background-position: left 25px center;
       }
       
       #classSelect option {
-        padding: 20px;
         font-size: 1.6rem;
+        padding: 18px;
       }
     }
     
-    /* تحسينات للأجهزة التي تدعم hover */
-    @media (hover: hover) {
-      #classSelect:hover {
-        border-color: var(--primary-color);
-        transform: scale(1.02);
+    /* للشاشات الصغيرة */
+    @media (max-width: 768px) {
+      #classSelect {
+        width: 95%;
+        padding: 18px 22px;
+        padding-left: 50px;
+        font-size: 1.3rem;
+        margin: 20px auto;
       }
     }
     
-    /* للأجهزة التي لا تدعم hover (مثل التلفزيونات الذكية) */
+    /* للتلفزيونات الذكية */
     @media (hover: none) {
       #classSelect {
-        font-size: 1.4rem;
-        padding: 20px;
+        font-size: 1.6rem;
+        padding: 25px 30px;
+        padding-left: 65px;
         border-width: 3px;
       }
       
       #classSelect:focus,
       #classSelect:active {
-        transform: scale(1.05);
         border-color: var(--accent-color);
+        transform: scale(1.02);
       }
     }
     
@@ -527,7 +536,7 @@
     const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
     const continueBtn = document.getElementById("continueBtn");
 
-    // تحميل بيانات الطلاب
+    // تحميل بيانات الطلاب (مبسط)
     async function loadStudents() {
       try {
         const res = await fetch('/entertainment-app/data/studentData.json');
@@ -537,27 +546,42 @@
         Object.keys(studentData).forEach(cls => {
           const option = document.createElement("option");
           option.value = cls;
-          option.textContent = cls;
+          option.textContent = `الصف ${cls}`;
           classSelect.appendChild(option);
         });
         
         // حدث تغيير الصف
-        classSelect.addEventListener('change', () => {
-          playClick();
-          currentList = [...studentData[classSelect.value]];
-          updateStudentCount();
-          resetSelection();
-        });
+        classSelect.addEventListener('change', handleClassChange);
         
-        // تحميل مسبق للأصوات
-        window.addEventListener('load', () => {
-          [nameStartSound, nameStopSound, clickSound, spinSound, selectSound].forEach(audio => {
-            audio.load();
-          });
-        });
       } catch (error) {
         console.error('خطأ في تحميل بيانات الطلاب:', error);
         randomNameDisplay.textContent = "حدث خطأ في تحميل البيانات";
+      }
+    }
+
+    // معالج تغيير الصف (مبسط)
+    function handleClassChange() {
+      playClick();
+      const selectedClass = classSelect.value;
+      
+      if (selectedClass && studentData[selectedClass]) {
+        currentList = [...studentData[selectedClass]];
+        updateStudentCount();
+        resetSelection();
+        
+        // تمكين الزر الرئيسي
+        mainControlBtn.disabled = false;
+        mainControlBtn.style.opacity = '1';
+        mainControlBtn.textContent = "🚀 ابدأ";
+        
+      } else {
+        // إعادة تعيين
+        currentList = [];
+        updateStudentCount();
+        resetSelection();
+        mainControlBtn.disabled = true;
+        mainControlBtn.style.opacity = '0.6';
+        mainControlBtn.textContent = "🚀 اختر الصف أولاً";
       }
     }
 
@@ -797,16 +821,16 @@
       }
     }
 
-    // تهيئة الصفحة عند التحميل
+    // تهيئة الصفحة عند التحميل (مبسط)
     window.onload = function() {
-      // تعطيل الزر الرئيسي مبدئياً
+      loadStudents();
+      
+      // تعطيل الزر مبدئياً
       mainControlBtn.disabled = true;
       mainControlBtn.style.opacity = '0.6';
       mainControlBtn.textContent = "🚀 اختر الصف أولاً";
       
-      loadStudents();
-      
-      // باقي أحداث الأزرار...
+      // أحداث الأزرار
       mainControlBtn.addEventListener('click', handleMainControl);
       muteBtn.addEventListener('click', muteToggle);
       backBtn.addEventListener('click', goBack);
@@ -824,31 +848,34 @@
         confirmModal.style.display = "none";
         startRolling();
       });
-      
-      // إغلاق النافذة عند النقر خارجها
-      confirmModal.addEventListener('click', function(e) {
-        if (e.target === confirmModal) {
+      ('beforeunload', () => {كشف تغيير وضع الشاشة
+      confirmModal.addEventListener('click', function(e) {e', () => {
+        if (e.target === confirmModal) {lement && isFullscreen) {
           playClick();
-          confirmModal.style.display = "none";
+          confirmModal.style.display = "none"; = "⛶";
         }
       });
     };
 
-    // كشف تغيير وضع الشاشة
+    // كشف تغيير وضع الشاشةitle = "ملء الشاشة";
     document.addEventListener('fullscreenchange', () => {
       if (!document.fullscreenElement && isFullscreen) {
         isFullscreen = false;
-        fullscreenBtn.textContent = "⛶";
-        fullscreenBtn.title = "ملء الشاشة";
-      }
-    });
+        fullscreenBtn.textContent = "⛶";التأكد من إيقاف الدوران عند مغادرة الصفحة
+        fullscreenBtn.title = "ملء الشاشة";dow.addEventListener('beforeunload', () => {
+      }sRolling) {
+    }); clearInterval(interval);
 
-    // التأكد من إيقاف الدوران عند مغادرة الصفحة
-    window.addEventListener('beforeunload', () => {
-      if (isRolling) {
-        clearInterval(interval);
-      }
-    });
-  </script>
+    // التأكد من إيقاف الدوران عند مغادرة الصفحة    });
+
+
+
+
+
+
+
+
+
+</html></body>  </script>    });      }        clearInterval(interval);      if (isRolling) {    window.addEventListener('beforeunload', () => {  </script>
 </body>
 </html>
