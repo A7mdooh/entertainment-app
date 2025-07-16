@@ -624,6 +624,43 @@
             font-size: 12px;
             font-weight: bold;
         }
+
+        /* تحسين محدد الصف */
+        #class-selector {
+            background: linear-gradient(135deg, white 0%, #f8f9fa 100%);
+            border: 2px solid var(--oman-green);
+            border-radius: 20px;
+            padding: 10px 15px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 600;
+            color: var(--dark-blue);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        #class-selector:focus {
+            outline: none;
+            border-color: var(--oman-red);
+            box-shadow: 0 0 10px rgba(219, 31, 31, 0.3);
+            transform: scale(1.02);
+        }
+
+        #class-selector option {
+            padding: 10px;
+            background: white;
+            color: var(--dark-blue);
+        }
+
+        /* تحسين حالة الاختيار */
+        .class-info {
+            background: linear-gradient(135deg, var(--gold) 0%, #FFB347 100%);
+            color: var(--dark-blue);
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-weight: bold;
+            margin: 10px 0;
+            text-align: center;
+        }
         @media (max-width: 768px) {
             .game-container {
                 flex-direction: column;
@@ -766,12 +803,21 @@
                     <!-- قسم استخدام بيانات الطلاب -->
                     <div id="student-selection-section" style="display: none;">
                         <h4>🎯 اختيار الطلاب من القائمة:</h4>
+                        
+                        <!-- محدد الصف -->
+                        <div style="margin: 15px 0; text-align: center;">
+                            <label for="class-selector" style="display: block; margin-bottom: 10px; font-weight: bold; color: var(--oman-green);">📋 اختر الصف:</label>
+                            <select id="class-selector" class="oman-btn" style="width: 250px; text-align: center;">
+                                <option value="">جميع الصفوف</option>
+                            </select>
+                        </div>
+                        
                         <div style="margin: 15px 0;">
                             <button id="random-students-btn" class="oman-btn">🎲 اختيار عشوائي</button>
                             <button id="manual-students-btn" class="oman-btn secondary">👆 اختيار يدوي</button>
                         </div>
                         
-                        <div id="student-grid" style="display: none; max-height: 300px; overflow-y: auto; border: 2px solid var(--oman-green); border-radius: 10px; padding: 10px; margin: 10px 0;">
+                        <div id="student-grid" style="display: none; max-height: 400px; overflow-y: auto; border: 2px solid var(--oman-green); border-radius: 10px; padding: 10px; margin: 10px 0;">
                             <!-- سيتم ملؤها ديناميكياً -->
                         </div>
                         
@@ -860,10 +906,11 @@
         const playerColors = ['#FF0000', '#0000FF', '#00FF00', '#FFFF00', '#FF00FF', '#FFA500'];
         const playerTokens = ['🗡️', '⛵', '🐪', '🏰', '💎', '🌟'];
 
-        // بيانات الطلاب (سيتم تحميلها من الملف)
+        // بيانات الطلاب والصفوف
         let studentData = [];
+        let availableClasses = [];
 
-        // تحميل بيانات الطلاب المحدث
+        // تحميل بيانات الطلاب والصفوف
         async function loadStudentData() {
             try {
                 // المحاولة الأولى: تحميل من الملف المحلي
@@ -880,14 +927,19 @@
                     studentData = Array.isArray(data) ? data : [];
                     
                     if (studentData.length > 0) {
-                        console.log(`تم تحميل ${studentData.length} طالب من قاعدة البيانات`);
+                        // استخراج الصفوف المتاحة
+                        availableClasses = [...new Set(studentData.map(student => student.class).filter(cls => cls))];
+                        availableClasses.sort();
                         
-                        // تحديث واجهة المستخدم لإظهار إمكانية استخدام قائمة الصف
+                        console.log(`تم تحميل ${studentData.length} طالب من ${availableClasses.length} صف`);
+                        
+                        // تحديث واجهة المستخدم
                         useStudentDataBtn.style.display = 'inline-block';
                         useStudentDataBtn.disabled = false;
-                        
-                        // إضافة مؤشر نجاح التحميل
                         useStudentDataBtn.innerHTML = '📚 استخدام قائمة الصف ✅';
+                        
+                        // إنشاء قائمة الصفوف
+                        createClassSelector();
                     } else {
                         throw new Error('قائمة الطلاب فارغة');
                     }
@@ -898,20 +950,37 @@
             } catch (error) {
                 console.log('خطأ في تحميل بيانات الطلاب:', error.message);
                 studentData = [];
+                availableClasses = [];
                 
                 // تحديث واجهة المستخدم عند فشل التحميل
                 useStudentDataBtn.style.display = 'inline-block';
                 useStudentDataBtn.disabled = true;
                 useStudentDataBtn.innerHTML = '📚 قائمة الصف غير متوفرة ❌';
                 useStudentDataBtn.style.opacity = '0.6';
-                
-                // إظهار رسالة للمستخدم
-                setTimeout(() => {
-                    if (studentData.length === 0) {
-                        console.log('تم تعيين الإدخال اليدوي كالخيار الوحيد المتاح');
-                    }
-                }, 1000);
             }
+        }
+
+        // إنشاء محدد الصف
+        function createClassSelector() {
+            const classSelector = document.getElementById('class-selector');
+            if (!classSelector) return;
+            
+            classSelector.innerHTML = '<option value="">اختر الصف...</option>';
+            
+            availableClasses.forEach(className => {
+                const option = document.createElement('option');
+                option.value = className;
+                option.textContent = className;
+                classSelector.appendChild(option);
+            });
+        }
+
+        // تصفية الطلاب حسب الصف المختار
+        function filterStudentsByClass(selectedClass) {
+            if (!selectedClass) {
+                return studentData;
+            }
+            return studentData.filter(student => student.class === selectedClass);
         }
 
         // تهيئة اللعبة
@@ -1285,22 +1354,23 @@
                 return;
             }
             
+            const selectedClass = document.getElementById('class-selector').value;
+            const filteredStudents = filterStudentsByClass(selectedClass);
+            
+            if (filteredStudents.length === 0) {
+                alert('⚠️ لا توجد طلاب في الصف المختار.');
+                return;
+            }
+            
             studentGrid.style.display = 'block';
             studentGrid.innerHTML = '';
             studentGrid.className = 'student-grid';
             
             // إضافة عداد الطلاب
             const counterDiv = document.createElement('div');
-            counterDiv.style.cssText = `
-                text-align: center; 
-                padding: 10px; 
-                background: var(--oman-green); 
-                color: white; 
-                border-radius: 10px; 
-                margin-bottom: 15px;
-                font-weight: bold;
-            `;
-            counterDiv.textContent = `إجمالي الطلاب: ${studentData.length} | المطلوب اختيار: ${playerCountSelect.value}`;
+            counterDiv.className = 'student-counter';
+            const classText = selectedClass ? `الصف ${selectedClass}` : 'جميع الصفوف';
+            counterDiv.textContent = `${classText}: ${filteredStudents.length} طالب | المطلوب اختيار: ${playerCountSelect.value}`;
             studentGrid.appendChild(counterDiv);
             
             // إضافة شريط البحث
@@ -1309,17 +1379,10 @@
             const searchInput = document.createElement('input');
             searchInput.type = 'text';
             searchInput.placeholder = '🔍 ابحث عن طالب...';
-            searchInput.style.cssText = `
-                padding: 10px; 
-                border: 2px solid var(--oman-green); 
-                border-radius: 25px; 
-                width: 250px; 
-                text-align: center;
-                font-family: Cairo, sans-serif;
-            `;
+            searchInput.className = 'search-input';
             
             searchInput.addEventListener('input', function() {
-                filterStudents(this.value);
+                filterAndDisplayStudents(this.value, filteredStudents);
             });
             
             searchDiv.appendChild(searchInput);
@@ -1332,10 +1395,23 @@
             studentGrid.appendChild(cardsContainer);
             
             // عرض جميع الطلاب
-            displayStudentCards(studentData, cardsContainer);
+            displayStudentCards(filteredStudents, cardsContainer);
         }
 
-        // عرض بطاقات الطلاب
+        // تصفية وعرض الطلاب
+        function filterAndDisplayStudents(searchTerm, studentsToFilter) {
+            const filtered = studentsToFilter.filter(student => 
+                student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (student.number && student.number.toString().includes(searchTerm))
+            );
+            
+            const container = document.getElementById('student-cards-container');
+            if (container) {
+                displayStudentCards(filtered, container);
+            }
+        }
+
+        // عرض بطاقات الطلاب (محدث)
         function displayStudentCards(students, container) {
             container.innerHTML = '';
             
@@ -1349,7 +1425,10 @@
                 studentCard.className = 'student-card';
                 studentCard.innerHTML = `
                     <div style="font-weight: bold; margin-bottom: 5px;">${student.name}</div>
-                    <div style="font-size: 12px; opacity: 0.8;">رقم: ${student.number || 'غير محدد'}</div>
+                    <div style="font-size: 12px; opacity: 0.8;">
+                        ${student.number ? `رقم: ${student.number}` : ''}
+                        ${student.class ? ` | الصف: ${student.class}` : ''}
+                    </div>
                 `;
                 
                 // التحقق من الاختيار المسبق
@@ -1360,19 +1439,6 @@
                 studentCard.onclick = () => toggleStudentSelection(student, studentCard);
                 container.appendChild(studentCard);
             });
-        }
-
-        // تصفية الطلاب حسب البحث
-        function filterStudents(searchTerm) {
-            const filtered = studentData.filter(student => 
-                student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (student.number && student.number.toString().includes(searchTerm))
-            );
-            
-            const container = document.getElementById('student-cards-container');
-            if (container) {
-                displayStudentCards(filtered, container);
-            }
         }
 
         // تبديل اختيار الطالب
@@ -1415,21 +1481,15 @@
                     <span style="font-size: 20px; margin: 0 8px; color: ${playerColors[index]};">${playerTokens[index]}</span>
                     <span style="font-weight: bold;">${student.name}</span>
                     ${student.number ? `<span style="font-size: 12px; opacity: 0.8; margin-right: 5px;">(${student.number})</span>` : ''}
+                    ${student.class ? `<span style="font-size: 12px; opacity: 0.8; margin-right: 5px;">[${student.class}]</span>` : ''}
                 `;
                 selectedStudentsList.appendChild(chip);
             });
             
             // إضافة عداد
             const counterDiv = document.createElement('div');
-            counterDiv.style.cssText = `
-                text-align: center; 
-                margin-top: 10px; 
-                padding: 8px; 
-                background: ${selectedStudents.length === parseInt(playerCountSelect.value) ? 'var(--oman-green)' : 'var(--gold)'}; 
-                color: white; 
-                border-radius: 15px; 
-                font-weight: bold;
-            `;
+            const isComplete = selectedStudents.length === parseInt(playerCountSelect.value);
+            counterDiv.className = `selection-status ${isComplete ? 'selection-complete' : 'selection-incomplete'}`;
             counterDiv.textContent = `تم اختيار ${selectedStudents.length} من ${playerCountSelect.value} طلاب`;
             selectedStudentsList.appendChild(counterDiv);
         }
@@ -1462,8 +1522,17 @@
                 return;
             }
             
-            if (studentData.length < playerCount) {
-                alert(`⚠️ عدد الطلاب في القائمة (${studentData.length}) أقل من العدد المطلوب (${playerCount})`);
+            const selectedClass = document.getElementById('class-selector').value;
+            const availableStudents = filterStudentsByClass(selectedClass);
+            
+            if (availableStudents.length === 0) {
+                alert('⚠️ لا توجد طلاب في الصف المختار!');
+                return;
+            }
+            
+            if (availableStudents.length < playerCount) {
+                const classText = selectedClass ? `الصف ${selectedClass}` : 'جميع الصفوف';
+                alert(`⚠️ عدد الطلاب في ${classText} (${availableStudents.length}) أقل من العدد المطلوب (${playerCount})`);
                 return;
             }
             
@@ -1474,12 +1543,12 @@
             });
             
             // اختيار عشوائي مع ضمان عدم التكرار
-            const availableStudents = [...studentData];
+            const shuffledStudents = [...availableStudents];
             selectedStudents = [];
             
             for (let i = 0; i < playerCount; i++) {
-                const randomIndex = Math.floor(Math.random() * availableStudents.length);
-                const selectedStudent = availableStudents.splice(randomIndex, 1)[0];
+                const randomIndex = Math.floor(Math.random() * shuffledStudents.length);
+                const selectedStudent = shuffledStudents.splice(randomIndex, 1)[0];
                 selectedStudents.push(selectedStudent);
             }
             
@@ -1498,7 +1567,8 @@
             
             // رسالة نجاح مع أسماء المختارين
             const selectedNames = selectedStudents.map(s => s.name).join(', ');
-            alert(`🎲 تم اختيار ${playerCount} طلاب عشوائياً!\n\nالطلاب المختارون:\n${selectedNames}`);
+            const classText = selectedClass ? `من الصف ${selectedClass}` : 'من جميع الصفوف';
+            alert(`🎲 تم اختيار ${playerCount} طلاب عشوائياً ${classText}!\n\nالطلاب المختارون:\n${selectedNames}`);
         }
 
         // بدء اللعبة مع اللاعبين المحددين (محدث)
@@ -1638,6 +1708,22 @@
                 playClickSound();
                 showStudentGrid();
             });
+
+            // مستمع لمحدد الصف
+            const classSelector = document.getElementById('class-selector');
+            if (classSelector) {
+                classSelector.addEventListener('change', function() {
+                    playClickSound();
+                    // إعادة تعيين الاختيارات عند تغيير الصف
+                    selectedStudents = [];
+                    updateSelectedStudentsDisplay();
+                    
+                    // إعادة عرض الشبكة إذا كانت ظاهرة
+                    if (studentGrid.style.display === 'block') {
+                        showStudentGrid();
+                    }
+                });
+            }
 
             // إضافة الصوت لجميع الأزرار
             document.querySelectorAll('.oman-btn').forEach(btn => {
