@@ -848,34 +848,31 @@
         confirmModal.style.display = "none";
         startRolling();
       });
-      ('beforeunload', () => {كشف تغيير وضع الشاشة
-      confirmModal.addEventListener('click', function(e) {e', () => {
-        if (e.target === confirmModal) {lement && isFullscreen) {
+      
+      // إغلاق النافذة عند النقر خارجها
+      confirmModal.addEventListener('click', function(e) {
+        if (e.target === confirmModal) {
           playClick();
-          confirmModal.style.display = "none"; = "⛶";
+          confirmModal.style.display = "none";
         }
       });
     };
 
-    // كشف تغيير وضع الشاشةitle = "ملء الشاشة";
+    // كشف تغيير وضع الشاشة
     document.addEventListener('fullscreenchange', () => {
       if (!document.fullscreenElement && isFullscreen) {
         isFullscreen = false;
-        fullscreenBtn.textContent = "⛶";التأكد من إيقاف الدوران عند مغادرة الصفحة
-        fullscreenBtn.title = "ملء الشاشة";dow.addEventListener('beforeunload', () => {
-      }sRolling) {
-    }); clearInterval(interval);
+        fullscreenBtn.textContent = "⛶";
+        fullscreenBtn.title = "ملء الشاشة";
+      }
+    });
 
-    // التأكد من إيقاف الدوران عند مغادرة الصفحة    });
-
-
-
-
-
-
-
-
-
-</html></body>  </script>    });      }        clearInterval(interval);      if (isRolling) {    window.addEventListener('beforeunload', () => {  </script>
+    // التأكد من إيقاف الدوران عند مغادرة الصفحة
+    window.addEventListener('beforeunload', () => {
+      if (isRolling) {
+        clearInterval(interval);
+      }
+    });
+  </script>
 </body>
 </html>
