@@ -57,8 +57,22 @@
       transition: transform 0.3s;
     }
     
+    .exit-btn {
+      position: fixed;
+      bottom: 15px;
+      left: 15px;
+      font-size: 24px;
+      background: none;
+      border: none;
+      color: #f44336;
+      cursor: pointer;
+      z-index: 100;
+      transition: transform 0.3s;
+    }
+    
     .fullscreen-btn:hover,
-    .designer-btn:hover {
+    .designer-btn:hover,
+    .exit-btn:hover {
       transform: scale(1.2);
     }
 
@@ -259,7 +273,8 @@
       }
       
       .fullscreen-btn,
-      .designer-btn {
+      .designer-btn,
+      .exit-btn {
         font-size: 20px;
       }
     }
@@ -287,6 +302,9 @@
 
   <!-- زر المصمم في أسفل اليمين -->
   <button class="designer-btn" id="openDesigner" title="معلومات المصمم">⚙️</button>
+
+  <!-- زر إنهاء في أسفل يسار الصفحة -->
+  <button class="exit-btn" id="exitBtn" title="إنهاء البرنامج">🚪</button>
 
   <!-- نافذة المصمم المنبثقة -->
   <div id="designerModal" class="modal">
@@ -418,6 +436,13 @@
 
     // زر ملء الشاشة
     document.getElementById('fullscreenBtn').addEventListener('click', toggleFullScreen);
+
+    // زر إنهاء البرنامج
+    document.getElementById('exitBtn').addEventListener('click', function() {
+      window.close();
+      // إذا لم يغلق النافذة (بعض المتصفحات تمنع ذلك)، يمكن إعادة توجيه المستخدم:
+      window.location.href = "about:blank";
+    });
   </script>
 </body>
 </html>
