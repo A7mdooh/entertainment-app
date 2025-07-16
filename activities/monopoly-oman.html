@@ -983,9 +983,11 @@
         let gameStarted = false;
         let currentProperty = null;
 
-        // متغيرات اختيار الطلاب
+        // متغيرات اختيار الطلاب - مع تهيئة محسنة
         let selectedStudents = [];
         let useStudentData = false;
+
+        console.log('🔧 تم تهيئة متغيرات الطلاب');
 
         // عناصر DOM الجديدة - محدثة
         const useStudentDataBtn = document.getElementById('use-student-data-btn');
@@ -1102,30 +1104,39 @@
             studentGrid.style.display = 'block';
         }
 
-        // تبديل اختيار الطالب
+        // تبديل اختيار الطالب - دالة محسنة
         function toggleStudentSelection(studentName, cardElement) {
             const requiredCount = parseInt(document.getElementById('player-count').value);
             
             if (cardElement.classList.contains('selected')) {
                 // إلغاء الاختيار
                 cardElement.classList.remove('selected');
-                selectedStudents = selectedStudents.filter(s => s !== studentName);
+                selectedStudents = selectedStudents.filter(s => {
+                    if (typeof s === 'string') {
+                        return s !== studentName;
+                    } else {
+                        return s.name !== studentName;
+                    }
+                });
+                console.log('تم إلغاء اختيار الطالب:', studentName);
             } else {
                 // إضافة الاختيار
                 if (selectedStudents.length < requiredCount) {
                     cardElement.classList.add('selected');
                     selectedStudents.push(studentName);
+                    console.log('تم اختيار الطالب:', studentName);
                 } else {
                     alert(`يمكنك اختيار ${requiredCount} لاعبين فقط!`);
                     return;
                 }
             }
             
+            console.log('الطلاب المختارين حالياً:', selectedStudents);
             updateSelectedStudentsDisplay();
             updateSelectionStatus();
         }
 
-        // اختيار طلاب عشوائيين
+        // اختيار طلاب عشوائيين - دالة محسنة
         function selectRandomStudents() {
             const selectedClass = document.getElementById('class-selector').value;
             const requiredCount = parseInt(document.getElementById('player-count').value);
@@ -1150,13 +1161,20 @@
             }
             
             selectedStudents = shuffled.slice(0, requiredCount);
+            console.log('تم اختيار طلاب عشوائيين:', selectedStudents);
             updateSelectedStudentsDisplay();
             updateSelectionStatus();
         }
 
         // تحديث عرض الطلاب المختارين
+        // تحديث عرض الطلاب المختارين - دالة محسنة موحدة
         function updateSelectedStudentsDisplay() {
             const displayContainer = document.getElementById('selected-students-list');
+            
+            if (!displayContainer) {
+                console.error('العنصر selected-students-list غير موجود');
+                return;
+            }
             
             if (selectedStudents.length === 0) {
                 displayContainer.innerHTML = '<p style="color: #666; text-align: center; margin: 0;">لم يتم اختيار لاعبين بعد</p>';
@@ -1168,14 +1186,51 @@
             displayContainer.innerHTML = '';
             
             selectedStudents.forEach((student, index) => {
-                const studentItem = document.createElement('span');
+                const studentItem = document.createElement('div');
                 studentItem.className = 'selected-student-item';
-                studentItem.innerHTML = `
-                    <button class="remove-btn" onclick="removeSelectedStudent('${student}')" title="إزالة">×</button>
-                    ${student}
+                studentItem.style.cssText = `
+                    display: inline-block;
+                    background: linear-gradient(135deg, var(--oman-green) 0%, var(--light-green) 100%);
+                    color: white;
+                    padding: 8px 15px;
+                    margin: 4px;
+                    border-radius: 20px;
+                    font-weight: 600;
+                    position: relative;
+                    border: 2px solid ${playerColors[index] || '#ccc'};
                 `;
+                
+                // معالجة أنواع البيانات المختلفة للطلاب
+                let studentName = '';
+                if (typeof student === 'string') {
+                    studentName = student;
+                } else if (student && student.name) {
+                    studentName = student.name;
+                } else {
+                    studentName = 'طالب غير محدد';
+                }
+                
+                studentItem.innerHTML = `
+                    <button class="remove-btn" onclick="removeSelectedStudent('${studentName}')" title="إزالة" style="
+                        background: rgba(255,255,255,0.3);
+                        color: white;
+                        border: none;
+                        border-radius: 50%;
+                        width: 20px;
+                        height: 20px;
+                        margin-left: 8px;
+                        cursor: pointer;
+                        font-size: 12px;
+                        transition: all 0.2s ease;
+                    ">×</button>
+                    <span style="font-size: 18px; margin: 0 5px;">${playerTokens[index] || '🎮'}</span>
+                    <span>${studentName}</span>
+                `;
+                
                 displayContainer.appendChild(studentItem);
             });
+            
+            console.log('تم تحديث عرض الطلاب المختارين:', selectedStudents);
         }
 
         // إزالة طالب مختار
@@ -1193,7 +1248,7 @@
             });
         }
 
-        // تحديث حالة الاختيار
+        // تحديث حالة الاختيار - دالة محسنة
         function updateSelectionStatus() {
             const requiredCount = parseInt(document.getElementById('player-count').value);
             const currentCount = selectedStudents.length;
@@ -1201,18 +1256,30 @@
             const countElement = document.getElementById('selection-count');
             const requiredElement = document.getElementById('required-count');
             
-            countElement.textContent = currentCount;
-            requiredElement.textContent = requiredCount;
-            
-            if (currentCount === requiredCount) {
-                statusElement.className = 'selection-complete';
+            if (statusElement) {
+                if (countElement) countElement.textContent = currentCount;
+                if (requiredElement) requiredElement.textContent = requiredCount;
+                
                 statusElement.style.display = 'block';
-            } else if (currentCount > 0) {
-                statusElement.className = 'selection-incomplete';
-                statusElement.style.display = 'block';
-            } else {
-                statusElement.className = '';
-                statusElement.style.display = 'block';
+                
+                if (currentCount === requiredCount) {
+                    statusElement.className = 'selection-complete';
+                    statusElement.style.background = 'linear-gradient(135deg, var(--oman-green) 0%, var(--light-green) 100%)';
+                    statusElement.style.color = 'white';
+                    statusElement.style.borderColor = 'var(--oman-green)';
+                } else if (currentCount > 0) {
+                    statusElement.className = 'selection-incomplete';
+                    statusElement.style.background = 'linear-gradient(135deg, var(--gold) 0%, #FFB347 100%)';
+                    statusElement.style.color = 'var(--dark-blue)';
+                    statusElement.style.borderColor = 'var(--gold)';
+                } else {
+                    statusElement.className = '';
+                    statusElement.style.background = 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)';
+                    statusElement.style.color = '#666';
+                    statusElement.style.borderColor = '#ddd';
+                }
+                
+                console.log(`حالة الاختيار: ${currentCount}/${requiredCount}`);
             }
         }
 
@@ -1677,10 +1744,20 @@
             });
         }
 
-        // إزالة طالب من الاختيار (دالة عامة للنظام)
+        // إزالة طالب من الاختيار (دالة عامة للنظام) - محسنة
         window.removeSelectedStudent = function(studentName) {
             playClickSound();
-            selectedStudents = selectedStudents.filter(s => s !== studentName);
+            console.log('محاولة إزالة الطالب:', studentName);
+            
+            selectedStudents = selectedStudents.filter(s => {
+                if (typeof s === 'string') {
+                    return s !== studentName;
+                } else {
+                    return s.name !== studentName;
+                }
+            });
+            
+            console.log('الطلاب المتبقين بعد الإزالة:', selectedStudents);
             updateSelectedStudentsDisplay();
             updateSelectionStatus();
             
@@ -1747,37 +1824,7 @@
         }
 
         // تحديث عرض الطلاب المختارين (محدث)
-        function updateSelectedStudentsDisplay() {
-            selectedStudentsList.innerHTML = '';
-            
-            if (selectedStudents.length === 0) {
-                selectedStudentsList.innerHTML = '<div style="text-align: center; padding: 10px; color: #666;">لم يتم اختيار أي طلاب بعد</div>';
-                return;
-            }
-            
-            selectedStudents.forEach((student, index) => {
-                const chip = document.createElement('div');
-                chip.className = 'selected-student-chip';
-                chip.style.cssText += `border: 2px solid ${playerColors[index]};`;
-                chip.innerHTML = `
-                    <button class="remove-btn" onclick="removeSelectedStudent(${index})" title="إزالة الطالب">&times;</button>
-                    <span style="font-size: 20px; margin: 0 8px; color: ${playerColors[index]};">${playerTokens[index]}</span>
-                    <span style="font-weight: bold;">${student.name}</span>
-                    ${student.number ? `<span style="font-size: 12px; opacity: 0.8; margin-right: 5px;">(${student.number})</span>` : ''}
-                    ${student.class ? `<span style="font-size: 12px; opacity: 0.8; margin-right: 5px;">[${student.class}]</span>` : ''}
-                `;
-                selectedStudentsList.appendChild(chip);
-            });
-            
-            // إضافة عداد
-            const counterDiv = document.createElement('div');
-            const isComplete = selectedStudents.length === parseInt(playerCountSelect.value);
-            counterDiv.className = `selection-status ${isComplete ? 'selection-complete' : 'selection-incomplete'}`;
-            counterDiv.textContent = `تم اختيار ${selectedStudents.length} من ${playerCountSelect.value} طلاب`;
-            selectedStudentsList.appendChild(counterDiv);
-        }
-
-        // إزالة طالب مختار (محدث)
+        // إزالة طالب مختار (دالة محسنة)
         function removeSelectedStudent(index) {
             playClickSound();
             const removedStudent = selectedStudents[index];
@@ -2033,11 +2080,13 @@
                 });
             }
 
-            // معالج تغيير نوع الاختيار
+            // معالج تغيير نوع الاختيار - محسن
             if (selectionModeSelect) {
                 selectionModeSelect.addEventListener('change', function() {
                     playClickSound();
                     const mode = this.value;
+                    console.log('تم تغيير نوع الاختيار إلى:', mode);
+                    
                     selectedStudents = [];
                     updateSelectedStudentsDisplay();
                     updateSelectionStatus();
@@ -2054,7 +2103,17 @@
                 });
             }
 
-            // دالة توليد أسماء افتراضية
+            // دالة اختبار سريع لضمان عمل النظام
+            window.testStudentSelection = function() {
+                console.log('🧪 اختبار نظام اختيار الطلاب...');
+                selectedStudents = ['طالب تجريبي 1', 'طالب تجريبي 2'];
+                console.log('الطلاب التجريبيين:', selectedStudents);
+                updateSelectedStudentsDisplay();
+                updateSelectionStatus();
+                console.log('✅ تم الاختبار بنجاح!');
+            };
+
+            // دالة توليد أسماء افتراضية - محسنة
             function generateDefaultNames() {
                 const requiredCount = parseInt(document.getElementById('player-count').value);
                 selectedStudents = [];
@@ -2063,6 +2122,7 @@
                     selectedStudents.push(`لاعب ${i}`);
                 }
                 
+                console.log('تم توليد أسماء افتراضية:', selectedStudents);
                 updateSelectedStudentsDisplay();
                 updateSelectionStatus();
             }
@@ -2183,6 +2243,27 @@
 
         // تهيئة اللعبة عند تحميل الصفحة
         window.addEventListener('DOMContentLoaded', () => {
+            console.log('🎮 بدء تحميل لعبة مونوبولي عُمان...');
+            
+            // التحقق من وجود العناصر المطلوبة
+            const elementsToCheck = [
+                'selected-students-list',
+                'selection-status', 
+                'selection-count',
+                'required-count',
+                'class-selector',
+                'selection-mode'
+            ];
+            
+            elementsToCheck.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    console.log(`✅ العنصر ${id} موجود`);
+                } else {
+                    console.error(`❌ العنصر ${id} غير موجود`);
+                }
+            });
+            
             // تحميل بيانات الطلاب
             loadStudentData();
             
@@ -2195,6 +2276,8 @@
             
             // تحديث عداد الاختيار
             updateSelectionStatus();
+            
+            console.log('🎮 تم تحميل اللعبة بنجاح!');
         });
     </script>
 </body>
