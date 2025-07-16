@@ -119,12 +119,86 @@
       background: white;
       box-shadow: var(--shadow);
       transition: var(--transition);
+      
+      /* تحسينات لشاشات التلفزيون */
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+      background-position: left 12px center;
+      background-repeat: no-repeat;
+      background-size: 16px 12px;
+      padding-left: 40px;
+      cursor: pointer;
+      
+      /* إعدادات خاصة للتلفزيون */
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      touch-action: manipulation;
+      pointer-events: auto;
+      z-index: 10;
     }
     
     #classSelect:focus {
       border-color: var(--primary-color);
-      outline: none;
+      outline: 3px solid rgba(0,121,107,0.3);
       box-shadow: 0 0 0 3px rgba(0,121,107,0.2);
+    }
+    
+    /* خيارات القائمة المنسدلة */
+    #classSelect option {
+      padding: 15px;
+      font-size: 1.2rem;
+      background: white;
+      color: var(--text-color);
+      border: none;
+    }
+    
+    #classSelect option:hover,
+    #classSelect option:focus {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    /* تحسينات خاصة لشاشات التلفزيون الكبيرة */
+    @media screen and (min-width: 1920px) {
+      #classSelect {
+        font-size: 1.8rem;
+        padding: 25px;
+        padding-left: 60px;
+        max-width: 600px;
+        background-size: 24px 18px;
+        background-position: left 20px center;
+      }
+      
+      #classSelect option {
+        padding: 20px;
+        font-size: 1.6rem;
+      }
+    }
+    
+    /* تحسينات للأجهزة التي تدعم hover */
+    @media (hover: hover) {
+      #classSelect:hover {
+        border-color: var(--primary-color);
+        transform: scale(1.02);
+      }
+    }
+    
+    /* للأجهزة التي لا تدعم hover (مثل التلفزيونات الذكية) */
+    @media (hover: none) {
+      #classSelect {
+        font-size: 1.4rem;
+        padding: 20px;
+        border-width: 3px;
+      }
+      
+      #classSelect:focus,
+      #classSelect:active {
+        transform: scale(1.05);
+        border-color: var(--accent-color);
+      }
     }
     
     #randomNameDisplay {
