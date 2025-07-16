@@ -316,6 +316,9 @@
     </div>
   </div>
 
+  <!-- إضافة عنصر صوت النقر -->
+  <audio id="clickSound" src="assets/media/sounds/click.mp3" preload="auto"></audio>
+
   <script>
     // عرض اليوم والتاريخ
     const arabicDays = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
@@ -442,6 +445,20 @@
       window.close();
       // إذا لم يغلق النافذة (بعض المتصفحات تمنع ذلك)، يمكن إعادة توجيه المستخدم:
       window.location.href = "about:blank";
+    });
+
+    // دالة تشغيل صوت النقر
+    function playClick() {
+      const clickSound = document.getElementById('clickSound');
+      if (clickSound) {
+        clickSound.currentTime = 0;
+        clickSound.play().catch(()=>{});
+      }
+    }
+
+    // إضافة صوت النقر لجميع الأزرار
+    document.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', playClick);
     });
   </script>
 </body>
