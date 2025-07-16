@@ -912,16 +912,6 @@
                 opacity: 1;
             }
         }
-        
-        @keyframes randomGlow {
-            0% { box-shadow: 0 0 5px var(--oman-green); }
-            50% { box-shadow: 0 0 20px var(--gold), 0 0 30px var(--oman-green); }
-            100% { box-shadow: 0 0 5px var(--oman-green); }
-        }
-        
-        .selecting-random {
-            animation: randomGlow 1s infinite;
-        }
     </style>
 </head>
 <body>
@@ -1036,7 +1026,6 @@
                             <label for="selection-mode" style="display: block; margin-bottom: 10px; font-weight: bold; color: var(--oman-green);">⚙️ الخطوة 2: اختر طريقة الاختيار</label>
                             <select id="selection-mode" class="oman-btn" style="width: 280px; text-align: center;">
                                 <option value="">-- اختر طريقة الاختيار --</option>
-                                <option value="random">🎲 اختيار عشوائي حسب العدد المطلوب</option>
                                 <option value="manual">👆 اختيار يدوي من قوائم منسدلة</option>
                                 <option value="free">🆓 أسماء افتراضية (لاعب 1، لاعب 2...)</option>
                             </select>
@@ -1402,101 +1391,7 @@
             updateSelectedStudentsDisplay();
             updateSelectionStatus();
         }
-        function selectRandomStudents() {
-            const selectedClass = document.getElementById('class-selector').value;
-            const requiredCount = parseInt(document.getElementById('player-count').value);
-            
-            // التحقق من صحة البيانات
-            if (!selectedClass) {
-                showHelpMessage('يرجى اختيار الصف أولاً', 'error');
-                return;
-            }
-            
-            if (!requiredCount || requiredCount < 2 || requiredCount > 8) {
-                showHelpMessage('يرجى اختيار عدد صحيح من اللاعبين (2-8)', 'error');
-                return;
-            }
-            
-            // التحقق من وجود بيانات الطلاب
-            if (!studentData || !studentData[selectedClass]) {
-                showHelpMessage('لا توجد بيانات للصف المحدد', 'error');
-                return;
-            }
-            
-            const classStudents = studentData[selectedClass];
-            
-            // التحقق من كفاية عدد الطلاب
-            if (classStudents.length < requiredCount) {
-                showHelpMessage(`عدد الطلاب في الصف "${selectedClass}" هو ${classStudents.length} فقط، وهذا أقل من العدد المطلوب (${requiredCount})`, 'error');
-                return;
-            }
-            
-            // بدء عملية الاختيار العشوائي
-            showHelpMessage('🎲 جاري الاختيار العشوائي للطلاب...', 'info');
-            
-            // تنظيف القائمة السابقة
-            selectedStudents = [];
-            
-            // إنشاء نسخة من قائمة الطلاب لتجنب تعديل البيانات الأصلية
-            const availableStudents = [...classStudents];
-            const randomlySelected = [];
-            
-            // اختيار عشوائي بدون تكرار
-            for (let i = 0; i < requiredCount; i++) {
-                if (availableStudents.length === 0) {
-                    showHelpMessage('خطأ: نفدت قائمة الطلاب المتاحة', 'error');
-                    return;
-                }
-                
-                // اختيار فهرس عشوائي
-                const randomIndex = Math.floor(Math.random() * availableStudents.length);
-                
-                // أخذ الطالب المختار وإزالته من القائمة المتاحة
-                const selectedStudent = availableStudents.splice(randomIndex, 1)[0];
-                randomlySelected.push(selectedStudent);
-                
-                console.log(`🎯 اختيار ${i + 1}: ${selectedStudent}`);
-            }
-            
-            // تحديث قائمة الطلاب المختارين
-            selectedStudents = randomlySelected;
-            
-            // إظهار النتائج
-            console.log('✅ تم اختيار الطلاب التالين بطريقة عشوائية:', selectedStudents);
-            console.log('📊 تفاصيل الاختيار:', {
-                الصف: selectedClass,
-                'العدد المطلوب': requiredCount,
-                'العدد المختار': selectedStudents.length,
-                'إجمالي طلاب الصف': classStudents.length,
-                'الطلاب المختارون': selectedStudents
-            });
-            
-            // تحديث العرض البصري للبطاقات
-            selectedStudents.forEach(student => {
-                const studentCards = document.querySelectorAll('.student-card');
-                studentCards.forEach(card => {
-                    const cardName = card.querySelector('div')?.textContent || card.textContent;
-                    const studentName = student.name || student;
-                    if (cardName === studentName) {
-                        card.classList.add('selected');
-                    }
-                });
-            });
-            
-            // رسالة نجاح مع تفاصيل
-            const classText = selectedClass ? `من صف "${selectedClass}"` : 'من جميع الصفوف';
-            showHelpMessage(`🎉 تم اختيار ${selectedStudents.length} طالب بنجاح ${classText}!`, 'success');
-            
-            // التحقق من عدم وجود تكرار (للتأكد)
-            const studentNames = selectedStudents.map(s => s.name || s);
-            const uniqueNames = [...new Set(studentNames)];
-            if (uniqueNames.length !== studentNames.length) {
-                console.error('⚠️ تحذير: يوجد تكرار في الأسماء المختارة!');
-                showHelpMessage('تحذير: تم اكتشاف تكرار في الأسماء، يرجى المحاولة مرة أخرى', 'warning');
-            }
-        }
 
-        // تحديث عرض الطلاب المختارين
         // تحديث عرض الطلاب المختارين - دالة محسنة موحدة
         function updateSelectedStudentsDisplay() {
             const displayContainer = document.getElementById('selected-students-list');
@@ -2234,161 +2129,6 @@
             updateSelectedStudentsDisplay();
         }
 
-        // اختيار طلاب عشوائي (محدث ومحسن)
-        function selectRandomStudents() {
-            playClickSound();
-            const playerCount = parseInt(playerCountSelect.value);
-            
-            // التحقق من صحة عدد اللاعبين
-            if (!playerCount || playerCount < 2 || playerCount > 8) {
-                showHelpMessage('يرجى اختيار عدد صحيح من اللاعبين (2-8)', 'error');
-                return;
-            }
-            
-            // التحقق من وجود بيانات الطلاب
-            if (studentData.length === 0) {
-                showHelpMessage('⚠️ لا توجد بيانات طلاب متاحة للاختيار العشوائي!', 'error');
-                return;
-            }
-            
-            const selectedClass = document.getElementById('class-selector').value;
-            const availableStudents = filterStudentsByClass(selectedClass);
-            
-            // التحقق من وجود طلاب في الصف المختار
-            if (availableStudents.length === 0) {
-                const classText = selectedClass ? `الصف "${selectedClass}"` : 'جميع الصفوف';
-                showHelpMessage(`⚠️ لا توجد طلاب في ${classText}!`, 'error');
-                return;
-            }
-            
-            // التحقق من كفاية عدد الطلاب
-            if (availableStudents.length < playerCount) {
-                const classText = selectedClass ? `الصف "${selectedClass}"` : 'جميع الصفوف';
-                showHelpMessage(`⚠️ عدد الطلاب في ${classText} هو ${availableStudents.length} فقط، وهذا أقل من العدد المطلوب (${playerCount})`, 'error');
-                return;
-            }
-            
-            // بدء عملية الاختيار العشوائي
-            showHelpMessage('🎲 جاري الاختيار العشوائي للطلاب...', 'info');
-            
-            // إعادة تعيين الاختيارات السابقة
-            selectedStudents = [];
-            document.querySelectorAll('.student-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            
-            // إنشاء نسخة من قائمة الطلاب المتاحة
-            const studentsPool = [...availableStudents];
-            const randomlySelected = [];
-            
-            // اختيار عشوائي بدون تكرار
-            for (let i = 0; i < playerCount; i++) {
-                if (studentsPool.length === 0) {
-                    showHelpMessage('خطأ: نفدت قائمة الطلاب المتاحة', 'error');
-                    return;
-                }
-                
-                // اختيار فهرس عشوائي
-                const randomIndex = Math.floor(Math.random() * studentsPool.length);
-                
-                // أخذ الطالب المختار وإزالته من المجموعة المتاحة
-                const selectedStudent = studentsPool.splice(randomIndex, 1)[0];
-                randomlySelected.push(selectedStudent);
-                
-                console.log(`🎯 اختيار ${i + 1}: ${selectedStudent.name || selectedStudent}`);
-            }
-            
-            // تحديث قائمة الطلاب المختارين
-            selectedStudents = randomlySelected;
-            
-            // تحديث العرض البصري للبطاقات
-            selectedStudents.forEach(student => {
-                const studentCards = document.querySelectorAll('.student-card');
-                studentCards.forEach(card => {
-                    const cardName = card.querySelector('div')?.textContent || card.textContent;
-                    const studentName = student.name || student;
-                    if (cardName === studentName) {
-                        card.classList.add('selected');
-                    }
-                });
-            });
-            
-            // إظهار تأثير بصري أثناء الاختيار العشوائي
-            animateRandomSelection(availableStudents, playerCount, (finalSelection) => {
-                selectedStudents = finalSelection;
-                updateSelectedStudentsDisplay();
-                updateSelectionStatus();
-                
-                // رسالة نجاح مع تفاصيل
-                const classText = selectedClass ? `من صف "${selectedClass}"` : 'من جميع الصفوف';
-                showHelpMessage(`🎉 تم اختيار ${selectedStudents.length} طالب بنجاح ${classText}!`, 'success');
-                
-                // التحقق من عدم وجود تكرار (للتأكد)
-                const studentNames = selectedStudents.map(s => s.name || s);
-                const uniqueNames = [...new Set(studentNames)];
-                if (uniqueNames.length !== studentNames.length) {
-                    console.error('⚠️ تحذير: يوجد تكرار في الأسماء المختارة!');
-                    showHelpMessage('تحذير: تم اكتشاف تكرار في الأسماء، يرجى المحاولة مرة أخرى', 'warning');
-                }
-            });
-        }
-
-        // دالة لإظهار تأثير بصري أثناء الاختيار العشوائي
-        function animateRandomSelection(students, count, callback) {
-            const container = document.getElementById('selected-students-list');
-            if (!container) return;
-            
-            let selectedCount = 0;
-            const selectedStudents = [];
-            const availableStudents = [...students];
-            
-            // دالة للاختيار المرحلي
-            function selectNext() {
-                if (selectedCount >= count || availableStudents.length === 0) {
-                    callback(selectedStudents);
-                    return;
-                }
-                
-                // اختيار عشوائي
-                const randomIndex = Math.floor(Math.random() * availableStudents.length);
-                const selectedStudent = availableStudents.splice(randomIndex, 1)[0];
-                selectedStudents.push(selectedStudent);
-                selectedCount++;
-                
-                // إظهار الطالب المختار مع تأثير بصري
-                const studentElement = document.createElement('div');
-                studentElement.style.cssText = `
-                    display: inline-block;
-                    background: linear-gradient(135deg, var(--oman-green) 0%, var(--light-green) 100%);
-                    color: white;
-                    padding: 8px 15px;
-                    margin: 4px;
-                    border-radius: 20px;
-                    font-weight: bold;
-                    animation: bounceIn 0.6s ease;
-                    transform: scale(0);
-                `;
-                
-                const studentName = typeof selectedStudent === 'string' ? selectedStudent : selectedStudent.name;
-                studentElement.innerHTML = `🎯 ${studentName}`;
-                
-                if (selectedCount === 1) {
-                    container.innerHTML = '';
-                }
-                container.appendChild(studentElement);
-                
-                // تطبيق الأنيميشن
-                setTimeout(() => {
-                    studentElement.style.transform = 'scale(1)';
-                }, 50);
-                
-                // الانتقال للطالب التالي
-                setTimeout(() => selectNext(), 800);
-            }
-            
-            selectNext();
-        }
-
         // بدء اللعبة مع اللاعبين المحددين (محدث)
         function startGameWithSelectedStudents() {
             if (selectedStudents.length < 2) {
@@ -2456,8 +2196,8 @@
                         showHelpMessage('تم اختيار الاختيار اليدوي. اختر الطلاب من القوائم', 'info');
                         if (manualContainer) manualContainer.style.display = 'block';
                         createPlayerDropdowns();
-                    } else if (mode === 'random') {
-                        showHelpMessage('تم اختيار الاختيار العشوائي. اضغط "اختيار عشوائي" للبدء', 'info');
+                    } else if (mode === 'free') {
+                        showHelpMessage('تم اختيار الأسماء الافتراضية. يمكنك البدء مباشرة', 'info');
                         if (manualContainer) manualContainer.style.display = 'none';
                         document.getElementById('selected-students').innerHTML = '';
                     } else {
