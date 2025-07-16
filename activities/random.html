@@ -715,6 +715,12 @@
       muteBtn.textContent = isMuted ? "🔇" : "🔊";
       muteBtn.title = isMuted ? "تشغيل الصوت" : "كتم الصوت";
       playClick();
+
+      // إذا كان الصوت مكتوم أثناء الدوران، أوقف صوت الدوران فوراً
+      if (isRolling) {
+        nameStartSound.pause();
+        nameStartSound.currentTime = 0;
+      }
     }
 
     // تهيئة الصفحة عند التحميل
