@@ -429,6 +429,39 @@
             color: var(--oman-red);
         }
 
+        /* بطاقات الطلاب */
+        .student-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 0.85rem;
+            background: var(--manuscript-beige);
+        }
+
+        .student-card:hover {
+            border-color: var(--heritage-brown);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .student-card.selected {
+            border-color: var(--oman-red);
+            background: rgba(219, 31, 31, 0.1);
+            color: var(--oman-red);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(219, 31, 31, 0.3);
+        }
+
+        .btn.active {
+            background: linear-gradient(135deg, var(--oman-red) 0%, #c82333 100%);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(219, 31, 31, 0.3);
+        }
+
         /* رسائل النجاح والخطأ */
         .message {
             padding: 10px 15px;
@@ -737,8 +770,37 @@
             timeLeft: 1800,
             gameStarted: false,
             achievements: [],
-            completedChallenges: 0
+            completedChallenges: 0,
+            studentsData: []
         };
+
+        // تحميل بيانات الطلاب
+        async function loadStudentsData() {
+            try {
+                const response = await fetch('../data/studentData.json');
+                if (response.ok) {
+                    const data = await response.json();
+                    gameState.studentsData = data.students || [];
+                    console.log('✅ تم تحميل بيانات الطلاب:', gameState.studentsData.length, 'طالب');
+                    
+                    // تفعيل زر قائمة الطلاب
+                    const studentListBtn = document.getElementById('studentListBtn');
+                    if (studentListBtn) {
+                        studentListBtn.disabled = false;
+                        studentListBtn.style.opacity = '1';
+                        studentListBtn.style.cursor = 'pointer';
+                    }
+                    
+                    return true;
+                } else {
+                    throw new Error('لم يتم العثور على ملف بيانات الطلاب');
+                }
+            } catch (error) {
+                console.log('⚠️ لم يتم تحميل بيانات الطلاب:', error.message);
+                console.log('💡 سيتم استخدام الأسماء اليدوية فقط');
+                return false;
+            }
+        }
 
         // بيانات التحديات
         const challengesData = {
@@ -964,6 +1026,10 @@
         function initGame() {
             console.log('🎮 تهيئة مدرسة نزوى التراثية...');
             setupEventListeners();
+            
+            // تحميل بيانات الطلاب في الخلفية
+            loadStudentsData();
+            
             document.getElementById('setupModal').style.display = 'block';
         }
 
@@ -1031,16 +1097,154 @@
         // تبديل وضع الأسماء
         function toggleNameMode(mode) {
             playClickSound();
-            // سيتم تطوير هذه الوظيفة لاحقاً
+            
+            const manualNameBtn = document.getElementById('manualNameBtn');
+            const studentListBtn = document.getElementById('studentListBtn');
+            const manualNameSection = document.getElementById('manualNameSection');
+            
+            if (mode === 'manual') {
+                // وضع الكتابة اليدوية
+                manualNameBtn.classList.add('active');
+                studentListBtn.classList.remove('active');
+                
+                manualNameSection.style.display = 'block';
+                
+                // إخفاء قائمة الطلاب إذا كانت موجودة
+                const studentListSection = document.getElementById('studentListSection');
+                if (studentListSection) {
+                    studentListSection.style.display = 'none';
+                }
+                
+            } else if (mode === 'student') {
+                // وضع اختيار من قائمة الطلاب
+                if (gameState.studentsData.length === 0) {
+                    showMessage('⚠️ لم يتم تحميل بيانات الطلاب بعد. جاري المحاولة...', 'warning');
+                    loadStudentsData().then(success => {
+                        if (success && gameState.studentsData.length > 0) {
+                            activateStudentListMode();
+                        } else {
+                            showMessage('❌ لم يتم العثور على بيانات الطلاب. استخدم الكتابة اليدوية.', 'error');
+                        }
+                    });
+                    return;
+                }
+                
+                activateStudentListMode();
+            }
+        }
+        
+        // تفعيل وضع قائمة الطلاب
+        function activateStudentListMode() {
+            const manualNameBtn = document.getElementById('manualNameBtn');
+            const studentListBtn = document.getElementById('studentListBtn');
+            const manualNameSection = document.getElementById('manualNameSection');
+            
+            manualNameBtn.classList.remove('active');
+            studentListBtn.classList.add('active');
+            
+            manualNameSection.style.display = 'none';
+            
+            // إنشاء أو إظهار قائمة الطلاب
+            let studentListSection = document.getElementById('studentListSection');
+            if (!studentListSection) {
+                studentListSection = document.createElement('div');
+                studentListSection.id = 'studentListSection';
+                studentListSection.innerHTML = createStudentListHTML();
+                manualNameSection.parentNode.insertBefore(studentListSection, manualNameSection.nextSibling);
+            }
+            
+            studentListSection.style.display = 'block';
+        }
+        
+        // إنشاء HTML لقائمة الطلاب
+        function createStudentListHTML() {
+            const studentsGrid = gameState.studentsData.map(student => `
+                <div class="student-card" onclick="selectStudent('${student.name}')" data-student="${student.name}">
+                    <div style="font-size: 2rem; margin-bottom: 5px;">👨‍🎓</div>
+                    <div style="font-weight: bold; font-size: 0.9rem;">${student.name}</div>
+                    <div style="font-size: 0.8rem; color: #666;">${student.class || 'غير محدد'}</div>
+                </div>
+            `).join('');
+            
+            return `
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold; color: var(--dark-blue);">
+                        👥 اختر طالباً من القائمة:
+                    </label>
+                    <input type="text" id="studentSearch" placeholder="ابحث عن اسم الطالب..." 
+                           onkeyup="filterStudents(this.value)"
+                           style="width: 100%; max-width: 300px; padding: 8px; border: 2px solid var(--heritage-brown); border-radius: 5px; font-family: 'Cairo', sans-serif; margin-bottom: 15px;">
+                </div>
+                <div id="studentsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; max-height: 200px; overflow-y: auto; padding: 10px; border: 2px solid var(--heritage-brown); border-radius: 8px; background: rgba(255,255,255,0.5);">
+                    ${studentsGrid}
+                </div>
+                <div id="selectedStudentDisplay" style="margin-top: 15px; padding: 10px; background: rgba(139, 69, 19, 0.1); border-radius: 8px; border: 2px solid var(--heritage-brown); display: none;">
+                    <strong style="color: var(--heritage-brown);">الطالب المختار: </strong>
+                    <span id="selectedStudentName" style="color: var(--oman-red); font-weight: bold;"></span>
+                </div>
+            `;
+        }
+        
+        // تصفية الطلاب حسب البحث
+        function filterStudents(searchText) {
+            const students = document.querySelectorAll('.student-card');
+            students.forEach(card => {
+                const studentName = card.dataset.student;
+                if (studentName.includes(searchText) || searchText === '') {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        // اختيار طالب من القائمة
+        function selectStudent(studentName) {
+            playClickSound();
+            
+            // إزالة التحديد من جميع البطاقات
+            document.querySelectorAll('.student-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // تحديد البطاقة المختارة
+            const selectedCard = document.querySelector(`[data-student="${studentName}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('selected');
+            }
+            
+            // إظهار الطالب المختار
+            const selectedDisplay = document.getElementById('selectedStudentDisplay');
+            const selectedNameSpan = document.getElementById('selectedStudentName');
+            if (selectedDisplay && selectedNameSpan) {
+                selectedNameSpan.textContent = studentName;
+                selectedDisplay.style.display = 'block';
+            }
+            
+            // حفظ الاسم في حالة اللعبة
+            gameState.selectedStudentName = studentName;
         }
 
         // بدء التعلم
         function startLearning() {
-            const studentName = document.getElementById('studentName').value.trim();
+            let studentName = '';
             
-            if (!studentName) {
-                showMessage('⚠️ يرجى إدخال اسم الطالب!', 'warning');
-                return;
+            // التحقق من وضع إدخال الاسم
+            const manualNameBtn = document.getElementById('manualNameBtn');
+            if (manualNameBtn.classList.contains('active')) {
+                // وضع الكتابة اليدوية
+                studentName = document.getElementById('studentName').value.trim();
+                if (!studentName) {
+                    showMessage('⚠️ يرجى إدخال اسم الطالب!', 'warning');
+                    return;
+                }
+            } else {
+                // وضع اختيار من قائمة الطلاب
+                if (!gameState.selectedStudentName) {
+                    showMessage('⚠️ يرجى اختيار طالب من القائمة!', 'warning');
+                    return;
+                }
+                studentName = gameState.selectedStudentName;
             }
             
             if (!gameState.level) {
