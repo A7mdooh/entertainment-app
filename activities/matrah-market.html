@@ -58,6 +58,10 @@
             right: 15px;
         }
         
+        #gameGuideBtn {
+            right: 70px;
+        }
+        
         #fullscreenBtn {
             left: 15px;
         }
@@ -446,6 +450,31 @@
             background: rgba(219, 31, 31, 0.1);
         }
 
+        /* بطاقات اختيار الوقت */
+        .time-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: white;
+        }
+
+        .time-card:hover {
+            border-color: var(--oman-green);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .time-card.selected {
+            border-color: var(--oman-red);
+            background: rgba(219, 31, 31, 0.1);
+            color: var(--oman-red);
+        }
+
         /* إعدادات الطلاب والأسماء */
         .student-setup-section {
             border: 2px solid var(--oman-green);
@@ -772,6 +801,7 @@
 <body>
     <!-- أزرار التحكم -->
     <button class="control-btn" id="homeBtn" title="العودة للصفحة الرئيسية">🏠</button>
+    <button class="control-btn" id="gameGuideBtn" title="دليل اللعبة">📖</button>
     <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">⛶</button>
 
     <!-- رأس الصفحة -->
@@ -909,6 +939,52 @@
                 </div>
             </div>
 
+            <!-- اختيار مدة اللعب -->
+            <div style="margin-bottom: 30px;">
+                <h3 style="color: var(--oman-red); margin-bottom: 15px;">⏰ اختر مدة اللعب (للمعلم)</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; max-width: 600px; margin: 0 auto;">
+                    <div class="time-card" data-time="5">
+                        <div style="font-size: 1.5rem;">⏱️</div>
+                        <div>5 دقائق</div>
+                    </div>
+                    <div class="time-card" data-time="10">
+                        <div style="font-size: 1.5rem;">⏰</div>
+                        <div>10 دقائق</div>
+                    </div>
+                    <div class="time-card" data-time="15">
+                        <div style="font-size: 1.5rem;">🕒</div>
+                        <div>15 دقيقة</div>
+                    </div>
+                    <div class="time-card" data-time="20">
+                        <div style="font-size: 1.5rem;">🕓</div>
+                        <div>20 دقيقة</div>
+                    </div>
+                    <div class="time-card" data-time="25">
+                        <div style="font-size: 1.5rem;">🕔</div>
+                        <div>25 دقيقة</div>
+                    </div>
+                    <div class="time-card" data-time="30">
+                        <div style="font-size: 1.5rem;">🕕</div>
+                        <div>30 دقيقة</div>
+                    </div>
+                    <div class="time-card" data-time="35">
+                        <div style="font-size: 1.5rem;">🕖</div>
+                        <div>35 دقيقة</div>
+                    </div>
+                    <div class="time-card" data-time="40">
+                        <div style="font-size: 1.5rem;">🕗</div>
+                        <div>40 دقيقة</div>
+                    </div>
+                    <div class="time-card" data-time="45">
+                        <div style="font-size: 1.5rem;">🕘</div>
+                        <div>45 دقيقة</div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 10px; font-size: 0.9rem; color: #666;">
+                    💡 المعلم يمكنه اختيار المدة المناسبة لكل طالب
+                </div>
+            </div>
+
             <!-- إعداد الأسماء والطلاب -->
             <div class="student-setup-section">
                 <h3>👥 إعداد التجار</h3>
@@ -974,11 +1050,12 @@
         let gameState = {
             playerName: '',
             level: 'beginner',
+            customTime: null, // الوقت المخصص من المعلم
             balance: 500,
             initialBalance: 500,
             profit: 0,
             points: 0,
-            timeLeft: 1800, // 30 دقيقة بالثواني
+            timeLeft: 1800, // 30 دقيقة بالثواني (افتراضي)
             gameStarted: false,
             inventory: {},
             transactions: []
@@ -1240,6 +1317,11 @@
                 }
             });
 
+            document.getElementById('gameGuideBtn').addEventListener('click', function() {
+                playClickSound();
+                showGameGuide();
+            });
+
             document.getElementById('fullscreenBtn').addEventListener('click', function() {
                 playClickSound();
                 if (!document.fullscreenElement) {
@@ -1270,6 +1352,22 @@
                     
                     // حفظ المستوى المختار
                     gameState.level = this.dataset.level;
+                });
+            });
+
+            // اختيار الوقت
+            document.querySelectorAll('.time-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    playClickSound();
+                    
+                    // إزالة التحديد من جميع بطاقات الوقت
+                    document.querySelectorAll('.time-card').forEach(c => c.classList.remove('selected'));
+                    
+                    // إضافة التحديد للبطاقة المختارة
+                    this.classList.add('selected');
+                    
+                    // حفظ الوقت المختار (بالدقائق)
+                    gameState.customTime = parseInt(this.dataset.time);
                 });
             });
 
@@ -1312,6 +1410,12 @@
                 return;
             }
 
+            // التحقق من اختيار الوقت (إجباري للمعلم)
+            if (!gameState.customTime) {
+                showMessage('⚠️ يرجى اختيار مدة اللعب!', 'warning');
+                return;
+            }
+
             playClickSound();
 
             // حفظ اسم اللاعب
@@ -1321,7 +1425,9 @@
             const levelConfig = difficultyLevels[gameState.level];
             gameState.balance = levelConfig.initialBalance;
             gameState.initialBalance = levelConfig.initialBalance;
-            gameState.timeLeft = levelConfig.timeLimit;
+            
+            // استخدام الوقت المخصص من المعلم
+            gameState.timeLeft = gameState.customTime * 60; // تحويل لثوان
 
             // إخفاء نافذة الإعدادات
             document.getElementById('setupModal').style.display = 'none';
@@ -1332,11 +1438,67 @@
             // بدء مؤقت اللعبة
             startGameTimer();
 
-            // إظهار رسالة ترحيب
-            showMessage(`مرحباً ${playerName}! ابدأ رحلة التجارة في سوق مطرح 🎯`, 'success');
+            // عرض رسالة ترحيب مع التعليمات
+            showWelcomeInstructions(playerName);
 
             gameState.gameStarted = true;
             console.log('🚀 بدأت اللعبة بنجاح!');
+        }
+
+        // عرض رسالة الترحيب مع التعليمات
+        function showWelcomeInstructions(playerName) {
+            const instructionsModal = document.createElement('div');
+            instructionsModal.className = 'setup-modal';
+            instructionsModal.style.zIndex = '3000';
+            instructionsModal.innerHTML = `
+                <div class="setup-content" style="max-width: 700px;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">🎉</div>
+                        <h2 style="color: var(--oman-red); margin-bottom: 10px;">مرحباً ${playerName}!</h2>
+                        <h3 style="color: var(--oman-green);">🧮 مرحباً بك في سوق مطرح الحسابي</h3>
+                    </div>
+
+                    <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 20px; border-radius: 15px; margin: 20px 0;">
+                        <h3 style="color: var(--dark-blue); text-align: center; margin-bottom: 15px;">📋 تعليمات اللعب</h3>
+                        
+                        <div style="text-align: right; line-height: 1.8; color: #333;">
+                            <div style="margin-bottom: 10px;">🛒 <strong>اضغط على أي متجر</strong> لبدء التسوق</div>
+                            <div style="margin-bottom: 10px;">🧮 <strong>اقرأ المسألة</strong> بعناية وادخل الإجابة الصحيحة</div>
+                            <div style="margin-bottom: 10px;">💰 <strong>كل إجابة صحيحة</strong> تمنحك نقاط ومنتجات</div>
+                            <div style="margin-bottom: 10px;">⏰ <strong>انتبه للوقت</strong> المتبقي في أعلى الشاشة</div>
+                            <div style="margin-bottom: 10px;">🏆 <strong>اجمع الإنجازات</strong> لتصبح تاجراً ماهراً</div>
+                            <div style="margin-bottom: 10px;">🕌 <strong>زر الأماكن الخاصة</strong> للحصول على نقاط إضافية</div>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(0, 166, 90, 0.1); padding: 15px; border-radius: 10px; border: 2px solid var(--oman-green); margin: 15px 0;">
+                        <div style="text-align: center;">
+                            <strong style="color: var(--oman-green);">🎯 هدفك: تحقيق أكبر ربح في الوقت المحدد!</strong><br>
+                            <span style="color: #666; font-size: 0.9rem;">الوقت المتاح: ${gameState.customTime} دقيقة | المستوى: ${difficultyLevels[gameState.level].name}</span>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center;">
+                        <button class="btn" onclick="closeInstructionsAndStart()" style="font-size: 18px; padding: 15px 30px; margin-top: 10px;">
+                            🚀 فهمت، ابدأ التجارة!
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(instructionsModal);
+        }
+
+        // إغلاق التعليمات وبدء اللعبة فعلياً
+        function closeInstructionsAndStart() {
+            playClickSound();
+            const modal = document.querySelector('.setup-modal[style*="z-index: 3000"]');
+            if (modal && modal.parentNode) {
+                modal.parentNode.removeChild(modal);
+            }
+            
+            // عرض رسالة ترحيب نهائية
+            showMessage(`🎯 بدأت رحلة التجارة! حظاً سعيداً ${gameState.playerName}`, 'success');
         }
 
         // تحديث واجهة اللعبة المحسن
@@ -1395,7 +1557,7 @@
                 document.body.appendChild(progressIndicator);
             }
             
-            const totalTime = difficultyLevels[gameState.level].timeLimit;
+            const totalTime = gameState.customTime * 60; // استخدام الوقت المخصص
             const progress = ((totalTime - gameState.timeLeft) / totalTime) * 100;
             const progressBar = document.getElementById('progressBar');
             
@@ -1411,16 +1573,24 @@
 
         // مؤقت اللعبة المحسن
         function startGameTimer() {
+            const totalTime = gameState.customTime * 60; // الوقت الإجمالي بالثواني
+            
             const timerInterval = setInterval(() => {
                 gameState.timeLeft--;
                 updateGameUI();
 
-                // تحذيرات زمنية
-                if (gameState.timeLeft === 300) { // 5 دقائق متبقية
-                    showMessage('⏰ تبقى 5 دقائق! أسرع في التسوق', 'warning');
-                } else if (gameState.timeLeft === 60) { // دقيقة واحدة
+                // تحذيرات زمنية متناسبة مع المدة المختارة
+                const quarterTime = Math.floor(totalTime * 0.25); // ربع الوقت
+                const halfTime = Math.floor(totalTime * 0.5); // نصف الوقت
+                
+                if (gameState.timeLeft === quarterTime && quarterTime >= 60) { // إذا كان ربع الوقت دقيقة أو أكثر
+                    const minutes = Math.floor(quarterTime / 60);
+                    showMessage(`⏰ تبقى ${minutes} ${minutes === 1 ? 'دقيقة' : 'دقائق'}! أسرع في التسوق`, 'warning');
+                } else if (gameState.timeLeft === 60 && totalTime > 120) { // دقيقة واحدة (للألعاب أطول من دقيقتين)
                     showMessage('🚨 دقيقة واحدة متبقية!', 'error');
-                } else if (gameState.timeLeft === 10) { // 10 ثوان
+                } else if (gameState.timeLeft === 30 && totalTime <= 120) { // 30 ثانية للألعاب القصيرة
+                    showMessage('🚨 30 ثانية متبقية!', 'error');
+                } else if (gameState.timeLeft === 10) { // 10 ثوان للجميع
                     startCountdown();
                 }
 
@@ -1486,8 +1656,10 @@
                 unlockAchievement('first_purchase');
             }
 
-            // متعلم سريع
-            if (gameState.timeLeft > difficultyLevels[gameState.level].timeLimit - 300 && 
+            // متعلم سريع - خلال أول 25% من الوقت
+            const totalTime = gameState.customTime * 60;
+            const firstQuarterTime = totalTime * 0.75; // أول 25% من الوقت
+            if (gameState.timeLeft >= firstQuarterTime && 
                 gameState.points > 0 && !unlockedAchievements.includes('quick_learner')) {
                 unlockAchievement('quick_learner');
             }
@@ -2108,7 +2280,8 @@
             }
 
             // فحص الإنجازات عند انتهاء الوقت
-            if (gameState.timeLeft > difficultyLevels[gameState.level].timeLimit * 0.6 && 
+            const totalTime = gameState.customTime * 60;
+            if (gameState.timeLeft > totalTime * 0.4 && // إذا تبقى أكثر من 40% من الوقت
                 !unlockedAchievements.includes('time_manager')) {
                 unlockAchievement('time_manager');
             }
@@ -2321,6 +2494,240 @@
             if (modal && modal.parentNode) {
                 modal.parentNode.removeChild(modal);
             }
+        }
+
+        // عرض دليل اللعبة
+        function showGameGuide() {
+            const guideModal = document.createElement('div');
+            guideModal.className = 'setup-modal';
+            guideModal.innerHTML = `
+                <div class="setup-content" style="max-width: 800px; max-height: 85vh; overflow-y: auto;">
+                    <h2 style="color: var(--oman-red); text-align: center; margin-bottom: 20px;">📖 دليل لعبة سوق مطرح الحسابي</h2>
+                    
+                    <!-- نظرة عامة -->
+                    <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                        <h3 style="color: var(--oman-green); margin-bottom: 10px;">🎯 الهدف من اللعبة</h3>
+                        <p style="margin: 0; line-height: 1.6;">تقمص دور تاجر في سوق مطرح التقليدي، حل المسائل الرياضية لشراء البضائع وتحقيق أكبر ربح في الوقت المحدد.</p>
+                    </div>
+
+                    <!-- مستويات الصعوبة -->
+                    <div style="background: rgba(0, 166, 90, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 2px solid var(--oman-green);">
+                        <h3 style="color: var(--oman-green); margin-bottom: 15px;">📊 مستويات الصعوبة</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                            <div style="background: white; padding: 10px; border-radius: 8px;">
+                                <div style="font-size: 1.5rem; text-align: center;">🟢</div>
+                                <strong>مبتدئ (الصفوف 1-3)</strong><br>
+                                <small>جمع وطرح بسيط، حساب الفكة</small>
+                            </div>
+                            <div style="background: white; padding: 10px; border-radius: 8px;">
+                                <div style="font-size: 1.5rem; text-align: center;">🟡</div>
+                                <strong>متوسط (الصفوف 4-6)</strong><br>
+                                <small>ضرب وقسمة، كسور، خصومات</small>
+                            </div>
+                            <div style="background: white; padding: 10px; border-radius: 8px;">
+                                <div style="font-size: 1.5rem; text-align: center;">🔴</div>
+                                <strong>متقدم (الصفوف 7-9)</strong><br>
+                                <small>معادلات، نسب مئوية، أرباح</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- اختيار مدة اللعب -->
+                    <div style="background: rgba(219, 31, 31, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 2px solid var(--oman-red);">
+                        <h3 style="color: var(--oman-red); margin-bottom: 10px;">⏰ اختيار مدة اللعب (جديد!)</h3>
+                        <p style="margin-bottom: 10px; line-height: 1.6;">المعلم يستطيع الآن اختيار المدة المناسبة لكل طالب من 5 إلى 45 دقيقة:</p>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;">
+                            <span style="background: white; padding: 5px 10px; border-radius: 15px; font-size: 0.9rem;">⏱️ 5 دقائق</span>
+                            <span style="background: white; padding: 5px 10px; border-radius: 15px; font-size: 0.9rem;">⏰ 10 دقائق</span>
+                            <span style="background: white; padding: 5px 10px; border-radius: 15px; font-size: 0.9rem;">🕒 15 دقيقة</span>
+                            <span style="background: white; padding: 5px 10px; border-radius: 15px; font-size: 0.9rem;">🕓 20 دقيقة</span>
+                            <span style="background: white; padding: 5px 10px; border-radius: 15px; font-size: 0.9rem;">... إلى 45 دقيقة</span>
+                        </div>
+                        <p style="margin: 10px 0 0 0; font-size: 0.9rem; color: #666;">💡 يمكن للمعلم تخصيص وقت مختلف لكل طالب حسب مستواه</p>
+                    </div>
+
+                    <!-- خطوات اللعب -->
+                    <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 2px solid var(--gold);">
+                        <h3 style="color: var(--dark-blue); margin-bottom: 15px;">🛒 خطوات اللعب</h3>
+                        <div style="text-align: right; line-height: 1.8;">
+                            <div style="margin-bottom: 8px;">1️⃣ اختر متجراً من خريطة السوق</div>
+                            <div style="margin-bottom: 8px;">2️⃣ اقرأ المسألة الرياضية بعناية</div>
+                            <div style="margin-bottom: 8px;">3️⃣ احسب الإجابة الصحيحة</div>
+                            <div style="margin-bottom: 8px;">4️⃣ أدخل إجابتك واضغط "شراء"</div>
+                            <div style="margin-bottom: 8px;">5️⃣ احصل على النقاط والمنتجات</div>
+                        </div>
+                    </div>
+
+                    <!-- المتاجر والأماكن -->
+                    <div style="background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 50%); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                        <h3 style="color: var(--dark-blue); margin-bottom: 15px;">🏪 المتاجر والأماكن</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; text-align: center; font-size: 0.9rem;">
+                            <div style="background: white; padding: 8px; border-radius: 8px;">💎<br>دكان الذهب</div>
+                            <div style="background: white; padding: 8px; border-radius: 8px;">🕯️<br>دكان العطور</div>
+                            <div style="background: white; padding: 8px; border-radius: 8px;">🧵<br>دكان الأقمشة</div>
+                            <div style="background: white; padding: 8px; border-radius: 8px;">🌶️<br>دكان التوابل</div>
+                            <div style="background: white; padding: 8px; border-radius: 8px;">🐪<br>سوق الماشية</div>
+                            <div style="background: var(--oman-green); color: white; padding: 8px; border-radius: 8px;">🕌<br>المسجد (+10)</div>
+                            <div style="background: var(--dark-blue); color: white; padding: 8px; border-radius: 8px;">🏛️<br>المتحف (+15)</div>
+                        </div>
+                    </div>
+
+                    <!-- نظام النقاط -->
+                    <div style="background: rgba(255, 215, 0, 0.2); padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 2px solid var(--gold);">
+                        <h3 style="color: var(--dark-blue); margin-bottom: 15px;">⭐ نظام النقاط والإنجازات</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                            <div style="background: white; padding: 10px; border-radius: 8px;">
+                                <strong style="color: var(--oman-green);">✅ إجابة صحيحة</strong><br>
+                                <small>15-40 نقطة حسب المستوى</small>
+                            </div>
+                            <div style="background: white; padding: 10px; border-radius: 8px;">
+                                <strong style="color: var(--oman-red);">❌ إجابة خاطئة</strong><br>
+                                <small>-3 نقاط فقط</small>
+                            </div>
+                            <div style="background: white; padding: 10px; border-radius: 8px;">
+                                <strong style="color: var(--gold);">🏆 الإنجازات</strong><br>
+                                <small>+50 نقطة لكل إنجاز</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- نصائح للنجاح -->
+                    <div style="background: rgba(40, 167, 69, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 2px solid var(--light-green);">
+                        <h3 style="color: var(--light-green); margin-bottom: 15px;">💡 نصائح للنجاح</h3>
+                        <div style="text-align: right; line-height: 1.7;">
+                            <div style="margin-bottom: 5px;">• ابدأ بالمسائل السهلة لكسب الثقة</div>
+                            <div style="margin-bottom: 5px;">• استخدم التلميحات المرفقة مع المسائل</div>
+                            <div style="margin-bottom: 5px;">• زر الأماكن الخاصة للحصول على نقاط إضافية</div>
+                            <div style="margin-bottom: 5px;">• انتبه للوقت ولا تتسرع في الحل</div>
+                            <div style="margin-bottom: 5px;">• نوع في مشترياتك لفتح إنجازات جديدة</div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center;">
+                        <button class="btn" onclick="closeModal(this)" style="font-size: 16px; padding: 12px 25px;">
+                            ✅ فهمت، أغلق الدليل
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(guideModal);
+        }
+        function showGameGuide() {
+            const guideModal = document.createElement('div');
+            guideModal.className = 'setup-modal';
+            guideModal.innerHTML = `
+                <div class="setup-content" style="max-width: 800px; max-height: 85vh; overflow-y: auto;">
+                    <h2 style="color: var(--oman-red); text-align: center; margin-bottom: 20px;">📖 دليل لعبة سوق مطرح الحسابي</h2>
+                    
+                    <!-- نظرة عامة -->
+                    <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                        <h3 style="color: var(--oman-green); margin-bottom: 10px;">🎯 الهدف من اللعبة</h3>
+                        <p style="margin: 0; line-height: 1.6;">تقمص دور تاجر في سوق مطرح التقليدي، حل المسائل الرياضية لشراء البضائع وتحقيق أكبر ربح في الوقت المحدد.</p>
+                    </div>
+
+                    <!-- مستويات الصعوبة -->
+                    <div style="background: rgba(0, 166, 90, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 2px solid var(--oman-green);">
+                        <h3 style="color: var(--oman-green); margin-bottom: 15px;">📊 مستويات الصعوبة</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                            <div style="background: white; padding: 10px; border-radius: 8px;">
+                                <div style="font-size: 1.5rem; text-align: center;">🟢</div>
+                                <strong>مبتدئ (الصفوف 1-3)</strong><br>
+                                <small>جمع وطرح بسيط، حساب الفكة</small>
+                            </div>
+                            <div style="background: white; padding: 10px; border-radius: 8px;">
+                                <div style="font-size: 1.5rem; text-align: center;">🟡</div>
+                                <strong>متوسط (الصفوف 4-6)</strong><br>
+                                <small>ضرب وقسمة، كسور، خصومات</small>
+                            </div>
+                            <div style="background: white; padding: 10px; border-radius: 8px;">
+                                <div style="font-size: 1.5rem; text-align: center;">🔴</div>
+                                <strong>متقدم (الصفوف 7-9)</strong><br>
+                                <small>معادلات، نسب مئوية، أرباح</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- اختيار مدة اللعب -->
+                    <div style="background: rgba(219, 31, 31, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 2px solid var(--oman-red);">
+                        <h3 style="color: var(--oman-red); margin-bottom: 10px;">⏰ اختيار مدة اللعب (جديد!)</h3>
+                        <p style="margin-bottom: 10px; line-height: 1.6;">المعلم يستطيع الآن اختيار المدة المناسبة لكل طالب من 5 إلى 45 دقيقة:</p>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;">
+                            <span style="background: white; padding: 5px 10px; border-radius: 15px; font-size: 0.9rem;">⏱️ 5 دقائق</span>
+                            <span style="background: white; padding: 5px 10px; border-radius: 15px; font-size: 0.9rem;">⏰ 10 دقائق</span>
+                            <span style="background: white; padding: 5px 10px; border-radius: 15px; font-size: 0.9rem;">🕒 15 دقيقة</span>
+                            <span style="background: white; padding: 5px 10px; border-radius: 15px; font-size: 0.9rem;">🕓 20 دقيقة</span>
+                            <span style="background: white; padding: 5px 10px; border-radius: 15px; font-size: 0.9rem;">... إلى 45 دقيقة</span>
+                        </div>
+                        <p style="margin: 10px 0 0 0; font-size: 0.9rem; color: #666;">💡 يمكن للمعلم تخصيص وقت مختلف لكل طالب حسب مستواه</p>
+                    </div>
+
+                    <!-- خطوات اللعب -->
+                    <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 2px solid var(--gold);">
+                        <h3 style="color: var(--dark-blue); margin-bottom: 15px;">🛒 خطوات اللعب</h3>
+                        <div style="text-align: right; line-height: 1.8;">
+                            <div style="margin-bottom: 8px;">1️⃣ اختر متجراً من خريطة السوق</div>
+                            <div style="margin-bottom: 8px;">2️⃣ اقرأ المسألة الرياضية بعناية</div>
+                            <div style="margin-bottom: 8px;">3️⃣ احسب الإجابة الصحيحة</div>
+                            <div style="margin-bottom: 8px;">4️⃣ أدخل إجابتك واضغط "شراء"</div>
+                            <div style="margin-bottom: 8px;">5️⃣ احصل على النقاط والمنتجات</div>
+                        </div>
+                    </div>
+
+                    <!-- المتاجر والأماكن -->
+                    <div style="background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 50%); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                        <h3 style="color: var(--dark-blue); margin-bottom: 15px;">🏪 المتاجر والأماكن</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; text-align: center; font-size: 0.9rem;">
+                            <div style="background: white; padding: 8px; border-radius: 8px;">💎<br>دكان الذهب</div>
+                            <div style="background: white; padding: 8px; border-radius: 8px;">🕯️<br>دكان العطور</div>
+                            <div style="background: white; padding: 8px; border-radius: 8px;">🧵<br>دكان الأقمشة</div>
+                            <div style="background: white; padding: 8px; border-radius: 8px;">🌶️<br>دكان التوابل</div>
+                            <div style="background: white; padding: 8px; border-radius: 8px;">🐪<br>سوق الماشية</div>
+                            <div style="background: var(--oman-green); color: white; padding: 8px; border-radius: 8px;">🕌<br>المسجد (+10)</div>
+                            <div style="background: var(--dark-blue); color: white; padding: 8px; border-radius: 8px;">🏛️<br>المتحف (+15)</div>
+                        </div>
+                    </div>
+
+                    <!-- نظام النقاط -->
+                    <div style="background: rgba(255, 215, 0, 0.2); padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 2px solid var(--gold);">
+                        <h3 style="color: var(--dark-blue); margin-bottom: 15px;">⭐ نظام النقاط والإنجازات</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                            <div style="background: white; padding: 10px; border-radius: 8px;">
+                                <strong style="color: var(--oman-green);">✅ إجابة صحيحة</strong><br>
+                                <small>15-40 نقطة حسب المستوى</small>
+                            </div>
+                            <div style="background: white; padding: 10px; border-radius: 8px;">
+                                <strong style="color: var(--oman-red);">❌ إجابة خاطئة</strong><br>
+                                <small>-3 نقاط فقط</small>
+                            </div>
+                            <div style="background: white; padding: 10px; border-radius: 8px;">
+                                <strong style="color: var(--gold);">🏆 الإنجازات</strong><br>
+                                <small>+50 نقطة لكل إنجاز</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- نصائح للنجاح -->
+                    <div style="background: rgba(40, 167, 69, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 2px solid var(--light-green);">
+                        <h3 style="color: var(--light-green); margin-bottom: 15px;">💡 نصائح للنجاح</h3>
+                        <div style="text-align: right; line-height: 1.7;">
+                            <div style="margin-bottom: 5px;">• ابدأ بالمسائل السهلة لكسب الثقة</div>
+                            <div style="margin-bottom: 5px;">• استخدم التلميحات المرفقة مع المسائل</div>
+                            <div style="margin-bottom: 5px;">• زر الأماكن الخاصة للحصول على نقاط إضافية</div>
+                            <div style="margin-bottom: 5px;">• انتبه للوقت ولا تتسرع في الحل</div>
+                            <div style="margin-bottom: 5px;">• نوع في مشترياتك لفتح إنجازات جديدة</div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center;">
+                        <button class="btn" onclick="closeModal(this)" style="font-size: 16px; padding: 12px 25px;">
+                            ✅ فهمت، أغلق الدليل
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(guideModal);
         }
 
         // تهيئة اللعبة عند تحميل الصفحة
