@@ -429,8 +429,8 @@
             color: var(--oman-red);
         }
 
-        /* بطاقات الطلاب */
-        .student-card {
+        /* بطاقات الطلاب والصفوف */
+        .student-card, .class-card {
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             padding: 10px;
@@ -439,15 +439,17 @@
             text-align: center;
             font-size: 0.85rem;
             background: var(--manuscript-beige);
+            position: relative;
+            overflow: hidden;
         }
 
-        .student-card:hover {
+        .student-card:hover, .class-card:hover {
             border-color: var(--heritage-brown);
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
-        .student-card.selected {
+        .student-card.selected, .class-card.selected {
             border-color: var(--oman-red);
             background: rgba(219, 31, 31, 0.1);
             color: var(--oman-red);
@@ -455,11 +457,50 @@
             box-shadow: 0 4px 12px rgba(219, 31, 31, 0.3);
         }
 
+        .class-card {
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .class-card .class-icon {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .class-card .class-name {
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .student-card .student-icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .student-card .student-name {
+            font-weight: bold;
+            font-size: 0.8rem;
+            margin-bottom: 2px;
+        }
+
+        .student-card .student-info {
+            font-size: 0.7rem;
+            color: #666;
+        }
+
         .btn.active {
-            background: linear-gradient(135deg, var(--oman-red) 0%, #c82333 100%);
+            background: linear-gradient(135deg, var(--oman-red) 0%, #c82333 100%) !important;
             color: white;
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(219, 31, 31, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         /* رسائل النجاح والخطأ */
@@ -728,7 +769,7 @@
                     <button type="button" class="btn active" id="manualNameBtn" onclick="toggleNameMode('manual')" style="background: linear-gradient(135deg, var(--dark-blue) 0%, #1565C0 100%);">
                         ✏️ كتابة الاسم يدوياً
                     </button>
-                    <button type="button" class="btn" id="studentListBtn" onclick="toggleNameMode('student')" disabled style="background: linear-gradient(135deg, var(--heritage-brown) 0%, #654321 100%);">
+                    <button type="button" class="btn" id="studentListBtn" onclick="toggleNameMode('student')" style="background: linear-gradient(135deg, var(--heritage-brown) 0%, #654321 100%); opacity: 0.7;">
                         📚 اختيار من قائمة الصف
                     </button>
                 </div>
@@ -740,6 +781,33 @@
                     </label>
                     <input type="text" id="studentName" placeholder="أدخل اسمك" 
                            style="width: 250px; padding: 10px; border: 2px solid var(--heritage-brown); border-radius: 5px; text-align: center; font-size: 16px; font-family: 'Cairo', sans-serif;">
+                </div>
+
+                <!-- قسم اختيار الصف -->
+                <div id="classSelectionSection" style="display: none;">
+                    <h4 style="color: var(--oman-green); margin-bottom: 15px;">📚 اختر الصف أولاً:</h4>
+                    <div id="classCards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 20px;">
+                        <!-- سيتم إنشاء بطاقات الصفوف هنا -->
+                    </div>
+                    
+                    <div id="studentSelectionSection" style="display: none;">
+                        <h4 style="color: var(--dark-blue); margin-bottom: 15px;">👨‍🎓 اختر الطالب:</h4>
+                        <div style="margin-bottom: 15px;">
+                            <input type="text" id="studentSearch" placeholder="ابحث عن اسم الطالب..." 
+                                   onkeyup="filterStudents(this.value)"
+                                   style="width: 100%; max-width: 300px; padding: 8px; border: 2px solid var(--heritage-brown); border-radius: 5px; font-family: 'Cairo', sans-serif;">
+                        </div>
+                        <div id="studentsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; max-height: 200px; overflow-y: auto; padding: 10px; border: 2px solid var(--heritage-brown); border-radius: 8px; background: rgba(255,255,255,0.5);">
+                            <!-- سيتم إنشاء بطاقات الطلاب هنا -->
+                        </div>
+                    </div>
+                    
+                    <div id="selectedStudentDisplay" style="margin-top: 15px; padding: 15px; background: rgba(139, 69, 19, 0.1); border-radius: 10px; border: 2px solid var(--heritage-brown); display: none; text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">✅</div>
+                        <div><strong style="color: var(--heritage-brown);">الطالب المختار:</strong></div>
+                        <div style="font-size: 1.2rem; font-weight: bold; color: var(--oman-red); margin: 5px 0;" id="selectedStudentName"></div>
+                        <div style="font-size: 0.9rem; color: var(--dark-blue);" id="selectedStudentClass"></div>
+                    </div>
                 </div>
             </div>
 
@@ -771,7 +839,11 @@
             gameStarted: false,
             achievements: [],
             completedChallenges: 0,
-            studentsData: []
+            studentsData: [],
+            classesList: {},
+            selectedClass: null,
+            selectedStudentName: null,
+            selectedStudentData: null
         };
 
         // تحميل بيانات الطلاب
@@ -781,7 +853,19 @@
                 if (response.ok) {
                     const data = await response.json();
                     gameState.studentsData = data.students || [];
+                    
+                    // تنظيم الطلاب حسب الصفوف
+                    gameState.classesList = {};
+                    gameState.studentsData.forEach(student => {
+                        const className = student.class || 'غير محدد';
+                        if (!gameState.classesList[className]) {
+                            gameState.classesList[className] = [];
+                        }
+                        gameState.classesList[className].push(student);
+                    });
+                    
                     console.log('✅ تم تحميل بيانات الطلاب:', gameState.studentsData.length, 'طالب');
+                    console.log('📚 الصفوف المتاحة:', Object.keys(gameState.classesList));
                     
                     // تفعيل زر قائمة الطلاب
                     const studentListBtn = document.getElementById('studentListBtn');
@@ -1101,6 +1185,7 @@
             const manualNameBtn = document.getElementById('manualNameBtn');
             const studentListBtn = document.getElementById('studentListBtn');
             const manualNameSection = document.getElementById('manualNameSection');
+            const classSelectionSection = document.getElementById('classSelectionSection');
             
             if (mode === 'manual') {
                 // وضع الكتابة اليدوية
@@ -1108,22 +1193,22 @@
                 studentListBtn.classList.remove('active');
                 
                 manualNameSection.style.display = 'block';
+                classSelectionSection.style.display = 'none';
                 
-                // إخفاء قائمة الطلاب إذا كانت موجودة
-                const studentListSection = document.getElementById('studentListSection');
-                if (studentListSection) {
-                    studentListSection.style.display = 'none';
-                }
+                // إعادة تعيين الاختيارات
+                resetSelections();
                 
             } else if (mode === 'student') {
                 // وضع اختيار من قائمة الطلاب
-                if (gameState.studentsData.length === 0) {
+                if (!gameState.studentsData || gameState.studentsData.length === 0) {
                     showMessage('⚠️ لم يتم تحميل بيانات الطلاب بعد. جاري المحاولة...', 'warning');
                     loadStudentsData().then(success => {
                         if (success && gameState.studentsData.length > 0) {
                             activateStudentListMode();
                         } else {
                             showMessage('❌ لم يتم العثور على بيانات الطلاب. استخدم الكتابة اليدوية.', 'error');
+                            // العودة للوضع اليدوي
+                            toggleNameMode('manual');
                         }
                     });
                     return;
@@ -1138,59 +1223,128 @@
             const manualNameBtn = document.getElementById('manualNameBtn');
             const studentListBtn = document.getElementById('studentListBtn');
             const manualNameSection = document.getElementById('manualNameSection');
+            const classSelectionSection = document.getElementById('classSelectionSection');
             
             manualNameBtn.classList.remove('active');
             studentListBtn.classList.add('active');
             
             manualNameSection.style.display = 'none';
+            classSelectionSection.style.display = 'block';
             
-            // إنشاء أو إظهار قائمة الطلاب
-            let studentListSection = document.getElementById('studentListSection');
-            if (!studentListSection) {
-                studentListSection = document.createElement('div');
-                studentListSection.id = 'studentListSection';
-                studentListSection.innerHTML = createStudentListHTML();
-                manualNameSection.parentNode.insertBefore(studentListSection, manualNameSection.nextSibling);
-            }
+            // إنشاء بطاقات الصفوف
+            createClassCards();
             
-            studentListSection.style.display = 'block';
+            // إعادة تعيين الاختيارات
+            resetSelections();
         }
         
-        // إنشاء HTML لقائمة الطلاب
-        function createStudentListHTML() {
-            const studentsGrid = gameState.studentsData.map(student => `
-                <div class="student-card" onclick="selectStudent('${student.name}')" data-student="${student.name}">
-                    <div style="font-size: 2rem; margin-bottom: 5px;">👨‍🎓</div>
-                    <div style="font-weight: bold; font-size: 0.9rem;">${student.name}</div>
-                    <div style="font-size: 0.8rem; color: #666;">${student.class || 'غير محدد'}</div>
+        // إنشاء بطاقات الصفوف
+        function createClassCards() {
+            const classCardsContainer = document.getElementById('classCards');
+            if (!classCardsContainer || !gameState.classesList) return;
+            
+            const classNames = Object.keys(gameState.classesList);
+            
+            classCardsContainer.innerHTML = classNames.map(className => {
+                const studentsCount = gameState.classesList[className].length;
+                const classIcon = getClassIcon(className);
+                
+                return `
+                    <div class="class-card" onclick="selectClass('${className}')" data-class="${className}">
+                        <div class="class-icon">${classIcon}</div>
+                        <div class="class-name">${className}</div>
+                        <div style="font-size: 0.7rem; color: #666; margin-top: 3px;">${studentsCount} طالب</div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // الحصول على أيقونة الصف
+        function getClassIcon(className) {
+            const icons = {
+                'الصف الأول': '1️⃣',
+                'الصف الثاني': '2️⃣',
+                'الصف الثالث': '3️⃣',
+                'الصف الرابع': '4️⃣',
+                'الصف الخامس': '5️⃣',
+                'الصف السادس': '6️⃣',
+                'الصف السابع': '7️⃣',
+                'الصف الثامن': '8️⃣',
+                'الصف التاسع': '9️⃣',
+                'الصف العاشر': '🔟',
+                'الصف الحادي عشر': '📚',
+                'الصف الثاني عشر': '🎓'
+            };
+            
+            return icons[className] || '📖';
+        }
+        
+        // اختيار صف
+        function selectClass(className) {
+            playClickSound();
+            
+            // إزالة التحديد من جميع بطاقات الصفوف
+            document.querySelectorAll('.class-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // تحديد الصف المختار
+            const selectedCard = document.querySelector(`[data-class="${className}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('selected');
+            }
+            
+            // حفظ الصف المختار
+            gameState.selectedClass = className;
+            
+            // إظهار قسم اختيار الطلاب
+            const studentSelectionSection = document.getElementById('studentSelectionSection');
+            if (studentSelectionSection) {
+                studentSelectionSection.style.display = 'block';
+                createStudentCards(className);
+            }
+            
+            // إخفاء عرض الطالب المختار
+            const selectedStudentDisplay = document.getElementById('selectedStudentDisplay');
+            if (selectedStudentDisplay) {
+                selectedStudentDisplay.style.display = 'none';
+            }
+            
+            // إعادة تعيين اختيار الطالب
+            gameState.selectedStudentName = null;
+            gameState.selectedStudentData = null;
+        }
+        
+        // إنشاء بطاقات الطلاب للصف المختار
+        function createStudentCards(className) {
+            const studentsGrid = document.getElementById('studentsGrid');
+            if (!studentsGrid || !gameState.classesList[className]) return;
+            
+            const students = gameState.classesList[className];
+            
+            studentsGrid.innerHTML = students.map(student => `
+                <div class="student-card" onclick="selectStudent('${student.name}', '${className}')" data-student="${student.name}">
+                    <div class="student-icon">👨‍🎓</div>
+                    <div class="student-name">${student.name}</div>
+                    <div class="student-info">${className}</div>
                 </div>
             `).join('');
             
-            return `
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 10px; font-weight: bold; color: var(--dark-blue);">
-                        👥 اختر طالباً من القائمة:
-                    </label>
-                    <input type="text" id="studentSearch" placeholder="ابحث عن اسم الطالب..." 
-                           onkeyup="filterStudents(this.value)"
-                           style="width: 100%; max-width: 300px; padding: 8px; border: 2px solid var(--heritage-brown); border-radius: 5px; font-family: 'Cairo', sans-serif; margin-bottom: 15px;">
-                </div>
-                <div id="studentsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; max-height: 200px; overflow-y: auto; padding: 10px; border: 2px solid var(--heritage-brown); border-radius: 8px; background: rgba(255,255,255,0.5);">
-                    ${studentsGrid}
-                </div>
-                <div id="selectedStudentDisplay" style="margin-top: 15px; padding: 10px; background: rgba(139, 69, 19, 0.1); border-radius: 8px; border: 2px solid var(--heritage-brown); display: none;">
-                    <strong style="color: var(--heritage-brown);">الطالب المختار: </strong>
-                    <span id="selectedStudentName" style="color: var(--oman-red); font-weight: bold;"></span>
-                </div>
-            `;
+            // مسح حقل البحث
+            const searchInput = document.getElementById('studentSearch');
+            if (searchInput) {
+                searchInput.value = '';
+            }
         }
         
         // تصفية الطلاب حسب البحث
         function filterStudents(searchText) {
             const students = document.querySelectorAll('.student-card');
+            const searchLower = searchText.toLowerCase();
+            
             students.forEach(card => {
-                const studentName = card.dataset.student;
-                if (studentName.includes(searchText) || searchText === '') {
+                const studentName = card.dataset.student.toLowerCase();
+                if (studentName.includes(searchLower) || searchText === '') {
                     card.style.display = 'block';
                 } else {
                     card.style.display = 'none';
@@ -1199,10 +1353,10 @@
         }
         
         // اختيار طالب من القائمة
-        function selectStudent(studentName) {
+        function selectStudent(studentName, className) {
             playClickSound();
             
-            // إزالة التحديد من جميع البطاقات
+            // إزالة التحديد من جميع بطاقات الطلاب
             document.querySelectorAll('.student-card').forEach(card => {
                 card.classList.remove('selected');
             });
@@ -1213,16 +1367,48 @@
                 selectedCard.classList.add('selected');
             }
             
+            // البحث عن بيانات الطالب
+            const studentData = gameState.classesList[className].find(s => s.name === studentName);
+            
             // إظهار الطالب المختار
             const selectedDisplay = document.getElementById('selectedStudentDisplay');
             const selectedNameSpan = document.getElementById('selectedStudentName');
-            if (selectedDisplay && selectedNameSpan) {
+            const selectedClassSpan = document.getElementById('selectedStudentClass');
+            
+            if (selectedDisplay && selectedNameSpan && selectedClassSpan) {
                 selectedNameSpan.textContent = studentName;
+                selectedClassSpan.textContent = className;
                 selectedDisplay.style.display = 'block';
             }
             
-            // حفظ الاسم في حالة اللعبة
+            // حفظ بيانات الطالب
             gameState.selectedStudentName = studentName;
+            gameState.selectedStudentData = studentData;
+            gameState.selectedClass = className;
+        }
+        
+        // إعادة تعيين جميع الاختيارات
+        function resetSelections() {
+            gameState.selectedStudentName = null;
+            gameState.selectedStudentData = null;
+            gameState.selectedClass = null;
+            
+            // إخفاء أقسام الاختيار
+            const studentSelectionSection = document.getElementById('studentSelectionSection');
+            const selectedStudentDisplay = document.getElementById('selectedStudentDisplay');
+            
+            if (studentSelectionSection) {
+                studentSelectionSection.style.display = 'none';
+            }
+            
+            if (selectedStudentDisplay) {
+                selectedStudentDisplay.style.display = 'none';
+            }
+            
+            // إزالة جميع التحديدات
+            document.querySelectorAll('.class-card, .student-card').forEach(card => {
+                card.classList.remove('selected');
+            });
         }
 
         // بدء التعلم
