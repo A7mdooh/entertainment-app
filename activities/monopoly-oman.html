@@ -933,6 +933,16 @@
                 <div class="properties-owned">
                     <h4>🏘️ العقارات المملوكة:</h4>
                     <ul id="properties-list"></ul>
+                    
+                    <!-- أزرار إدارة العقارات الجديدة -->
+                    <div class="property-management" style="margin-top: 15px; padding: 10px; background: rgba(0,128,0,0.1); border-radius: 8px;">
+                        <h5 style="color: var(--oman-green); margin-bottom: 10px;">🏗️ إدارة العقارات</h5>
+                        <button id="build-houses-btn" class="oman-btn" style="font-size: 12px; padding: 6px 12px; margin: 2px;">🏠 بناء بيت</button>
+                        <button id="build-hotel-btn" class="oman-btn" style="font-size: 12px; padding: 6px 12px; margin: 2px;">🏨 بناء فندق</button>
+                        <button id="sell-buildings-btn" class="oman-btn" style="font-size: 12px; padding: 6px 12px; margin: 2px;">💰 بيع مباني</button>
+                        <button id="mortgage-property-btn" class="oman-btn" style="font-size: 12px; padding: 6px 12px; margin: 2px;">🔒 رهن عقار</button>
+                        <button id="game-stats-btn" class="oman-btn" style="font-size: 12px; padding: 6px 12px; margin: 2px;">📊 إحصائيات</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1068,6 +1078,45 @@
         </div>
     </div>
 
+    <!-- نافذة إدارة البناء -->
+    <div id="building-management-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>🏗️ إدارة المباني</h2>
+            <div class="modal-body">
+                <div id="buildable-properties-list" style="max-height: 300px; overflow-y: auto;">
+                    <!-- سيتم ملء قائمة العقارات القابلة للبناء هنا -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة إدارة الرهن -->
+    <div id="mortgage-management-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>🔒 إدارة الرهن</h2>
+            <div class="modal-body">
+                <div id="mortgageable-properties-list" style="max-height: 300px; overflow-y: auto;">
+                    <!-- سيتم ملء قائمة العقارات القابلة للرهن هنا -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة الإحصائيات -->
+    <div id="game-stats-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>📊 إحصائيات اللعبة</h2>
+            <div class="modal-body">
+                <div id="game-stats-content" style="max-height: 400px; overflow-y: auto;">
+                    <!-- سيتم ملء الإحصائيات هنا -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // إنشاء كائن الصوت
         const clickSound = new Audio('../assets/media/sounds/Click.mp3');
@@ -1085,6 +1134,9 @@
         let properties = [];
         let gameStarted = false;
         let currentProperty = null;
+        
+        // متغيرات السجن الجديدة
+        let playersInJail = {}; // يحتوي على معلومات اللاعبين في السجن
 
         // متغيرات اختيار الطلاب - مع تهيئة محسنة
         let selectedStudents = [];
@@ -1117,6 +1169,16 @@
         const propertyPrice = document.getElementById('property-price');
         const buyPropertyBtn = document.getElementById('buy-property-btn');
         const auctionPropertyBtn = document.getElementById('auction-property-btn');
+
+        // عناصر إدارة البناء والرهن الجديدة
+        const buildHousesBtn = document.getElementById('build-houses-btn');
+        const buildHotelBtn = document.getElementById('build-hotel-btn');
+        const sellBuildingsBtn = document.getElementById('sell-buildings-btn');
+        const mortgagePropertyBtn = document.getElementById('mortgage-property-btn');
+        const buildingManagementModal = document.getElementById('building-management-modal');
+        const mortgageManagementModal = document.getElementById('mortgage-management-modal');
+        const gameStatsBtn = document.getElementById('game-stats-btn');
+        const gameStatsModal = document.getElementById('game-stats-modal');
 
         // ألوان اللاعبين (موسعة لـ 6 لاعبين)
         const playerColors = ['#FF0000', '#0000FF', '#00FF00', '#FFFF00', '#FF00FF', '#FFA500'];
@@ -1542,45 +1604,45 @@
         function createProperties() {
             properties = [
                 { id: 0, name: 'البدء', type: 'corner', action: 'collect', amount: 200 },
-                { id: 1, name: 'مطار مسقط الدولي', price: 200, rent: 25, color: 'brown', ownedBy: null, houses: 0 },
-                { id: 2, name: 'سوق مطرح', price: 60, rent: 10, color: 'brown', ownedBy: null, houses: 0 },
+                { id: 1, name: 'مطار مسقط الدولي', price: 200, rent: 25, color: 'brown', ownedBy: null, houses: 0, buildingCost: 50, mortgaged: false },
+                { id: 2, name: 'سوق مطرح', price: 60, rent: 10, color: 'brown', ownedBy: null, houses: 0, buildingCost: 50, mortgaged: false },
                 { id: 3, name: 'خزينة المجتمع', type: 'chest' },
                 { id: 4, name: 'ضريبة الدخل', type: 'tax', amount: 200 },
-                { id: 5, name: 'ميناء صحار', price: 200, rent: 25, type: 'station', ownedBy: null },
-                { id: 6, name: 'وادي شاب', price: 100, rent: 30, color: 'lightblue', ownedBy: null, houses: 0 },
+                { id: 5, name: 'ميناء صحار', price: 200, rent: 25, type: 'station', ownedBy: null, mortgaged: false },
+                { id: 6, name: 'وادي شاب', price: 100, rent: 30, color: 'lightblue', ownedBy: null, houses: 0, buildingCost: 50, mortgaged: false },
                 { id: 7, name: 'فرصة', type: 'chance' },
-                { id: 8, name: 'جبال الحجر', price: 100, rent: 30, color: 'lightblue', ownedBy: null, houses: 0 },
-                { id: 9, name: 'وادي بني خالد', price: 120, rent: 40, color: 'lightblue', ownedBy: null, houses: 0 },
+                { id: 8, name: 'جبال الحجر', price: 100, rent: 30, color: 'lightblue', ownedBy: null, houses: 0, buildingCost: 50, mortgaged: false },
+                { id: 9, name: 'وادي بني خالد', price: 120, rent: 40, color: 'lightblue', ownedBy: null, houses: 0, buildingCost: 50, mortgaged: false },
                 { id: 10, name: 'السجن', type: 'jail' },
-                { id: 11, name: 'قلعة نزوى', price: 140, rent: 50, color: 'pink', ownedBy: null, houses: 0 },
-                { id: 12, name: 'شركة الكهرباء', price: 150, rent: 0, type: 'utility', ownedBy: null },
-                { id: 13, name: 'قصر العلم', price: 140, rent: 50, color: 'pink', ownedBy: null, houses: 0 },
-                { id: 14, name: 'متحف عُمان الوطني', price: 160, rent: 60, color: 'pink', ownedBy: null, houses: 0 },
-                { id: 15, name: 'ميناء السلطان قابوس', price: 200, rent: 25, type: 'station', ownedBy: null },
-                { id: 16, name: 'شاطئ المغسيل', price: 180, rent: 70, color: 'orange', ownedBy: null, houses: 0 },
+                { id: 11, name: 'قلعة نزوى', price: 140, rent: 50, color: 'pink', ownedBy: null, houses: 0, buildingCost: 100, mortgaged: false },
+                { id: 12, name: 'شركة الكهرباء', price: 150, rent: 0, type: 'utility', ownedBy: null, mortgaged: false },
+                { id: 13, name: 'قصر العلم', price: 140, rent: 50, color: 'pink', ownedBy: null, houses: 0, buildingCost: 100, mortgaged: false },
+                { id: 14, name: 'متحف عُمان الوطني', price: 160, rent: 60, color: 'pink', ownedBy: null, houses: 0, buildingCost: 100, mortgaged: false },
+                { id: 15, name: 'ميناء السلطان قابوس', price: 200, rent: 25, type: 'station', ownedBy: null, mortgaged: false },
+                { id: 16, name: 'شاطئ المغسيل', price: 180, rent: 70, color: 'orange', ownedBy: null, houses: 0, buildingCost: 100, mortgaged: false },
                 { id: 17, name: 'خزينة المجتمع', type: 'chest' },
-                { id: 18, name: 'خور المغسيل', price: 180, rent: 70, color: 'orange', ownedBy: null, houses: 0 },
-                { id: 19, name: 'وادي دوكة', price: 200, rent: 80, color: 'orange', ownedBy: null, houses: 0 },
+                { id: 18, name: 'خور المغسيل', price: 180, rent: 70, color: 'orange', ownedBy: null, houses: 0, buildingCost: 100, mortgaged: false },
+                { id: 19, name: 'وادي دوكة', price: 200, rent: 80, color: 'orange', ownedBy: null, houses: 0, buildingCost: 100, mortgaged: false },
                 { id: 20, name: 'الراحة', type: 'free' },
-                { id: 21, name: 'سوق نزوى', price: 220, rent: 90, color: 'red', ownedBy: null, houses: 0 },
+                { id: 21, name: 'سوق نزوى', price: 220, rent: 90, color: 'red', ownedBy: null, houses: 0, buildingCost: 150, mortgaged: false },
                 { id: 22, name: 'فرصة', type: 'chance' },
-                { id: 23, name: 'وادي بني عوف', price: 220, rent: 90, color: 'red', ownedBy: null, houses: 0 },
-                { id: 24, name: 'وادي تنوف', price: 240, rent: 100, color: 'red', ownedBy: null, houses: 0 },
-                { id: 25, name: 'ميناء الدقم', price: 200, rent: 25, type: 'station', ownedBy: null },
-                { id: 26, name: 'جبل شمس', price: 260, rent: 110, color: 'yellow', ownedBy: null, houses: 0 },
-                { id: 27, name: 'جبل الأخضر', price: 260, rent: 110, color: 'yellow', ownedBy: null, houses: 0 },
-                { id: 28, name: 'شركة المياه', price: 150, rent: 0, type: 'utility', ownedBy: null },
-                { id: 29, name: 'وادي السحتن', price: 280, rent: 120, color: 'yellow', ownedBy: null, houses: 0 },
+                { id: 23, name: 'وادي بني عوف', price: 220, rent: 90, color: 'red', ownedBy: null, houses: 0, buildingCost: 150, mortgaged: false },
+                { id: 24, name: 'وادي تنوف', price: 240, rent: 100, color: 'red', ownedBy: null, houses: 0, buildingCost: 150, mortgaged: false },
+                { id: 25, name: 'ميناء الدقم', price: 200, rent: 25, type: 'station', ownedBy: null, mortgaged: false },
+                { id: 26, name: 'جبل شمس', price: 260, rent: 110, color: 'yellow', ownedBy: null, houses: 0, buildingCost: 150, mortgaged: false },
+                { id: 27, name: 'جبل الأخضر', price: 260, rent: 110, color: 'yellow', ownedBy: null, houses: 0, buildingCost: 150, mortgaged: false },
+                { id: 28, name: 'شركة المياه', price: 150, rent: 0, type: 'utility', ownedBy: null, mortgaged: false },
+                { id: 29, name: 'وادي السحتن', price: 280, rent: 120, color: 'yellow', ownedBy: null, houses: 0, buildingCost: 150, mortgaged: false },
                 { id: 30, name: 'اذهب إلى السجن', type: 'goToJail' },
-                { id: 31, name: 'مدينة المعرفة', price: 300, rent: 130, color: 'green', ownedBy: null, houses: 0 },
-                { id: 32, name: 'المنطقة الاقتصادية', price: 300, rent: 130, color: 'green', ownedBy: null, houses: 0 },
+                { id: 31, name: 'مدينة المعرفة', price: 300, rent: 130, color: 'green', ownedBy: null, houses: 0, buildingCost: 200, mortgaged: false },
+                { id: 32, name: 'المنطقة الاقتصادية', price: 300, rent: 130, color: 'green', ownedBy: null, houses: 0, buildingCost: 200, mortgaged: false },
                 { id: 33, name: 'خزينة المجتمع', type: 'chest' },
-                { id: 34, name: 'جامعة السلطان قابوس', price: 320, rent: 150, color: 'green', ownedBy: null, houses: 0 },
-                { id: 35, name: 'مطار صلالة', price: 200, rent: 25, type: 'station', ownedBy: null },
+                { id: 34, name: 'جامعة السلطان قابوس', price: 320, rent: 150, color: 'green', ownedBy: null, houses: 0, buildingCost: 200, mortgaged: false },
+                { id: 35, name: 'مطار صلالة', price: 200, rent: 25, type: 'station', ownedBy: null, mortgaged: false },
                 { id: 36, name: 'فرصة', type: 'chance' },
-                { id: 37, name: 'خور روري', price: 350, rent: 175, color: 'darkblue', ownedBy: null, houses: 0 },
+                { id: 37, name: 'خور روري', price: 350, rent: 175, color: 'darkblue', ownedBy: null, houses: 0, buildingCost: 200, mortgaged: false },
                 { id: 38, name: 'ضريبة الرفاهية', type: 'tax', amount: 100 },
-                { id: 39, name: 'شاطئ البستان', price: 400, rent: 200, color: 'darkblue', ownedBy: null, houses: 0 }
+                { id: 39, name: 'شاطئ البستان', price: 400, rent: 200, color: 'darkblue', ownedBy: null, houses: 0, buildingCost: 200, mortgaged: false }
             ];
         }
 
@@ -1614,6 +1676,37 @@
                             if (property.color) cell.classList.add(`property-${property.color}`);
                             if (property.type === 'station') cell.classList.add('property-station');
                             if (property.type === 'utility') cell.classList.add('property-utility');
+                            
+                            // إضافة مؤشرات الملكية والمباني
+                            if (property.ownedBy !== null) {
+                                const owner = players.find(p => p.id === property.ownedBy);
+                                if (owner) {
+                                    cell.style.borderColor = owner.color;
+                                    cell.style.borderWidth = '3px';
+                                    cell.style.borderStyle = 'solid';
+                                    
+                                    // إضافة مؤشر المباني
+                                    if (property.houses > 0) {
+                                        const buildingIndicator = document.createElement('div');
+                                        buildingIndicator.style.cssText = 'position: absolute; top: 2px; right: 2px; font-size: 10px; z-index: 10;';
+                                        
+                                        if (property.houses === 5) {
+                                            buildingIndicator.textContent = '🏨';
+                                        } else {
+                                            buildingIndicator.textContent = '🏠'.repeat(Math.min(property.houses, 4));
+                                        }
+                                        cell.appendChild(buildingIndicator);
+                                    }
+                                    
+                                    // إضافة مؤشر الرهن
+                                    if (property.mortgaged) {
+                                        const mortgageIndicator = document.createElement('div');
+                                        mortgageIndicator.style.cssText = 'position: absolute; bottom: 2px; left: 2px; font-size: 10px; z-index: 10;';
+                                        mortgageIndicator.textContent = '🔒';
+                                        cell.appendChild(mortgageIndicator);
+                                    }
+                                }
+                            }
                         }
                     }
                     
@@ -1673,6 +1766,14 @@
         function rollDice() {
             if (!gameStarted) return;
             
+            const player = players[currentPlayerIndex];
+            
+            // فحص إذا كان اللاعب في السجن
+            if (player.position === 10 && playersInJail[player.id]) {
+                handleJailTurn(player);
+                return;
+            }
+            
             // تأثير رول النرد
             const dice1El = document.getElementById('dice1');
             const dice2El = document.getElementById('dice2');
@@ -1708,6 +1809,105 @@
             }, 100);
         }
 
+        // إدارة دور اللاعب في السجن
+        function handleJailTurn(player) {
+            const jailInfo = playersInJail[player.id];
+            jailInfo.turnsInJail++;
+            
+            const options = [
+                `🎲 رمي النرد (محاولة ${jailInfo.turnsInJail}/3)`,
+                '💰 دفع كفالة 50 ريال',
+                '🃏 استخدام بطاقة خروج من السجن (إن وجدت)'
+            ];
+            
+            let choice;
+            if (jailInfo.turnsInJail >= 3) {
+                choice = 2; // إجباري دفع الكفالة
+                alert('⏰ انتهت المحاولات الثلاث. يجب دفع الكفالة!');
+            } else {
+                const choiceText = options.join('\n');
+                const userInput = prompt(`أنت في السجن!\n${choiceText}\n\nاختر (1، 2، أو 3):`);
+                choice = parseInt(userInput);
+            }
+            
+            switch(choice) {
+                case 1: // رمي النرد
+                    tryJailEscape(player);
+                    break;
+                case 2: // دفع الكفالة
+                    payJailBail(player);
+                    break;
+                case 3: // بطاقة الخروج
+                    useGetOutOfJailCard(player);
+                    break;
+                default:
+                    tryJailEscape(player);
+            }
+        }
+
+        // محاولة الهروب من السجن برمي النرد
+        function tryJailEscape(player) {
+            const dice1 = Math.floor(Math.random() * 6) + 1;
+            const dice2 = Math.floor(Math.random() * 6) + 1;
+            
+            document.getElementById('dice1').textContent = dice1;
+            document.getElementById('dice2').textContent = dice2;
+            
+            if (dice1 === dice2) {
+                // خروج من السجن
+                delete playersInJail[player.id];
+                alert(`🎉 رميت مضاعف (${dice1}, ${dice2})! خرجت من السجن!`);
+                movePlayer(dice1 + dice2);
+            } else {
+                alert(`❌ لم ترم مضاعف (${dice1}, ${dice2}). تبقى في السجن.`);
+                
+                if (playersInJail[player.id].turnsInJail >= 3) {
+                    payJailBail(player);
+                } else {
+                    endTurn();
+                }
+            }
+        }
+
+        // دفع كفالة السجن
+        function payJailBail(player) {
+            const bailAmount = 50;
+            
+            if (player.money >= bailAmount) {
+                player.money -= bailAmount;
+                delete playersInJail[player.id];
+                alert(`💰 دفعت كفالة ${bailAmount} ريال وخرجت من السجن!`);
+                updatePlayerInfo();
+                
+                // رمي النرد للحركة
+                const dice1 = Math.floor(Math.random() * 6) + 1;
+                const dice2 = Math.floor(Math.random() * 6) + 1;
+                document.getElementById('dice1').textContent = dice1;
+                document.getElementById('dice2').textContent = dice2;
+                movePlayer(dice1 + dice2);
+            } else {
+                alert('❌ ليس لديك مال كافٍ لدفع الكفالة! جرب رمي النرد.');
+                tryJailEscape(player);
+            }
+        }
+
+        // استخدام بطاقة الخروج من السجن
+        function useGetOutOfJailCard(player) {
+            // هذه ميزة مستقبلية - يمكن تطويرها لاحقاً
+            alert('🃏 بطاقة الخروج من السجن غير متوفرة حالياً');
+            handleJailTurn(player);
+        }
+
+        // إرسال اللاعب إلى السجن
+        function sendToJail(player) {
+            player.position = 10;
+            playersInJail[player.id] = {
+                turnsInJail: 0
+            };
+            movePlayerToken(player.id, 10);
+            alert(`🚔 ${player.name} ذهب إلى السجن!`);
+        }
+
         // دالة لتحريك اللاعب
         function movePlayer(spaces) {
             const player = players[currentPlayerIndex];
@@ -1732,9 +1932,7 @@
                 updatePlayerInfo();
                 alert(`دفعت ضريبة مقدارها ${property.amount} ريال`);
             } else if (property.type === 'goToJail') {
-                players[currentPlayerIndex].position = 10; // السجن
-                movePlayerToken(players[currentPlayerIndex].id, 10);
-                alert('اذهب إلى السجن!');
+                sendToJail(players[currentPlayerIndex]);
                 endTurn();
             } else if (property.ownedBy === null && (property.price || property.type === 'station' || property.type === 'utility')) {
                 // عرض نافذة لشراء العقار
@@ -1759,18 +1957,12 @@
             const owner = players.find(p => p.id === property.ownedBy);
             const currentPlayer = players[currentPlayerIndex];
             
-            let rent = property.rent;
-            if (property.type === 'station') {
-                // احتساب الإيجار لمحطات القطار
-                const ownedStations = properties.filter(p => p.type === 'station' && p.ownedBy === owner.id).length;
-                rent = 25 * Math.pow(2, ownedStations - 1);
-            } else if (property.type === 'utility') {
-                // احتساب الإيجار للمرافق
-                const diceTotal = parseInt(document.getElementById('dice1').textContent) + 
-                                  parseInt(document.getElementById('dice2').textContent);
-                const ownedUtilities = properties.filter(p => p.type === 'utility' && p.ownedBy === owner.id).length;
-                rent = ownedUtilities === 1 ? diceTotal * 4 : diceTotal * 10;
+            if (property.mortgaged) {
+                alert(`العقار ${property.name} مرهون، لا إيجار عليه.`);
+                return;
             }
+            
+            let rent = calculateRent(property);
             
             currentPlayer.money -= rent;
             owner.money += rent;
@@ -1778,10 +1970,19 @@
             alert(`دفعت إيجار ${rent} ريال لـ ${owner.name} عن ${property.name}`);
             updatePlayerInfo();
             
-            if (currentPlayer.money < 0) {
-                alert(`يا للأسف! ${currentPlayer.name} أعلن إفلاسه!`);
+            if (checkBankruptcy(currentPlayer)) {
+                alert(`💔 يا للأسف! ${currentPlayer.name} أعلن إفلاسه!`);
+                
+                // نقل جميع أصول المفلس إلى المالك
+                const bankruptPlayerProperties = properties.filter(p => p.ownedBy === currentPlayer.id);
+                bankruptPlayerProperties.forEach(prop => {
+                    prop.ownedBy = owner.id;
+                    prop.mortgaged = false; // إلغاء الرهن
+                });
+                
                 // إزالة اللاعب من اللعبة
                 players.splice(currentPlayerIndex, 1);
+                
                 if (players.length === 1) {
                     endGame(players[0]);
                     return;
@@ -1792,42 +1993,249 @@
             endTurn();
         }
 
-        // سحب بطاقة فرصة أو خزينة المجتمع
-        function drawCard(type) {
-            const cards = {
-                chance: [
-                    "تقدم إلى قصر العلم. إذا مررت بالبدء، استلم 200 ريال",
-                    "اذهب مباشرة إلى السجن. لا تمر بالبدء ولا تستلم 200 ريال",
-                    "احصل على رخصة بناء. يمكنك بناء منزل إضافي في أي عقار تمتلكه",
-                    "لقد فزت بجائزة مهرجان مسقط. استلم 50 ريال",
-                    "تم اختيارك سفيراً للسياحة العمانية. استلم 100 ريال من كل لاعب"
-                ],
-                chest: [
-                    "ورثت أرضاً في صلالة. استلم 100 ريال",
-                    "دفعت رسوم مدرسة لأطفالك. ادفع 50 ريال",
-                    "بيعك لبعض المنتجات التقليدية. استلم 20 ريال",
-                    "سددت لك البنك قرضاً. استلم 150 ريال",
-                    "دفعت فاتورة كهرباء. ادفع 100 ريال"
-                ]
-            };
-            
-            const randomCard = cards[type][Math.floor(Math.random() * cards[type].length)];
-            alert(randomCard);
-            
-            // معالجة بعض التأثيرات (مبسطة)
-            if (randomCard.includes("استلم")) {
-                const amount = parseInt(randomCard.match(/\d+/)[0]);
-                players[currentPlayerIndex].money += amount;
-            } else if (randomCard.includes("ادفع")) {
-                const amount = parseInt(randomCard.match(/\d+/)[0]);
-                players[currentPlayerIndex].money -= amount;
-            } else if (randomCard.includes("اذهب مباشرة إلى السجن")) {
-                players[currentPlayerIndex].position = 10;
-                movePlayerToken(players[currentPlayerIndex].id, 10);
+        // دالة حساب الإيجار المحسنة
+        function calculateRent(property) {
+            if (property.type === 'station') {
+                // احتساب الإيجار لمحطات القطار
+                const owner = players.find(p => p.id === property.ownedBy);
+                const ownedStations = properties.filter(p => p.type === 'station' && p.ownedBy === owner.id).length;
+                return 25 * Math.pow(2, ownedStations - 1);
+            } else if (property.type === 'utility') {
+                // احتساب الإيجار للمرافق
+                const diceTotal = parseInt(document.getElementById('dice1').textContent) + 
+                                  parseInt(document.getElementById('dice2').textContent);
+                const owner = players.find(p => p.id === property.ownedBy);
+                const ownedUtilities = properties.filter(p => p.type === 'utility' && p.ownedBy === owner.id).length;
+                return ownedUtilities === 1 ? diceTotal * 4 : diceTotal * 10;
+            } else if (property.houses !== undefined) {
+                // عقارات عادية
+                if (property.houses === 0) {
+                    // تحقق من امتلاك كامل المجموعة
+                    const owner = players.find(p => p.id === property.ownedBy);
+                    const sameColorProperties = properties.filter(p => p.color === property.color && p.color);
+                    const ownedSameColor = sameColorProperties.filter(p => p.ownedBy === owner.id);
+                    
+                    if (ownedSameColor.length === sameColorProperties.length) {
+                        return property.rent * 2; // ضعف الإيجار لامتلاك المجموعة كاملة
+                    }
+                    return property.rent;
+                } else if (property.houses === 5) {
+                    // فندق
+                    return property.rent * 12;
+                } else {
+                    // بيوت (1-4)
+                    const multipliers = [1, 5, 15, 45, 100];
+                    return Math.floor(property.rent * multipliers[property.houses] / 10);
+                }
             }
             
+            return property.rent || 0;
+        }
+
+        // سحب بطاقة فرصة أو خزينة المجتمع
+        function drawCard(type) {
+            const chanceCards = [
+                { 
+                    text: "تقدم إلى قصر العلم. إذا مررت بالبدء، استلم 200 ريال",
+                    action: () => moveToProperty(13, true)
+                },
+                { 
+                    text: "اذهب مباشرة إلى السجن. لا تمر بالبدء ولا تستلم 200 ريال",
+                    action: () => moveToProperty(10, false)
+                },
+                { 
+                    text: "تقدم إلى البدء واستلم 200 ريال",
+                    action: () => moveToProperty(0, false)
+                },
+                { 
+                    text: "ادفع لكل لاعب 50 ريال",
+                    action: () => payToAllPlayers(50)
+                },
+                { 
+                    text: "احصل على 150 ريال من البنك",
+                    action: () => receiveFromBank(150)
+                },
+                { 
+                    text: "ارجع ثلاث مربعات للخلف",
+                    action: () => movePlayerBackward(3)
+                },
+                { 
+                    text: "تقدم إلى أقرب ميناء وادفع ضعف الإيجار",
+                    action: () => moveToNearestStation()
+                },
+                { 
+                    text: "مصاريف إصلاح العقارات: ادفع 25 ريال لكل بيت و 100 ريال لكل فندق",
+                    action: () => payRepairCosts(25, 100)
+                }
+            ];
+
+            const communityCards = [
+                { 
+                    text: "خطأ في البنك لصالحك، احصل على 200 ريال",
+                    action: () => receiveFromBank(200)
+                },
+                { 
+                    text: "رسوم طبيب، ادفع 50 ريال",
+                    action: () => payToBank(50)
+                },
+                { 
+                    text: "من بيع الأسهم احصل على 50 ريال",
+                    action: () => receiveFromBank(50)
+                },
+                { 
+                    text: "عيد ميلادك - احصل على 10 ريال من كل لاعب",
+                    action: () => receiveFromAllPlayers(10)
+                },
+                { 
+                    text: "احصل على 100 ريال",
+                    action: () => receiveFromBank(100)
+                },
+                { 
+                    text: "ادفع رسوم المستشفى 100 ريال",
+                    action: () => payToBank(100)
+                },
+                { 
+                    text: "ادفع رسوم المدرسة 50 ريال",
+                    action: () => payToBank(50)
+                },
+                { 
+                    text: "استلم 25 ريال خدمات استشارية",
+                    action: () => receiveFromBank(25)
+                }
+            ];
+            
+            const cards = type === 'chance' ? chanceCards : communityCards;
+            const card = cards[Math.floor(Math.random() * cards.length)];
+            
+            alert(`📝 ${type === 'chance' ? 'فرصة' : 'خزينة المجتمع'}\n\n${card.text}`);
+            
+            // تنفيذ تأثير البطاقة
+            card.action();
+            
             updatePlayerInfo();
-            endTurn();
+        }
+
+        // وظائف تأثيرات البطاقات
+        function moveToProperty(propertyId, collectPassGo) {
+            const player = players[currentPlayerIndex];
+            const oldPosition = player.position;
+            
+            if (collectPassGo && propertyId < oldPosition) {
+                player.money += 200;
+                alert("مررت بالبدء، احصل على 200 ريال!");
+            }
+            
+            player.position = propertyId;
+            movePlayerToken(player.id, player.position);
+            
+            // إذا كان السجن، أرسل اللاعب إلى السجن
+            if (propertyId === 10) {
+                sendToJail(player);
+            } else {
+                setTimeout(() => handlePropertyLanding(player.position), 500);
+            }
+        }
+
+        function movePlayerBackward(spaces) {
+            const player = players[currentPlayerIndex];
+            player.position = (player.position - spaces + 40) % 40;
+            movePlayerToken(player.id, player.position);
+            setTimeout(() => handlePropertyLanding(player.position), 500);
+        }
+
+        function moveToNearestStation() {
+            const player = players[currentPlayerIndex];
+            const stations = [5, 15, 25, 35]; // مواقع المحطات
+            
+            let nearest = stations[0];
+            for (let station of stations) {
+                if (station > player.position) {
+                    nearest = station;
+                    break;
+                }
+            }
+            
+            const oldPosition = player.position;
+            if (nearest < oldPosition) {
+                player.money += 200;
+                alert("مررت بالبدء، احصل على 200 ريال!");
+            }
+            
+            player.position = nearest;
+            movePlayerToken(player.id, player.position);
+            
+            // دفع ضعف الإيجار
+            setTimeout(() => {
+                const station = properties[nearest];
+                if (station.ownedBy && station.ownedBy !== player.id) {
+                    const normalRent = calculateRent(station);
+                    const doubleRent = normalRent * 2;
+                    
+                    const owner = players.find(p => p.id === station.ownedBy);
+                    player.money -= doubleRent;
+                    owner.money += doubleRent;
+                    
+                    alert(`دفعت ضعف الإيجار ${doubleRent} ريال لـ ${owner.name} عن ${station.name}`);
+                    updatePlayerInfo();
+                }
+            }, 500);
+        }
+
+        function payToAllPlayers(amount) {
+            const currentPlayer = players[currentPlayerIndex];
+            const totalToPay = amount * (players.length - 1);
+            
+            currentPlayer.money -= totalToPay;
+            
+            players.forEach(player => {
+                if (player.id !== currentPlayer.id) {
+                    player.money += amount;
+                }
+            });
+            
+            alert(`دفعت ${totalToPay} ريال للاعبين الآخرين`);
+        }
+
+        function receiveFromAllPlayers(amount) {
+            const currentPlayer = players[currentPlayerIndex];
+            const totalToReceive = amount * (players.length - 1);
+            
+            currentPlayer.money += totalToReceive;
+            
+            players.forEach(player => {
+                if (player.id !== currentPlayer.id) {
+                    player.money -= amount;
+                }
+            });
+            
+            alert(`استلمت ${totalToReceive} ريال من اللاعبين الآخرين`);
+        }
+
+        function receiveFromBank(amount) {
+            players[currentPlayerIndex].money += amount;
+            alert(`استلمت ${amount} ريال من البنك`);
+        }
+
+        function payToBank(amount) {
+            players[currentPlayerIndex].money -= amount;
+            alert(`دفعت ${amount} ريال للبنك`);
+        }
+
+        function payRepairCosts(housePrice, hotelPrice) {
+            const player = players[currentPlayerIndex];
+            const ownedProperties = properties.filter(p => p.ownedBy === player.id && p.houses !== undefined);
+            
+            let totalCost = 0;
+            ownedProperties.forEach(prop => {
+                if (prop.houses === 5) {
+                    totalCost += hotelPrice; // فندق
+                } else {
+                    totalCost += prop.houses * housePrice; // بيوت
+                }
+            });
+            
+            player.money -= totalCost;
+            alert(`دفعت ${totalCost} ريال تكاليف إصلاح للمباني`);
         }
 
         // دالة لإنهاء الدور
@@ -1849,18 +2257,376 @@
             const ownedProperties = properties.filter(p => p.ownedBy === player.id);
             ownedProperties.forEach(prop => {
                 const li = document.createElement('li');
-                li.textContent = `${prop.name}`;
-                if (prop.type === 'station' || prop.type === 'utility' || prop.houses > 0) {
-                    li.textContent += ` (${prop.rent} ريال إيجار)`;
+                let propertyInfo = `${prop.name}`;
+                
+                if (prop.mortgaged) {
+                    propertyInfo += ' 🔒 (مرهون)';
+                } else if (prop.houses !== undefined) {
+                    if (prop.houses === 5) {
+                        propertyInfo += ' 🏨';
+                    } else if (prop.houses > 0) {
+                        propertyInfo += ' 🏠'.repeat(prop.houses);
+                    }
+                    propertyInfo += ` (${calculateRent(prop)} ريال إيجار)`;
+                } else if (prop.type === 'station' || prop.type === 'utility') {
+                    propertyInfo += ` (${calculateRent(prop)} ريال إيجار)`;
                 }
+                
+                li.textContent = propertyInfo;
                 propertiesList.appendChild(li);
             });
+        }
+
+        // وظائف إدارة البناء والرهن
+        function showBuildingManagement() {
+            const player = players[currentPlayerIndex];
+            const buildableProperties = properties.filter(p => 
+                p.ownedBy === player.id && 
+                p.houses !== undefined && 
+                !p.mortgaged &&
+                canBuildOnProperty(p)
+            );
+            
+            const buildableList = document.getElementById('buildable-properties-list');
+            buildableList.innerHTML = '';
+            
+            if (buildableProperties.length === 0) {
+                buildableList.innerHTML = '<p>لا توجد عقارات قابلة للبناء</p>';
+            } else {
+                buildableProperties.forEach(prop => {
+                    const div = document.createElement('div');
+                    div.className = 'property-item';
+                    div.style.cssText = 'margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 5px;';
+                    
+                    const housesDisplay = prop.houses === 5 ? '🏨' : '🏠'.repeat(prop.houses);
+                    div.innerHTML = `
+                        <strong>${prop.name}</strong> ${housesDisplay}<br>
+                        <small>تكلفة البناء: ${prop.buildingCost} ريال</small><br>
+                        <button onclick="buildHouse(${prop.id})" class="oman-btn" style="font-size: 12px; margin: 2px;">
+                            ${prop.houses === 4 ? '🏨 بناء فندق' : '🏠 بناء بيت'}
+                        </button>
+                        ${prop.houses > 0 ? `<button onclick="sellBuilding(${prop.id})" class="oman-btn" style="font-size: 12px; margin: 2px;">💰 بيع</button>` : ''}
+                    `;
+                    buildableList.appendChild(div);
+                });
+            }
+            
+            document.getElementById('building-management-modal').style.display = 'block';
+        }
+
+        function canBuildOnProperty(property) {
+            if (property.houses >= 5) return false; // لا يمكن البناء أكثر من فندق
+            
+            // تحقق من امتلاك كامل المجموعة
+            const player = players[currentPlayerIndex];
+            const sameColorProperties = properties.filter(p => p.color === property.color && p.color);
+            const ownedSameColor = sameColorProperties.filter(p => p.ownedBy === player.id);
+            
+            if (ownedSameColor.length !== sameColorProperties.length) return false;
+            
+            // تحقق من التوازن في البناء (فرق لا يزيد عن بيت واحد)
+            const minHouses = Math.min(...ownedSameColor.map(p => p.houses));
+            return property.houses <= minHouses;
+        }
+
+        function buildHouse(propertyId) {
+            const property = properties.find(p => p.id === propertyId);
+            const player = players[currentPlayerIndex];
+            
+            if (player.money < property.buildingCost) {
+                alert('❌ ليس لديك ما يكفي من المال للبناء!');
+                return;
+            }
+            
+            if (!canBuildOnProperty(property)) {
+                alert('❌ لا يمكن البناء على هذا العقار الآن!');
+                return;
+            }
+            
+            player.money -= property.buildingCost;
+            property.houses++;
+            
+            const buildingType = property.houses === 5 ? 'فندق' : 'بيت';
+            alert(`🎉 تم بناء ${buildingType} في ${property.name} بتكلفة ${property.buildingCost} ريال`);
+            
+            updatePlayerInfo();
+            showBuildingManagement(); // تحديث القائمة
+        }
+
+        function sellBuilding(propertyId) {
+            const property = properties.find(p => p.id === propertyId);
+            const player = players[currentPlayerIndex];
+            
+            if (property.houses === 0) {
+                alert('❌ لا توجد مباني لبيعها!');
+                return;
+            }
+            
+            // تحقق من التوازن في البيع
+            const sameColorProperties = properties.filter(p => p.color === property.color && p.color && p.ownedBy === player.id);
+            const maxHouses = Math.max(...sameColorProperties.map(p => p.houses));
+            
+            if (property.houses < maxHouses) {
+                alert('❌ يجب بيع المباني بالتساوي! ابدأ بالعقارات التي بها مباني أكثر.');
+                return;
+            }
+            
+            const sellPrice = Math.floor(property.buildingCost / 2);
+            player.money += sellPrice;
+            property.houses--;
+            
+            const buildingType = property.houses === 4 ? 'فندق' : 'بيت';
+            alert(`💰 تم بيع ${buildingType} من ${property.name} بـ ${sellPrice} ريال`);
+            
+            updatePlayerInfo();
+            showBuildingManagement(); // تحديث القائمة
+        }
+
+        function showMortgageManagement() {
+            const player = players[currentPlayerIndex];
+            const mortgageableProperties = properties.filter(p => 
+                p.ownedBy === player.id && 
+                (p.houses === undefined || p.houses === 0) // فقط العقارات بدون مباني
+            );
+            
+            const mortgageableList = document.getElementById('mortgageable-properties-list');
+            mortgageableList.innerHTML = '';
+            
+            if (mortgageableProperties.length === 0) {
+                mortgageableList.innerHTML = '<p>لا توجد عقارات قابلة للرهن</p>';
+            } else {
+                mortgageableProperties.forEach(prop => {
+                    const div = document.createElement('div');
+                    div.className = 'property-item';
+                    div.style.cssText = 'margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 5px;';
+                    
+                    const mortgageValue = Math.floor(prop.price / 2);
+                    const unmortgageValue = Math.floor(mortgageValue * 1.1);
+                    
+                    div.innerHTML = `
+                        <strong>${prop.name}</strong><br>
+                        <small>${prop.mortgaged ? 'مرهون' : 'غير مرهون'}</small><br>
+                        ${prop.mortgaged ? 
+                            `<button onclick="unmortgageProperty(${prop.id})" class="oman-btn" style="font-size: 12px;">🔓 إلغاء الرهن (${unmortgageValue} ريال)</button>` :
+                            `<button onclick="mortgageProperty(${prop.id})" class="oman-btn" style="font-size: 12px;">🔒 رهن (${mortgageValue} ريال)</button>`
+                        }
+                    `;
+                    mortgageableList.appendChild(div);
+                });
+            }
+            
+            document.getElementById('mortgage-management-modal').style.display = 'block';
+        }
+
+        function mortgageProperty(propertyId) {
+            const property = properties.find(p => p.id === propertyId);
+            const player = players[currentPlayerIndex];
+            
+            if (property.mortgaged) {
+                alert('❌ العقار مرهون بالفعل!');
+                return;
+            }
+            
+            const mortgageValue = Math.floor(property.price / 2);
+            property.mortgaged = true;
+            player.money += mortgageValue;
+            
+            alert(`🔒 تم رهن ${property.name} مقابل ${mortgageValue} ريال`);
+            updatePlayerInfo();
+            showMortgageManagement(); // تحديث القائمة
+        }
+
+        function unmortgageProperty(propertyId) {
+            const property = properties.find(p => p.id === propertyId);
+            const player = players[currentPlayerIndex];
+            
+            if (!property.mortgaged) {
+                alert('❌ العقار غير مرهون!');
+                return;
+            }
+            
+            const unmortgageValue = Math.floor(property.price / 2 * 1.1);
+            
+            if (player.money < unmortgageValue) {
+                alert('❌ ليس لديك ما يكفي من المال لإلغاء الرهن!');
+                return;
+            }
+            
+            property.mortgaged = false;
+            player.money -= unmortgageValue;
+            
+            alert(`🔓 تم إلغاء رهن ${property.name} بـ ${unmortgageValue} ريال`);
+            updatePlayerInfo();
+            showMortgageManagement(); // تحديث القائمة
+        }
+
+        // إظهار إحصائيات اللعبة
+        function showGameStats() {
+            const statsContent = document.getElementById('game-stats-content');
+            statsContent.innerHTML = '';
+            
+            // حساب إحصائيات شاملة لكل لاعب
+            const playersStats = players.map(player => {
+                const ownedProperties = properties.filter(p => p.ownedBy === player.id);
+                let totalPropertyValue = 0;
+                let totalBuildingValue = 0;
+                let totalRentIncome = 0;
+                let mortgagedValue = 0;
+                
+                ownedProperties.forEach(prop => {
+                    if (prop.mortgaged) {
+                        mortgagedValue += Math.floor(prop.price / 2);
+                    } else {
+                        totalPropertyValue += prop.price;
+                        totalRentIncome += calculateRent(prop);
+                    }
+                    
+                    if (prop.houses > 0) {
+                        totalBuildingValue += prop.houses * prop.buildingCost;
+                    }
+                });
+                
+                const totalWealth = player.money + totalPropertyValue + totalBuildingValue + mortgagedValue;
+                
+                return {
+                    ...player,
+                    ownedProperties: ownedProperties.length,
+                    totalPropertyValue,
+                    totalBuildingValue,
+                    totalRentIncome,
+                    mortgagedValue,
+                    totalWealth
+                };
+            }).sort((a, b) => b.totalWealth - a.totalWealth);
+            
+            // إنشاء HTML للإحصائيات
+            let statsHTML = '<div style="text-align: center; margin-bottom: 20px;">';
+            statsHTML += '<h3>🏆 ترتيب اللاعبين حسب الثروة الإجمالية</h3>';
+            statsHTML += '</div>';
+            
+            playersStats.forEach((player, index) => {
+                const position = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+                const isCurrentPlayer = player.id === players[currentPlayerIndex].id;
+                
+                statsHTML += `
+                    <div style="margin: 15px 0; padding: 15px; border: 2px solid ${isCurrentPlayer ? '#FFD700' : '#ddd'}; 
+                         border-radius: 10px; background: ${isCurrentPlayer ? 'rgba(255,215,0,0.1)' : 'white'};">
+                        <h4 style="margin: 0 0 10px 0; color: var(--oman-green);">
+                            ${position} ${player.token} ${player.name} ${isCurrentPlayer ? '(دورك الآن)' : ''}
+                        </h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px;">
+                            <div><strong>💰 النقد:</strong> ${player.money} ريال</div>
+                            <div><strong>🏘️ العقارات:</strong> ${player.ownedProperties} عقار</div>
+                            <div><strong>🏠 قيمة المباني:</strong> ${player.totalBuildingValue} ريال</div>
+                            <div><strong>💳 قيمة العقارات:</strong> ${player.totalPropertyValue} ريال</div>
+                            <div><strong>🔒 العقارات المرهونة:</strong> ${player.mortgagedValue} ريال</div>
+                            <div><strong>📈 الإيجار المحتمل:</strong> ${player.totalRentIncome} ريال</div>
+                        </div>
+                        <div style="margin-top: 10px; padding: 5px; background: var(--oman-green); color: white; 
+                             border-radius: 5px; text-align: center; font-weight: bold;">
+                            💎 الثروة الإجمالية: ${player.totalWealth} ريال
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // إحصائيات عامة عن اللعبة
+            const totalHouses = properties.reduce((sum, p) => sum + (p.houses > 0 && p.houses < 5 ? p.houses : 0), 0);
+            const totalHotels = properties.reduce((sum, p) => sum + (p.houses === 5 ? 1 : 0), 0);
+            const unownedProperties = properties.filter(p => p.ownedBy === null && p.price).length;
+            
+            statsHTML += `
+                <div style="margin-top: 20px; padding: 15px; background: var(--light-green); 
+                     border-radius: 10px; color: white;">
+                    <h4 style="margin: 0 0 10px 0; text-align: center;">📊 إحصائيات عامة</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px;">
+                        <div><strong>🏠 إجمالي البيوت:</strong> ${totalHouses}</div>
+                        <div><strong>🏨 إجمالي الفنادق:</strong> ${totalHotels}</div>
+                        <div><strong>🏘️ العقارات المتاحة:</strong> ${unownedProperties}</div>
+                        <div><strong>👥 عدد اللاعبين:</strong> ${players.length}</div>
+                    </div>
+                </div>
+            `;
+            
+            statsContent.innerHTML = statsHTML;
+            gameStatsModal.style.display = 'block';
         }
 
         // نهاية اللعبة
         function endGame(winner) {
             gameStarted = false;
-            alert(`مبروك! ${winner.name} فاز باللعبة!`);
+            
+            // حساب إجمالي ثروة كل لاعب
+            const finalScores = players.map(player => {
+                let totalWealth = player.money;
+                
+                // إضافة قيمة العقارات
+                const ownedProperties = properties.filter(p => p.ownedBy === player.id);
+                ownedProperties.forEach(prop => {
+                    if (!prop.mortgaged) {
+                        totalWealth += prop.price;
+                        if (prop.houses) {
+                            totalWealth += prop.houses * prop.buildingCost;
+                        }
+                    } else {
+                        totalWealth += Math.floor(prop.price / 2); // قيمة العقار المرهون
+                    }
+                });
+                
+                return {
+                    name: player.name,
+                    cash: player.money,
+                    totalWealth: totalWealth
+                };
+            }).sort((a, b) => b.totalWealth - a.totalWealth);
+            
+            let resultMessage = `🎉 انتهت اللعبة! 🎉\n\n🏆 الفائز: ${winner.name}\n\n📊 النتائج النهائية:\n`;
+            
+            finalScores.forEach((score, index) => {
+                const position = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+                resultMessage += `${position} ${score.name}: ${score.totalWealth} ريال (نقد: ${score.cash})\n`;
+            });
+            
+            alert(resultMessage);
+            
+            // إعادة تعيين اللعبة
+            if (confirm('هل تريد بدء لعبة جديدة؟')) {
+                location.reload();
+            }
+        }
+
+        // فحص حالة الإفلاس
+        function checkBankruptcy(player) {
+            if (player.money >= 0) return false;
+            
+            // حساب إجمالي القيمة التي يمكن الحصول عليها من بيع المباني ورهن العقارات
+            const ownedProperties = properties.filter(p => p.ownedBy === player.id);
+            let availableAssets = 0;
+            
+            ownedProperties.forEach(prop => {
+                // قيمة بيع المباني
+                if (prop.houses > 0) {
+                    availableAssets += prop.houses * Math.floor(prop.buildingCost / 2);
+                }
+                
+                // قيمة رهن العقار (إذا لم يكن مرهوناً)
+                if (!prop.mortgaged) {
+                    availableAssets += Math.floor(prop.price / 2);
+                }
+            });
+            
+            // إذا كان إجمالي الأصول + النقد لا يكفي لسداد الدين
+            if (player.money + availableAssets < 0) {
+                return true; // مفلس
+            }
+            
+            // عرض خيارات للاعب لبيع الأصول
+            if (availableAssets > 0) {
+                alert(`💰 يمكنك بيع أصولك للحصول على حتى ${availableAssets} ريال إضافي.\nاستخدم أزرار إدارة العقارات لبيع المباني أو رهن العقارات.`);
+                return false;
+            }
+            
+            return true;
         }
 
         // إعداد اللاعبين المحدث
@@ -2617,12 +3383,86 @@
             }
         });
         
-        // بدء المزاد (مبسطة)
+        // بدء المزاد (محسن)
         auctionPropertyBtn.addEventListener('click', function() {
             playClickSound();
-            alert('🔨 المزاد سيبدأ (هذه الميزة تحتاج لتطوير إضافي)');
+            startAuction(currentProperty);
             buyPropertyModal.style.display = 'none';
+        });
+
+        // نظام المزاد البسيط
+        function startAuction(property) {
+            let highestBid = 10; // سعر البداية
+            let highestBidder = null;
+            let auctionActive = true;
+            
+            alert(`🔨 بدء المزاد على ${property.name}\nسعر البداية: ${highestBid} ريال`);
+            
+            // جولات المزاد
+            for (let round = 0; round < players.length * 2 && auctionActive; round++) {
+                const playerIndex = round % players.length;
+                const player = players[playerIndex];
+                
+                if (player.money < highestBid + 10) continue; // لا يملك مالاً كافياً
+                
+                const bidAmount = prompt(`${player.name}, السعر الحالي: ${highestBid} ريال\nأدخل عرضك (أو 0 للانسحاب):`);
+                
+                if (bidAmount === null || parseInt(bidAmount) === 0) {
+                    continue; // انسحب من المزاد
+                }
+                
+                const bid = parseInt(bidAmount);
+                
+                if (bid > highestBid && bid <= player.money) {
+                    highestBid = bid;
+                    highestBidder = player;
+                } else if (bid <= highestBid) {
+                    alert('يجب أن يكون عرضك أعلى من السعر الحالي!');
+                } else {
+                    alert('ليس لديك مال كافٍ لهذا العرض!');
+                }
+            }
+            
+            // انتهاء المزاد
+            if (highestBidder) {
+                highestBidder.money -= highestBid;
+                property.ownedBy = highestBidder.id;
+                highestBidder.properties.push(property.id);
+                
+                alert(`🎉 فاز ${highestBidder.name} بالمزاد على ${property.name} بـ ${highestBid} ريال!`);
+                updatePlayerInfo();
+                renderBoard();
+            } else {
+                alert('🚫 لم يشارك أحد في المزاد. العقار يبقى متاحاً.');
+            }
+            
             endTurn();
+        }
+
+        // أزرار إدارة البناء والرهن الجديدة
+        buildHousesBtn.addEventListener('click', function() {
+            playClickSound();
+            showBuildingManagement();
+        });
+
+        buildHotelBtn.addEventListener('click', function() {
+            playClickSound();
+            showBuildingManagement();
+        });
+
+        sellBuildingsBtn.addEventListener('click', function() {
+            playClickSound();
+            showBuildingManagement();
+        });
+
+        mortgagePropertyBtn.addEventListener('click', function() {
+            playClickSound();
+            showMortgageManagement();
+        });
+
+        gameStatsBtn.addEventListener('click', function() {
+            playClickSound();
+            showGameStats();
         });
 
         // دالة للبدء باللعبة مع الطلاب المختارين
