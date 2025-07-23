@@ -700,6 +700,36 @@
             text-align: center;
         }
 
+        /* مركز القيادة */
+        #expertSelectionArea {
+            transition: all 0.3s ease;
+        }
+
+        #currentExpertDisplay {
+            transition: all 0.3s ease;
+        }
+
+        #expertSelectionButtons .btn {
+            font-size: 0.85rem;
+            padding: 8px 12px;
+        }
+
+        /* تأثيرات مركز القيادة */
+        .control-section .control-title {
+            position: relative;
+        }
+
+        .control-section .control-title:before {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, currentColor, transparent);
+            opacity: 0.5;
+        }
+
         @keyframes popIn {
             from { 
                 opacity: 0; 
@@ -844,22 +874,46 @@
                         <button class="btn btn-info" onclick="showGameSetup()">📋 إعداد الصف والطريقة</button>
                     </div>
                     
-                    <!-- اختيار الطالب -->
-                    <div class="control-section" id="studentSelectionSection" style="display: none;">
-                        <div class="control-title">👨‍🎓 اختيار الطالب</div>
-                        <div id="selectionButtons">
-                            <!-- سيتم إضافة الأزرار حسب طريقة الاختيار -->
-                        </div>
-                        <div id="currentPlayerInfo" style="margin-top: 10px; padding: 10px; background: rgba(0,204,0,0.2); 
-                                                           border: 1px solid var(--safe-green); border-radius: 5px; display: none;">
-                            <div id="currentPlayerText"></div>
-                        </div>
-                    </div>            <!-- التحكم في القنبلة -->
+                    <!-- مركز القيادة والتحكم -->
             <div class="control-section">
-                <div class="control-title">💣 التحكم في القنبلة</div>
-                <button class="btn btn-danger" onclick="startBomb()">🚀 بدء القنبلة</button>
-                <button class="btn btn-warning" onclick="pauseBomb()">⏸️ إيقاف مؤقت</button>
-                <button class="btn btn-info" onclick="resetBomb()">🔄 إعادة تعيين</button>
+                <div class="control-title">🎛️ مركز القيادة</div>
+                
+                <!-- اختيار الخبير -->
+                <div id="expertSelectionArea" style="display: none; margin-bottom: 15px; 
+                                                    background: rgba(255,193,7,0.1); border: 1px solid var(--warning-orange); 
+                                                    border-radius: 8px; padding: 12px;">
+                    <div style="font-size: 0.9rem; color: var(--warning-orange); margin-bottom: 8px; text-align: center;">
+                        👨‍🎓 اختيار خبير المتفجرات
+                    </div>
+                    <div id="expertSelectionButtons" style="display: grid; gap: 8px;">
+                        <!-- سيتم إضافة الأزرار هنا -->
+                    </div>
+                </div>
+                
+                <!-- معلومات الخبير الحالي -->
+                <div id="currentExpertDisplay" style="display: none; margin-bottom: 15px; 
+                                                     background: rgba(0,204,0,0.1); border: 1px solid var(--safe-green); 
+                                                     border-radius: 8px; padding: 10px; text-align: center;">
+                    <div style="font-size: 0.85rem; color: var(--safe-green); margin-bottom: 5px;">
+                        🎯 خبير المتفجرات الحالي
+                    </div>
+                    <div id="currentExpertInfo" style="font-weight: bold; color: white; font-size: 0.9rem;"></div>
+                    <button class="btn btn-warning" onclick="changeExpert()" 
+                            style="margin-top: 8px; padding: 6px 12px; font-size: 0.8rem;">
+                        � تغيير الخبير
+                    </button>
+                </div>
+                
+                <!-- أزرار التحكم الرئيسية -->
+                <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 12px;">
+                    <button class="btn btn-danger" onclick="startBomb()" style="width: 100%; margin-bottom: 8px;">
+                        🚀 بدء المهمة
+                    </button>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <button class="btn btn-warning" onclick="pauseBomb()">⏸️ إيقاف</button>
+                        <button class="btn btn-info" onclick="resetBomb()">🔄 إعادة</button>
+                    </div>
+                </div>
             </div>
             
             <!-- الإجابات -->
@@ -1399,7 +1453,7 @@
         function initializeGame() {
             loadSavedSettings();
             updateDisplay();
-            updateStudentSelectionUI();
+            updateExpertControlCenter(); // محدث لمركز القيادة
             // تحديث رسالة الحالة بناءً على الإعدادات المحفوظة
             updateGameStateMessage();
         }
@@ -1858,7 +1912,7 @@
                 // تحديث العرض
                 updateDisplay();
                 updateGameStateMessage();
-                updateStudentSelectionUI();
+                updateExpertControlCenter(); // محدث لمركز القيادة
                 
                 // تأكيد الحفظ
                 showSaveConfirmation();
@@ -1888,55 +1942,65 @@
             }
         }
 
-        // تحديث أزرار اختيار الطالب حسب طريقة الاختيار
-        function updateStudentSelectionUI() {
-            const selectionSection = document.getElementById('studentSelectionSection');
-            const selectionButtons = document.getElementById('selectionButtons');
-            const currentPlayerInfo = document.getElementById('currentPlayerInfo');
-            const currentPlayerText = document.getElementById('currentPlayerText');
+        // تحديث مركز القيادة مع منطقة اختيار الخبير
+        function updateExpertControlCenter() {
+            const expertSelectionArea = document.getElementById('expertSelectionArea');
+            const expertSelectionButtons = document.getElementById('expertSelectionButtons');
+            const currentExpertDisplay = document.getElementById('currentExpertDisplay');
+            const currentExpertInfo = document.getElementById('currentExpertInfo');
             
             if (!selectedClass) {
-                selectionSection.style.display = 'none';
+                expertSelectionArea.style.display = 'none';
+                currentExpertDisplay.style.display = 'none';
                 return;
             }
             
-            selectionSection.style.display = 'block';
+            expertSelectionArea.style.display = 'block';
             
             if (selectionMethod === 'manual') {
                 // أزرار للاختيار اليدوي
-                selectionButtons.innerHTML = `
-                    <button class="btn btn-warning" onclick="showQuickStudentSelection()">
-                        👆 اختيار طالب من ${selectedClass}
+                expertSelectionButtons.innerHTML = `
+                    <button class="btn btn-warning" onclick="showQuickStudentSelection()" style="width: 100%;">
+                        👆 اختيار من القائمة
                     </button>
                 `;
                 
                 if (gameState.currentStudent) {
-                    currentPlayerInfo.style.display = 'block';
-                    currentPlayerText.innerHTML = `
-                        <strong>👨‍🎓 الطالب الحالي:</strong> ${gameState.currentStudent}<br>
-                        <small>اضغط الزر أعلاه لتغيير الطالب</small>
+                    currentExpertDisplay.style.display = 'block';
+                    currentExpertInfo.innerHTML = `
+                        <strong>${gameState.currentStudent}</strong><br>
+                        <small style="color: var(--warning-orange);">${selectedClass}</small>
                     `;
                 } else {
-                    currentPlayerInfo.style.display = 'none';
+                    currentExpertDisplay.style.display = 'none';
                 }
                 
             } else if (selectionMethod === 'random') {
                 // أزرار للاختيار العشوائي
-                selectionButtons.innerHTML = `
-                    <button class="btn btn-warning" onclick="selectRandomStudent()">
-                        🎲 اختيار عشوائي من ${selectedClass}
+                expertSelectionButtons.innerHTML = `
+                    <button class="btn btn-warning" onclick="selectRandomStudent()" style="width: 100%;">
+                        🎲 اختيار عشوائي
                     </button>
                 `;
                 
                 if (gameState.currentStudent) {
-                    currentPlayerInfo.style.display = 'block';
-                    currentPlayerText.innerHTML = `
-                        <strong>🎲 الطالب الحالي:</strong> ${gameState.currentStudent}<br>
-                        <small>سيتم اختيار طالب جديد عند بدء القنبلة</small>
+                    currentExpertDisplay.style.display = 'block';
+                    currentExpertInfo.innerHTML = `
+                        <strong>${gameState.currentStudent}</strong><br>
+                        <small style="color: var(--warning-orange);">🎲 عشوائي من ${selectedClass}</small>
                     `;
                 } else {
-                    currentPlayerInfo.style.display = 'none';
+                    currentExpertDisplay.style.display = 'none';
                 }
+            }
+        }
+
+        // تغيير الخبير (وظيفة جديدة)
+        function changeExpert() {
+            if (selectionMethod === 'manual') {
+                showQuickStudentSelection();
+            } else {
+                selectRandomStudent();
             }
         }
 
@@ -1958,7 +2022,7 @@
             gameState.currentClass = selectedClass;
             
             updateDisplay();
-            updateStudentSelectionUI();
+            updateExpertControlCenter(); // محدث لمركز القيادة
             updateGameStateMessage();
             
             // تأثير بصري للاختيار
@@ -2117,7 +2181,7 @@
             gameState.currentClass = selectedClass;
             
             updateDisplay();
-            updateStudentSelectionUI();
+            updateExpertControlCenter(); // محدث لمركز القيادة
             updateGameStateMessage();
             
             closeModal('quickStudentModal');
@@ -2634,7 +2698,7 @@
                 
                 // تحديث الواجهة
                 updateDisplay();
-                updateStudentSelectionUI();
+                updateExpertControlCenter(); // محدث لمركز القيادة
                 
                 // عرض رسوم متحركة للاختيار العشوائي
                 showRandomSelectionForGame(randomStudent, selectedClass);
