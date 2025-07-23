@@ -740,6 +740,25 @@
                 transform: translate(-50%, -50%) scale(1); 
             }
         }
+        
+        @keyframes pointsFloat {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5) rotate(-10deg);
+            }
+            20% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.2) rotate(5deg);
+            }
+            50% {
+                opacity: 1;
+                transform: translate(-50%, -60%) scale(1) rotate(-2deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -70%) scale(0.8) rotate(0deg);
+            }
+        }
 
         /* التكيف مع الشاشات الصغيرة */
         @media (max-width: 1024px) {
@@ -1384,8 +1403,55 @@
                 <h2>📊 إحصائيات اللعبة</h2>
             </div>
             <div class="modal-body">
-                <!-- الإحصائيات سيتم إضافتها لاحقاً -->
-                <p style="text-align: center; padding: 50px;">سيتم إضافة الإحصائيات التفصيلية هنا...</p>
+                <div id="gameStatsContent" style="direction: rtl; text-align: right;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
+                        
+                        <!-- إحصائيات النقاط -->
+                        <div style="background: linear-gradient(135deg, #FFD700, #FFA500); padding: 20px; border-radius: 10px; text-align: center; color: #000;">
+                            <h3 style="margin: 0 0 10px 0;">🏆 النقاط الإجمالية</h3>
+                            <div style="font-size: 2rem; font-weight: bold;" id="statsPoints">0</div>
+                        </div>
+                        
+                        <!-- القنابل المفككة -->
+                        <div style="background: linear-gradient(135deg, #28a745, #20c997); padding: 20px; border-radius: 10px; text-align: center; color: white;">
+                            <h3 style="margin: 0 0 10px 0;">✅ القنابل المفككة</h3>
+                            <div style="font-size: 2rem; font-weight: bold;" id="statsDefused">0</div>
+                        </div>
+                        
+                        <!-- القنابل المنفجرة -->
+                        <div style="background: linear-gradient(135deg, #dc3545, #fd7e14); padding: 20px; border-radius: 10px; text-align: center; color: white;">
+                            <h3 style="margin: 0 0 10px 0;">💥 القنابل المنفجرة</h3>
+                            <div style="font-size: 2rem; font-weight: bold;" id="statsExploded">0</div>
+                        </div>
+                        
+                        <!-- معدل النجاح -->
+                        <div style="background: linear-gradient(135deg, #17a2b8, #6f42c1); padding: 20px; border-radius: 10px; text-align: center; color: white;">
+                            <h3 style="margin: 0 0 10px 0;">📈 معدل النجاح</h3>
+                            <div style="font-size: 2rem; font-weight: bold;" id="statsSuccessRate">0%</div>
+                        </div>
+                    </div>
+                    
+                    <!-- تفاصيل الطالب الحالي -->
+                    <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <h3 style="color: var(--oman-green); margin-bottom: 15px;">👨‍🎓 الطالب الحالي</h3>
+                        <div id="currentStudentStats">
+                            <p>لم يتم اختيار طالب بعد</p>
+                        </div>
+                    </div>
+                    
+                    <!-- إعدادات النقاط الحالية -->
+                    <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px;">
+                        <h3 style="color: var(--gold); margin-bottom: 15px;">⚙️ إعدادات النقاط الحالية</h3>
+                        <div id="currentPointsSettings">
+                            <p>جاري تحميل الإعدادات...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn btn-warning" onclick="resetGameStats()" style="margin-left: 10px;">🔄 إعادة تعيين الإحصائيات</button>
+                    <button class="btn btn-success" onclick="closeModal('statsModal')">✅ إغلاق</button>
+                </div>
             </div>
         </div>
     </div>
@@ -2397,6 +2463,32 @@
                     gameState.difficulty = settings.difficulty || 'medium';
                     gameState.totalBombs = settings.totalBombs || 5;
                     
+                    // تطبيق إعدادات النقاط والتعزيز على عناصر HTML
+                    if (document.getElementById('correctPoints')) {
+                        document.getElementById('correctPoints').value = settings.correctPoints || 100;
+                    }
+                    if (document.getElementById('timeMultiplier')) {
+                        document.getElementById('timeMultiplier').value = settings.timeMultiplier || 10;
+                    }
+                    if (document.getElementById('speedupTime')) {
+                        document.getElementById('speedupTime').value = settings.speedupTime || 10;
+                    }
+                    if (document.getElementById('customTime')) {
+                        document.getElementById('customTime').value = settings.customTime || 45;
+                    }
+                    if (document.getElementById('totalBombs')) {
+                        document.getElementById('totalBombs').value = settings.totalBombs || 5;
+                    }
+                    if (document.getElementById('soundEnabled')) {
+                        document.getElementById('soundEnabled').checked = settings.soundEnabled !== false;
+                    }
+                    if (document.getElementById('speedupEnabled')) {
+                        document.getElementById('speedupEnabled').checked = settings.speedupEnabled !== false;
+                    }
+                    if (document.getElementById('speedBonusEnabled')) {
+                        document.getElementById('speedBonusEnabled').checked = settings.speedBonusEnabled !== false;
+                    }
+                    
                     // تطبيق إعدادات الطالب إذا كانت موجودة
                     if (settings.selectedClass) {
                         selectedClass = settings.selectedClass;
@@ -2946,6 +3038,24 @@
                 timerDisplay.style.color = '#db1f1f';
             }
         }
+        
+        // إيقاف حركة القنبلة
+        function stopBombAnimation() {
+            const bomb = document.getElementById('bomb');
+            const timerDisplay = document.getElementById('timerDisplay');
+            
+            if (bomb) {
+                // إعادة تعيين مظهر القنبلة للحالة الطبيعية
+                bomb.style.border = '5px solid #666';
+                bomb.style.boxShadow = 'inset 0 0 20px rgba(0,0,0,0.8), 0 0 30px rgba(255,0,0,0.3)';
+                bomb.style.animation = 'none';
+            }
+            
+            if (timerDisplay) {
+                timerDisplay.style.color = '#db1f1f';
+                timerDisplay.style.animation = 'none';
+            }
+        }
 
         // إجابة صحيحة
         function correctAnswer() {
@@ -2965,16 +3075,32 @@
             // إيقاف حركة القنبلة
             stopBombAnimation();
             
-            // حساب النقاط
-            const timeBonus = gameState.timeLeft * 10;
-            const basePoints = 100;
+            // حساب النقاط باستخدام الإعدادات المخصصة
+            const basePoints = parseInt(document.getElementById('correctPoints')?.value || 100);
+            const timeMultiplier = parseInt(document.getElementById('timeMultiplier')?.value || 10);
+            const speedBonusEnabled = document.getElementById('speedBonusEnabled')?.checked ?? true;
+            
+            // حساب مكافأة الوقت
+            const timeBonus = speedBonusEnabled ? gameState.timeLeft * timeMultiplier : 0;
             const totalPoints = basePoints + timeBonus;
+            
             gameState.points += totalPoints;
             gameState.defusedBombs++;
             
             // تحديث العرض
             updateGameState('success', '✅ تم إبطال القنبلة بنجاح!');
-            updateBombMessage(`🎉 أحسنت ${gameState.currentStudent}! حصلت على ${totalPoints} نقطة`);
+            
+            // رسالة مفصلة للنقاط
+            let pointsMessage = `🎉 أحسنت ${gameState.currentStudent}!`;
+            if (speedBonusEnabled && timeBonus > 0) {
+                pointsMessage += `\n🏆 النقاط الأساسية: ${basePoints}`;
+                pointsMessage += `\n⚡ مكافأة السرعة: ${timeBonus} (${gameState.timeLeft} ثانية × ${timeMultiplier})`;
+                pointsMessage += `\n🎯 المجموع: ${totalPoints} نقطة`;
+            } else {
+                pointsMessage += `\n🏆 حصلت على ${totalPoints} نقطة`;
+            }
+            
+            updateBombMessage(pointsMessage);
             
             // تأثيرات النجاح
             showSuccessEffect();
@@ -3028,6 +3154,52 @@
             setTimeout(() => {
                 document.body.style.background = 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%)';
             }, 2000);
+            
+            // عرض تأثير النقاط المتطايرة
+            showPointsAnimation();
+        }
+        
+        // تأثير النقاط المتطايرة
+        function showPointsAnimation() {
+            const basePoints = parseInt(document.getElementById('correctPoints')?.value || 100);
+            const timeMultiplier = parseInt(document.getElementById('timeMultiplier')?.value || 10);
+            const speedBonusEnabled = document.getElementById('speedBonusEnabled')?.checked ?? true;
+            const timeBonus = speedBonusEnabled ? gameState.timeLeft * timeMultiplier : 0;
+            const totalPoints = basePoints + timeBonus;
+            
+            // إنشاء عنصر النقاط المتطايرة
+            const pointsDisplay = document.createElement('div');
+            pointsDisplay.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 4000;
+                font-family: 'Cairo', sans-serif;
+                font-weight: bold;
+                color: #FFD700;
+                font-size: 3rem;
+                text-align: center;
+                animation: pointsFloat 3s ease-out forwards;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+                pointer-events: none;
+            `;
+            
+            pointsDisplay.innerHTML = `
+                <div style="margin-bottom: 10px;">🏆</div>
+                <div>+${totalPoints}</div>
+                <div style="font-size: 1.2rem; margin-top: 10px;">نقطة!</div>
+                ${timeBonus > 0 ? `<div style="font-size: 1rem; color: #87CEEB; margin-top: 5px;">مكافأة سرعة: +${timeBonus}</div>` : ''}
+            `;
+            
+            document.body.appendChild(pointsDisplay);
+            
+            // إزالة العنصر بعد انتهاء الحركة
+            setTimeout(() => {
+                if (document.body.contains(pointsDisplay)) {
+                    document.body.removeChild(pointsDisplay);
+                }
+            }, 3000);
         }
 
         // تأثيرات الخطأ
@@ -3051,7 +3223,90 @@
         // عرض الإحصائيات
         function showStats() {
             playGameSound('click'); // صوت فتح نافذة الإحصائيات
+            
+            // تحديث البيانات في النافذة
+            updateStatsDisplay();
+            
             document.getElementById('statsModal').style.display = 'block';
+        }
+        
+        // تحديث عرض الإحصائيات
+        function updateStatsDisplay() {
+            // تحديث النقاط والإحصائيات الأساسية
+            document.getElementById('statsPoints').textContent = gameState.points || 0;
+            document.getElementById('statsDefused').textContent = gameState.defusedBombs || 0;
+            document.getElementById('statsExploded').textContent = gameState.explodedBombs || 0;
+            
+            // حساب معدل النجاح
+            const totalBombs = (gameState.defusedBombs || 0) + (gameState.explodedBombs || 0);
+            const successRate = totalBombs > 0 ? Math.round(((gameState.defusedBombs || 0) / totalBombs) * 100) : 0;
+            document.getElementById('statsSuccessRate').textContent = successRate + '%';
+            
+            // تحديث معلومات الطالب الحالي
+            const currentStudentElement = document.getElementById('currentStudentStats');
+            if (gameState.currentStudent && gameState.currentClass) {
+                currentStudentElement.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="font-size: 2rem;">👨‍🎓</div>
+                        <div>
+                            <p style="margin: 0; font-weight: bold; color: white;">${gameState.currentStudent}</p>
+                            <p style="margin: 0; color: var(--oman-green);">${gameState.currentClass}</p>
+                            <p style="margin: 0; font-size: 0.9rem; color: #ccc;">طريقة الاختيار: ${selectionMethod === 'manual' ? 'يدوي' : 'عشوائي'}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                currentStudentElement.innerHTML = `
+                    <div style="text-align: center; color: #ccc;">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">❓</div>
+                        <p>لم يتم اختيار طالب بعد</p>
+                        <p style="font-size: 0.9rem;">استخدم إعدادات اللعبة لاختيار صف وطالب</p>
+                    </div>
+                `;
+            }
+            
+            // تحديث إعدادات النقاط الحالية
+            const pointsSettingsElement = document.getElementById('currentPointsSettings');
+            const correctPoints = parseInt(document.getElementById('correctPoints')?.value || 100);
+            const timeMultiplier = parseInt(document.getElementById('timeMultiplier')?.value || 10);
+            const speedBonusEnabled = document.getElementById('speedBonusEnabled')?.checked ?? true;
+            
+            pointsSettingsElement.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div>
+                        <strong style="color: var(--gold);">💰 النقاط الأساسية:</strong>
+                        <p style="margin: 5px 0;">${correctPoints} نقطة</p>
+                    </div>
+                    <div>
+                        <strong style="color: var(--gold);">⚡ مضاعف السرعة:</strong>
+                        <p style="margin: 5px 0;">${timeMultiplier} نقطة/ثانية</p>
+                    </div>
+                    <div>
+                        <strong style="color: var(--gold);">🏃‍♂️ مكافأة السرعة:</strong>
+                        <p style="margin: 5px 0;">${speedBonusEnabled ? 'مفعلة' : 'معطلة'}</p>
+                    </div>
+                    <div>
+                        <strong style="color: var(--gold);">📋 مثال للنقاط:</strong>
+                        <p style="margin: 5px 0;">${calculateExamplePoints(correctPoints, timeMultiplier, 20)}</p>
+                        <small style="color: #ccc;">(عند توفر 20 ثانية)</small>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // إعادة تعيين الإحصائيات
+        function resetGameStats() {
+            if (confirm('هل تريد إعادة تعيين جميع الإحصائيات؟\nستفقد جميع النقاط والبيانات المحفوظة.')) {
+                gameState.points = 0;
+                gameState.defusedBombs = 0;
+                gameState.explodedBombs = 0;
+                
+                updateDisplay();
+                updateStatsDisplay();
+                
+                playGameSound('click');
+                alert('✅ تم إعادة تعيين الإحصائيات بنجاح!');
+            }
         }
 
         // عرض دليل اللعبة
