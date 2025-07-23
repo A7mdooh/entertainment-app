@@ -6,90 +6,6 @@
     <title>🏆 سباق المعرفة - لعبة تعليمية تفاعلية</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Home Button Styles */
-        .home-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: linear-gradient(135deg, var(--oman-green), var(--oman-gold));
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            transition: all 0.3s ease;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-        }
-        
-        .home-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-        }
-        
-        .home-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* أزرار التحكم العامة مثل باقي الألعاب */
-        .control-btn {
-            position: fixed;
-            top: 15px;
-            font-size: 24px;
-            background: rgba(0,0,0,0.8);
-            border: 2px solid var(--oman-green);
-            color: var(--oman-green);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            padding: 10px;
-            z-index: 2147483647;
-            border-radius: 50%;
-            backdrop-filter: blur(10px);
-        }
-        
-        .control-btn:hover {
-            transform: scale(1.1);
-            background: var(--oman-green);
-            color: white;
-            box-shadow: 0 0 20px rgba(0, 128, 0, 0.5);
-        }
-        
-        #homeBtn {
-            right: 15px;
-        }
-        
-        #gameGuideBtn {
-            right: 70px;
-        }
-        
-        #fullscreenBtn {
-            left: 15px;
-        }
-
-        /* تحسينات للجوال */
-        @media (max-width: 480px) {
-            .control-btn {
-                font-size: 20px;
-                padding: 8px;
-            }
-            #homeBtn {
-                right: 10px;
-            }
-            #gameGuideBtn {
-                right: 55px;
-            }
-            #fullscreenBtn {
-                left: 10px;
-            }
-        }
-        
-        /* Base Styles */
         :root {
             --oman-red: #e30613;
             --oman-green: #00693e;
@@ -198,35 +114,6 @@
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        /* Pulse animation for active buttons */
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
-        }
-
-        .btn-pulse {
-            animation: pulse 2s infinite;
-        }
-
-        /* Glow effect for important buttons */
-        .btn-glow {
-            box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
-        }
-
-        .btn-success.btn-glow {
-            box-shadow: 0 0 20px rgba(76, 175, 80, 0.7);
-        }
-
-        .btn-danger.btn-glow {
-            box-shadow: 0 0 20px rgba(244, 67, 54, 0.7);
         }
 
         /* Race Track Area */
@@ -642,33 +529,9 @@
             background-size: 100px 100%;
             animation: shine 2s infinite;
         }
-
-        /* Feedback animation */
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
-            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-        }
-
-        /* Enhanced celebration animation */
-        @keyframes celebration {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .celebration {
-            animation: celebration 0.6s ease-in-out;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.8) !important;
-        }
     </style>
 </head>
 <body>
-    <!-- أزرار التحكم العامة مثل باقي الألعاب -->
-    <button class="control-btn" id="homeBtn" title="العودة للصفحة الرئيسية">🏠</button>
-    <button class="control-btn" id="gameGuideBtn" title="دليل اللعبة">📖</button>
-    <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">⛶</button>
-    
     <!-- Game Header -->
     <header class="game-header">
         <h1 class="game-title">🏆 سباق المعرفة</h1>
@@ -690,17 +553,17 @@
             <!-- Game Control -->
             <div class="control-section">
                 <div class="control-title">🎯 التحكم في اللعبة</div>
-                <button class="btn btn-success" onclick="startRace()" id="startBtn" title="ابدأ سباق المعرفة بين الفرق">🚀 بدء السباق</button>
-                <button class="btn btn-warning" onclick="pauseRace()" id="pauseBtn" disabled title="إيقاف مؤقت للسباق">⏸️ إيقاف</button>
-                <button class="btn btn-danger" onclick="resetRace()" id="resetBtn" title="إعادة تعيين السباق من البداية">🔄 إعادة تعيين</button>
+                <button class="btn btn-success" onclick="startRace()" id="startBtn">🚀 بدء السباق</button>
+                <button class="btn btn-warning" onclick="pauseRace()" id="pauseBtn" disabled>⏸️ إيقاف</button>
+                <button class="btn btn-danger" onclick="resetRace()" id="resetBtn">🔄 إعادة تعيين</button>
             </div>
 
             <!-- Question Control -->
             <div class="control-section">
                 <div class="control-title">❓ التحكم في الأسئلة</div>
-                <button class="btn btn-success" onclick="correctAnswer()" id="correctBtn" disabled title="اضغط عند الإجابة الصحيحة لتحريك الفريق للأمام">✅ إجابة صحيحة</button>
-                <button class="btn btn-danger" onclick="wrongAnswer()" id="wrongBtn" disabled title="اضغط عند الإجابة الخاطئة لتطبيق العقوبة المحددة">❌ إجابة خاطئة</button>
-                <button class="btn btn-info" onclick="skipQuestion()" id="skipBtn" disabled title="تخطي السؤال والانتقال للفريق التالي">⏭️ تخطي السؤال</button>
+                <button class="btn btn-success" onclick="correctAnswer()" id="correctBtn" disabled>✅ إجابة صحيحة</button>
+                <button class="btn btn-danger" onclick="wrongAnswer()" id="wrongBtn" disabled>❌ إجابة خاطئة</button>
+                <button class="btn btn-info" onclick="skipQuestion()" id="skipBtn" disabled>⏭️ تخطي السؤال</button>
             </div>
 
             <!-- Quick Actions -->
@@ -708,7 +571,6 @@
                 <div class="control-title">⚡ إجراءات سريعة</div>
                 <button class="btn btn-info" onclick="showStats()">📊 الإحصائيات</button>
                 <button class="btn btn-warning" onclick="changeCurrentTeam()">🔄 تغيير الفريق</button>
-                <button class="btn btn-primary" onclick="showQuickHelp()">❓ مساعدة سريعة</button>
             </div>
         </div>
 
@@ -721,44 +583,14 @@
 
             <!-- Current Player Display -->
             <div class="current-player" id="currentPlayerDisplay" style="display: none;">
-                <div style="display: flex; align-items: center; justify-content: center; gap: 15px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; margin: 20px 0;">
-                    <div style="font-size: 2rem;">🎯</div>
-                    <div>
-                        <div class="current-player-label" style="font-size: 0.9rem; opacity: 0.8;">الفريق الحالي:</div>
-                        <div class="current-player-name" id="currentTeamName" style="font-size: 1.3rem; font-weight: bold; color: var(--oman-gold);">-</div>
-                    </div>
-                    <div style="font-size: 1.5rem; animation: pulse 2s infinite;">👈</div>
-                </div>
+                <div class="current-player-label">الفريق الحالي:</div>
+                <div class="current-player-name" id="currentTeamName">-</div>
             </div>
 
             <!-- Game Status -->
             <div class="game-status">
                 <div class="status-message" id="statusMessage">🎮 جاهز للبدء!</div>
                 <div class="game-progress" id="gameProgress">استخدم إعداد الفرق لإنشاء الفرق</div>
-                
-                <!-- Progress Indicators -->
-                <div style="display: flex; gap: 10px; margin-top: 15px; justify-content: center; flex-wrap: wrap;">
-                    <div style="display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 20px; font-size: 0.9rem;">
-                        <span>🎯</span>
-                        <span>المسافة: </span>
-                        <span id="distanceIndicator" style="font-weight: bold; color: var(--oman-gold);">10</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 20px; font-size: 0.9rem;">
-                        <span>👥</span>
-                        <span>الفرق: </span>
-                        <span id="teamsIndicator" style="font-weight: bold; color: var(--oman-green);">0</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 20px; font-size: 0.9rem;">
-                        <span>❓</span>
-                        <span>الأسئلة: </span>
-                        <span id="questionsIndicator" style="font-weight: bold; color: var(--accent-color);">0</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 20px; font-size: 0.9rem;">
-                        <span>⏱️</span>
-                        <span>الوقت: </span>
-                        <span id="timeIndicator" style="font-weight: bold; color: var(--warning-color);">00:00</span>
-                    </div>
-                </div>
             </div>
 
             <!-- Race Track -->
@@ -933,116 +765,17 @@
                         <li><strong>🔄 تغيير الفريق:</strong> لاختيار فريق آخر للإجابة</li>
                     </ul>
 
-                    <h3 style="color: var(--oman-green); margin: 20px 0 10px;">💡 نصائح للمعلم المحترف</h3>
+                    <h3 style="color: var(--oman-green); margin: 20px 0 10px;">💡 نصائح للمعلم</h3>
                     <ul style="margin-right: 20px;">
-                        <li><strong>🎯 التوزيع العادل:</strong> تأكد من توزيع الأسئلة بعدالة على جميع الفرق</li>
-                        <li><strong>📈 التدرج في الصعوبة:</strong> ابدأ بأسئلة سهلة ثم ارفع المستوى تدريجياً</li>
-                        <li><strong>⏱️ إدارة الوقت:</strong> استخدم أسئلة قصيرة للحفاظ على الإثارة</li>
-                        <li><strong>🎭 التفاعل:</strong> شجع الهتافات والتشجيع بين الفرق</li>
-                        <li><strong>🎨 المؤثرات:</strong> استخدم الأصوات والألوان لزيادة المتعة</li>
-                        <li><strong>🔄 المرونة:</strong> استخدم زر "تخطي" عند الحاجة للمحافظة على سير اللعبة</li>
-                        <li><strong>📊 المتابعة:</strong> راقب الإحصائيات لتحديد نقاط القوة والضعف</li>
+                        <li>تأكد من توزيع الأسئلة بعدالة على جميع الفرق</li>
+                        <li>استخدم أسئلة متدرجة الصعوبة</li>
+                        <li>شجع التفاعل والمشاركة</li>
+                        <li>استخدم المؤثرات البصرية والصوتية لزيادة الإثارة</li>
                     </ul>
-
-                    <h3 style="color: var(--oman-gold); margin: 20px 0 10px;">🚀 استراتيجيات متقدمة</h3>
-                    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin: 15px 0;">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                            <div>
-                                <h4 style="color: var(--oman-green); margin: 0 0 10px;">🎪 للحصص المرحة:</h4>
-                                <ul style="margin: 0; font-size: 0.9rem;">
-                                    <li>فعّل كل الأصوات والمؤثرات</li>
-                                    <li>استخدم مسافة قصيرة (5-7 نقاط)</li>
-                                    <li>أسئلة سريعة ومتنوعة</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h4 style="color: var(--oman-green); margin: 0 0 10px;">📚 للمراجعة الجدية:</h4>
-                                <ul style="margin: 0; font-size: 0.9rem;">
-                                    <li>استخدم مسافة أطول (10-15 نقطة)</li>
-                                    <li>أسئلة مفصلة ومعمقة</li>
-                                    <li>فعّل خصم النقاط للإجابات الخاطئة</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <h3 style="color: var(--oman-green); margin: 20px 0 10px;">🎮 دليل سريع للأزرار</h3>
-                    <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px;">
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; font-size: 0.9rem;">
-                            <div><strong>🚀 بدء السباق:</strong> لبدء اللعبة</div>
-                            <div><strong>⏸️ إيقاف:</strong> إيقاف مؤقت أثناء اللعب</div>
-                            <div><strong>✅ صحيحة:</strong> الفريق يتقدم خطوة</div>
-                            <div><strong>❌ خاطئة:</strong> تطبيق العقوبة المحددة</div>
-                            <div><strong>⏭️ تخطي:</strong> الانتقال للفريق التالي</div>
-                            <div><strong>🔄 إعادة تعيين:</strong> بدء سباق جديد</div>
-                        </div>
-                    </div>
                 </div>
                 
-                <!-- أمثلة عملية -->
-                <div style="margin: 20px 0;">
-                    <h3 style="color: var(--oman-gold); margin: 20px 0 10px;">🎯 أمثلة عملية للاستخدام</h3>
-                    
-                    <div style="display: grid; gap: 15px;">
-                        <!-- مثال 1 -->
-                        <div style="background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(76, 175, 80, 0.05)); padding: 15px; border-radius: 10px; border: 1px solid rgba(76, 175, 80, 0.3);">
-                            <h4 style="color: var(--oman-green); margin: 0 0 10px;">📚 مراجعة الرياضيات - الصف الخامس</h4>
-                            <div style="font-size: 0.9rem; line-height: 1.6;">
-                                <strong>الإعداد:</strong> 3 فرق، مسافة 8 نقاط، خصم نقطة للإجابة الخاطئة<br>
-                                <strong>نوع الأسئلة:</strong> جدول الضرب، العمليات الأساسية، الكسور البسيطة<br>
-                                <strong>المدة المتوقعة:</strong> 15-20 دقيقة
-                            </div>
-                        </div>
-                        
-                        <!-- مثال 2 -->
-                        <div style="background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(33, 150, 243, 0.05)); padding: 15px; border-radius: 10px; border: 1px solid rgba(33, 150, 243, 0.3);">
-                            <h4 style="color: #2196F3; margin: 0 0 10px;">🌍 استكشاف الجغرافيا - الصف السابع</h4>
-                            <div style="font-size: 0.9rem; line-height: 1.6;">
-                                <strong>الإعداد:</strong> 4 فرق، مسافة 12 نقطة، تجميد جولة للإجابة الخاطئة<br>
-                                <strong>نوع الأسئلة:</strong> عواصم الدول، الأنهار الكبرى، المحيطات والقارات<br>
-                                <strong>المدة المتوقعة:</strong> 25-30 دقيقة
-                            </div>
-                        </div>
-                        
-                        <!-- مثال 3 -->
-                        <div style="background: linear-gradient(135deg, rgba(255, 152, 0, 0.1), rgba(255, 152, 0, 0.05)); padding: 15px; border-radius: 10px; border: 1px solid rgba(255, 152, 0, 0.3);">
-                            <h4 style="color: #FF9800; margin: 0 0 10px;">🔬 تجارب العلوم - الصف الثامن</h4>
-                            <div style="font-size: 0.9rem; line-height: 1.6;">
-                                <strong>الإعداد:</strong> 2 فريق، مسافة 15 نقطة، بدون خصم<br>
-                                <strong>نوع الأسئلة:</strong> التفاعلات الكيميائية، الفيزياء الأساسية، علم الأحياء<br>
-                                <strong>المدة المتوقعة:</strong> 30-40 دقيقة
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- تحديات إضافية -->
-                <div style="margin: 20px 0;">
-                    <h3 style="color: var(--oman-gold); margin: 20px 0 10px;">🎪 أفكار إبداعية للمعلم</h3>
-                    <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px;">
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; font-size: 0.9rem;">
-                            <div>
-                                <strong style="color: var(--oman-green);">🎭 التمثيل والحركة:</strong><br>
-                                اطلب من الفرق تمثيل إجاباتهم أو استخدام الحركات لتوضيح المفاهيم
-                            </div>
-                            <div>
-                                <strong style="color: var(--oman-green);">🎨 الرسم السريع:</strong><br>
-                                أضف أسئلة تتطلب رسماً سريعاً على السبورة أو الورق
-                            </div>
-                            <div>
-                                <strong style="color: var(--oman-green);">🎵 الأغاني التعليمية:</strong><br>
-                                استخدم الأناشيد والأغاني التعليمية كأسئلة أو إجابات
-                            </div>
-                            <div>
-                                <strong style="color: var(--oman-green);">🏃‍♂️ النشاط الحركي:</strong><br>
-                                اطلب من الفرق القيام بحركات أو تمارين بسيطة كجزء من الإجابة
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <div style="text-align: center; margin-top: 30px;">
-                    <button class="btn btn-success" onclick="closeModal('instructionsModal')" style="font-size: 1.1rem; padding: 12px 30px;">✅ فهمت، لنبدأ المغامرة!</button>
+                    <button class="btn btn-success" onclick="closeModal('instructionsModal')">✅ فهمت، لنبدأ!</button>
                 </div>
             </div>
         </div>
@@ -1173,24 +906,20 @@
         }
 
         // Modal functions
-        function showModal(modalId) {
-            playGameSound('click');
-            if (modalId === 'gameSetupModal') {
-                loadClassSelection();
-            }
-            document.getElementById(modalId).style.display = 'block';
-        }
-
         function showGameSetup() {
-            showModal('gameSetupModal');
+            playGameSound('click');
+            loadClassSelection();
+            document.getElementById('gameSetupModal').style.display = 'block';
         }
 
         function showSettings() {
-            showModal('settingsModal');
+            playGameSound('click');
+            document.getElementById('settingsModal').style.display = 'block';
         }
 
         function showInstructions() {
-            showModal('instructionsModal');
+            playGameSound('click');
+            document.getElementById('instructionsModal').style.display = 'block';
         }
 
         function showStats() {
@@ -1542,18 +1271,13 @@
             const currentTeam = gameState.teams[gameState.currentTeamIndex];
             const pointsToAdd = gameState.settings.correctPoints;
             
-            // Add visual feedback
-            addButtonEffect('correctBtn', 'btn-glow');
-            
             // Move team forward
             currentTeam.position += pointsToAdd;
             currentTeam.score += pointsToAdd * 10; // Score points for ranking
             gameState.correctAnswersCount++;
             gameState.questionsAsked++;
             
-            // Celebrate team progress
-            celebrateTeamProgress(currentTeam.id);
-            
+            // Update visual progress
             updateTeamProgress(currentTeam);
             
             // Check for winner
@@ -1580,9 +1304,6 @@
             const currentTeam = gameState.teams[gameState.currentTeamIndex];
             gameState.questionsAsked++;
             
-            // Add visual feedback
-            addButtonEffect('wrongBtn', 'btn-glow');
-            
             // Apply penalty based on settings
             switch (gameState.settings.wrongPenalty) {
                 case 0: // No penalty
@@ -1595,9 +1316,6 @@
                     updateTeamProgress(currentTeam);
                     break;
             }
-            
-            // Add shake effect to team
-            shakeTeamElement(currentTeam.id);
             
             // Move to next team
             nextTeam();
@@ -1851,25 +1569,11 @@
             updateRankings();
             updateGameStats();
             updateGameStatus();
-            updateIndicators(); // New function for progress indicators
             
             // Update team progress bars
             gameState.teams.forEach(team => {
                 updateTeamProgress(team);
             });
-        }
-
-        // Update progress indicators
-        function updateIndicators() {
-            document.getElementById('distanceIndicator').textContent = gameState.settings.raceDistance;
-            document.getElementById('teamsIndicator').textContent = gameState.teams.length;
-            document.getElementById('questionsIndicator').textContent = gameState.questionsAsked;
-            
-            // Update time indicator
-            const timeElement = document.getElementById('timeIndicator');
-            if (timeElement) {
-                timeElement.textContent = document.getElementById('gameTime').textContent;
-            }
         }
 
         // Update game statistics
@@ -1915,18 +1619,14 @@
         // Update game time display
         function updateGameTime() {
             const gameTimeElement = document.getElementById('gameTime');
-            const timeIndicator = document.getElementById('timeIndicator');
             
             if (gameState.gameStartTime && gameState.isActive && !gameState.isPaused) {
                 const elapsed = new Date() - gameState.gameStartTime;
                 const minutes = Math.floor(elapsed / 60000);
                 const seconds = Math.floor((elapsed % 60000) / 1000);
-                const timeText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                gameTimeElement.textContent = timeText;
-                if (timeIndicator) timeIndicator.textContent = timeText;
+                gameTimeElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             } else if (!gameState.gameStartTime) {
                 gameTimeElement.textContent = '00:00';
-                if (timeIndicator) timeIndicator.textContent = '00:00';
             }
         }
 
@@ -2130,132 +1830,6 @@
             `;
         }
 
-        // Quick Help Function
-        function showQuickHelp() {
-            const helpContent = `
-                <div style="text-align: right; line-height: 1.8;">
-                    <h3 style="color: var(--oman-green); text-align: center; margin-bottom: 20px;">❓ مساعدة سريعة</h3>
-                    
-                    <div style="background: rgba(76, 175, 80, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-                        <h4 style="color: var(--oman-green); margin: 0 0 10px;">🚀 بدء سريع:</h4>
-                        <ol style="margin: 0; padding-right: 20px;">
-                            <li>اضغط "🎮 إعداد الفرق" واختر الصف</li>
-                            <li>حدد عدد الفرق (2-4 فرق)</li>
-                            <li>اضغط "💾 حفظ وبدء السباق"</li>
-                            <li>اضغط "🚀 بدء السباق"</li>
-                            <li>اطرح سؤالاً واضغط ✅ أو ❌</li>
-                        </ol>
-                    </div>
-                    
-                    <div style="background: rgba(33, 150, 243, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-                        <h4 style="color: #2196F3; margin: 0 0 10px;">🎯 أزرار سريعة:</h4>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9rem;">
-                            <div><strong>✅:</strong> إجابة صحيحة</div>
-                            <div><strong>❌:</strong> إجابة خاطئة</div>
-                            <div><strong>⏭️:</strong> تخطي السؤال</div>
-                            <div><strong>🔄:</strong> تغيير الفريق</div>
-                        </div>
-                    </div>
-                    
-                    <div style="background: rgba(255, 152, 0, 0.1); padding: 15px; border-radius: 10px;">
-                        <h4 style="color: #FF9800; margin: 0 0 10px;">💡 نصيحة سريعة:</h4>
-                        <p style="margin: 0; font-size: 0.9rem;">استخدم أسئلة قصيرة ومباشرة للحفاظ على إثارة السباق!</p>
-                    </div>
-                </div>
-            `;
-            
-            // Create quick help modal
-            const existingModal = document.getElementById('quickHelpModal');
-            if (existingModal) {
-                existingModal.remove();
-            }
-            
-            const modal = document.createElement('div');
-            modal.id = 'quickHelpModal';
-            modal.className = 'modal';
-            modal.style.display = 'block';
-            modal.innerHTML = `
-                <div class="modal-content" style="max-width: 600px;">
-                    <div class="modal-header">
-                        <span class="close" onclick="document.getElementById('quickHelpModal').remove()">&times;</span>
-                        <h2>❓ مساعدة سريعة</h2>
-                    </div>
-                    <div class="modal-body">
-                        ${helpContent}
-                        <div style="text-align: center; margin-top: 20px;">
-                            <button class="btn btn-success" onclick="document.getElementById('quickHelpModal').remove()">✅ فهمت!</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            document.body.appendChild(modal);
-            playGameSound('click');
-        }
-
-        // Visual Effects Functions
-        function addButtonEffect(buttonId, effectClass) {
-            const button = document.getElementById(buttonId);
-            if (button) {
-                button.classList.add(effectClass);
-                setTimeout(() => {
-                    button.classList.remove(effectClass);
-                }, 1000);
-            }
-        }
-
-        // Celebrate team progress with visual effects
-        function celebrateTeamProgress(teamId) {
-            const teamElement = document.querySelector(`[data-team-id="${teamId}"]`);
-            if (teamElement) {
-                teamElement.classList.add('celebration');
-                setTimeout(() => {
-                    teamElement.classList.remove('celebration');
-                }, 600);
-            }
-        }
-
-        // Shake team element for wrong answer
-        function shakeTeamElement(teamId) {
-            const teamElement = document.querySelector(`[data-team-id="${teamId}"]`);
-            if (teamElement) {
-                teamElement.classList.add('shake');
-                setTimeout(() => {
-                    teamElement.classList.remove('shake');
-                }, 500);
-            }
-        }
-
-        // Enhanced feedback system
-        function showAnswerFeedback(type, teamName) {
-            const feedbackElement = document.createElement('div');
-            feedbackElement.style.cssText = `
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: ${type === 'correct' ? 'rgba(76, 175, 80, 0.9)' : 'rgba(244, 67, 54, 0.9)'};
-                color: white;
-                padding: 20px 40px;
-                border-radius: 15px;
-                font-size: 1.5rem;
-                font-weight: bold;
-                z-index: 10000;
-                text-align: center;
-                animation: fadeInOut 2s ease-in-out;
-            `;
-            
-            feedbackElement.innerHTML = type === 'correct' 
-                ? `✅ أحسنت ${teamName}!`
-                : `❌ حاول مرة أخرى ${teamName}!`;
-            
-            document.body.appendChild(feedbackElement);
-            
-            setTimeout(() => {
-                feedbackElement.remove();
-            }, 2000);
-        }
-
         // Initialize game with saved settings
         function initializeGame() {
             loadGameSounds();
@@ -2275,104 +1849,7 @@
             });
         }
 
-        // إضافة وظائف الأزرار الأساسية مثل باقي الألعاب
-        document.addEventListener('DOMContentLoaded', function() {
-            // إنشاء كائن الصوت
-            const clickSound = new Audio('../assets/media/sounds/Click.mp3');
-            clickSound.preload = 'auto';
-
-            // وظيفة تشغيل الصوت
-            function playClickSound() {
-                clickSound.currentTime = 0;
-                clickSound.play().catch(() => {});
-            }
-
-            // زر العودة للصفحة الرئيسية
-            document.getElementById('homeBtn').addEventListener('click', function() {
-                playClickSound();
-                window.location.href = '../main -live.html';
-            });
-
-            // زر دليل اللعبة
-            document.getElementById('gameGuideBtn').addEventListener('click', function() {
-                playClickSound();
-                showModal('instructionsModal');
-            });
-
-            // زر ملء الشاشة
-            document.getElementById('fullscreenBtn').addEventListener('click', function() {
-                playClickSound();
-                if (!document.fullscreenElement) {
-                    document.documentElement.requestFullscreen().catch(err => {
-                        console.log('خطأ في ملء الشاشة:', err);
-                    });
-                } else {
-                    document.exitFullscreen();
-                }
-            });
-
-            // تفعيل ملء الشاشة عند أول تفاعل
-            function requestFullscreenOnFirstInteraction() {
-                function handler() {
-                    if (!document.fullscreenElement) {
-                        document.documentElement.requestFullscreen().catch(()=>{});
-                    }
-                    window.removeEventListener('click', handler);
-                    window.removeEventListener('keydown', handler);
-                    window.removeEventListener('touchstart', handler);
-                }
-                window.addEventListener('click', handler);
-                window.addEventListener('keydown', handler);
-                window.addEventListener('touchstart', handler);
-            }
-            requestFullscreenOnFirstInteraction();
-        });
-
         console.log('🏆 لعبة سباق المعرفة جاهزة تماماً!');
-        
-        // Welcome message when page loads
-        window.addEventListener('load', function() {
-            setTimeout(() => {
-                if (gameState.teams.length === 0) {
-                    showWelcomeMessage();
-                }
-            }, 1000);
-        });
-        
-        // Show welcome message for new users
-        function showWelcomeMessage() {
-            const welcomeMessage = `
-                <div style="text-align: center; padding: 20px;">
-                    <div style="font-size: 3rem; margin-bottom: 20px;">🏁🏆</div>
-                    <h2 style="color: var(--oman-gold); margin-bottom: 15px;">مرحباً بك في سباق المعرفة!</h2>
-                    <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 20px;">
-                        لعبة تفاعلية مصممة لجعل التعلم أكثر متعة وإثارة!<br>
-                        ابدأ بإعداد الفرق واستمتع بسباق حماسي نحو المعرفة
-                    </p>
-                    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin: 20px 0;">
-                        <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">
-                            💡 <strong>نصيحة:</strong> اضغط على "❓ مساعدة سريعة" إذا كانت هذه أول مرة تستخدم اللعبة
-                        </p>
-                    </div>
-                </div>
-            `;
-            
-            const modal = document.createElement('div');
-            modal.className = 'modal';
-            modal.style.display = 'block';
-            modal.innerHTML = `
-                <div class="modal-content" style="max-width: 500px;">
-                    <div class="modal-body">
-                        ${welcomeMessage}
-                        <div style="text-align: center; margin-top: 20px;">
-                            <button class="btn btn-success" onclick="this.closest('.modal').remove()" style="font-size: 1.1rem; padding: 12px 30px;">✨ لنبدأ المغامرة!</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            document.body.appendChild(modal);
-        }
     </script>
 </body>
 </html>
