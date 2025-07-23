@@ -1173,20 +1173,24 @@
         }
 
         // Modal functions
-        function showGameSetup() {
+        function showModal(modalId) {
             playGameSound('click');
-            loadClassSelection();
-            document.getElementById('gameSetupModal').style.display = 'block';
+            if (modalId === 'gameSetupModal') {
+                loadClassSelection();
+            }
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function showGameSetup() {
+            showModal('gameSetupModal');
         }
 
         function showSettings() {
-            playGameSound('click');
-            document.getElementById('settingsModal').style.display = 'block';
+            showModal('settingsModal');
         }
 
         function showInstructions() {
-            playGameSound('click');
-            document.getElementById('instructionsModal').style.display = 'block';
+            showModal('instructionsModal');
         }
 
         function showStats() {
@@ -1550,21 +1554,6 @@
             // Celebrate team progress
             celebrateTeamProgress(currentTeam.id);
             
-            updateTeamProgress(currentTeam);
-            
-            // Check for winner
-            if (currentTeam.position >= gameState.settings.raceDistance) {
-                endRace(currentTeam);
-                return;
-            }
-            
-            // Move to next team
-            nextTeam();
-            updateDisplay();
-            showAnswerFeedback('correct', currentTeam.name);
-        }
-            
-            // Update visual progress
             updateTeamProgress(currentTeam);
             
             // Check for winner
