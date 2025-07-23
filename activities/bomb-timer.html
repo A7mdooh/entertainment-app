@@ -613,6 +613,80 @@
             animation: settingsUpdate 0.5s ease-out;
         }
 
+        /* طرق اختيار الطلاب */
+        .selection-method {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .selection-method:hover {
+            border-color: var(--oman-red);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .selection-method.selected {
+            border-color: var(--safe-green);
+            background: rgba(0,204,0,0.2);
+            transform: scale(1.05);
+        }
+
+        .selection-method h5 {
+            margin: 10px 0 5px 0;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .selection-method p {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.8);
+            margin: 0;
+        }
+
+        .selection-method.selected::after {
+            content: '✅';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* بطاقات الطلاب في الإعدادات */
+        .setup-student-card {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid var(--oman-green);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .setup-student-card:hover {
+            background: rgba(0,204,0,0.2);
+            transform: scale(1.05);
+        }
+
+        .setup-student-card.selected {
+            background: rgba(0,204,0,0.3);
+            border-color: var(--safe-green);
+            transform: scale(1.1);
+        }
+
+        .setup-student-card.selected::after {
+            content: '✅';
+            display: block;
+            margin-top: 5px;
+            font-size: 1rem;
+        }
+
         /* التكيف مع الشاشات الصغيرة */
         @media (max-width: 1024px) {
             .main-container {
@@ -740,14 +814,11 @@
         <div class="teacher-controls">
             <h3 style="color: var(--oman-green); text-align: center; margin-bottom: 20px;">🎛️ لوحة المعلم</h3>
             
-            <!-- إعداد اللعبة -->
-            <div class="control-section">
-                <div class="control-title">⚙️ إعداد اللعبة</div>
-                <button class="btn btn-info" onclick="showGameSetup()">📋 إعداد جديد</button>
-                <button class="btn btn-warning" onclick="selectStudent()">👨‍🎓 اختيار طالب</button>
-            </div>
-            
-            <!-- التحكم في القنبلة -->
+                    <!-- إعداد اللعبة -->
+                    <div class="control-section">
+                        <div class="control-title">⚙️ إعداد اللعبة</div>
+                        <button class="btn btn-info" onclick="showGameSetup()">📋 إعداد جديد</button>
+                    </div>            <!-- التحكم في القنبلة -->
             <div class="control-section">
                 <div class="control-title">💣 التحكم في القنبلة</div>
                 <button class="btn btn-danger" onclick="startBomb()">🚀 بدء القنبلة</button>
@@ -780,6 +851,58 @@
             </div>
             <div class="modal-body">
                 <div style="display: grid; gap: 20px;">
+                    <!-- اختيار الطلاب -->
+                    <div class="setup-section">
+                        <h3 style="color: var(--oman-red); margin-bottom: 15px;">👨‍🎓 اختيار الطالب</h3>
+                        
+                        <!-- اختيار الصف -->
+                        <div style="margin-bottom: 20px;">
+                            <h4 style="color: var(--warning-orange); margin-bottom: 10px;">📚 اختر الصف أولاً</h4>
+                            <div id="setupClassSelection" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                                <!-- سيتم تعبئة الصفوف هنا -->
+                            </div>
+                        </div>
+                        
+                        <!-- طريقة الاختيار -->
+                        <div id="studentSelectionMethod" style="display: none; margin-bottom: 20px;">
+                            <h4 style="color: var(--safe-green); margin-bottom: 15px;">🎯 طريقة اختيار الطالب</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div class="selection-method" data-method="manual">
+                                    <div style="font-size: 2rem; margin-bottom: 10px;">👆</div>
+                                    <h5>اختيار يدوي</h5>
+                                    <p>اختر طالباً محدداً من القائمة</p>
+                                </div>
+                                <div class="selection-method" data-method="random">
+                                    <div style="font-size: 2rem; margin-bottom: 10px;">🎲</div>
+                                    <h5>اختيار عشوائي</h5>
+                                    <p>اختيار عشوائي من الصف المحدد</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- قائمة الطلاب للاختيار اليدوي -->
+                        <div id="setupStudentList" style="display: none;">
+                            <h4 style="color: var(--safe-green); margin-bottom: 15px;">👥 اختر الطالب</h4>
+                            <div style="margin-bottom: 15px;">
+                                <input type="text" id="setupStudentSearch" placeholder="🔍 ابحث عن الطالب..." 
+                                       style="padding: 10px; border-radius: 5px; border: 2px solid var(--oman-red); 
+                                              background: rgba(255,255,255,0.1); color: white; width: 100%; 
+                                              font-family: 'Cairo', sans-serif;">
+                            </div>
+                            <div id="setupStudentGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+                                                             gap: 10px; max-height: 200px; overflow-y: auto;">
+                                <!-- سيتم تعبئة الطلاب هنا -->
+                            </div>
+                        </div>
+                        
+                        <!-- معلومات الطالب/الطريقة المختارة -->
+                        <div id="setupSelectionInfo" style="display: none; margin-top: 20px; 
+                                                           background: rgba(0,204,0,0.2); border: 2px solid var(--safe-green); 
+                                                           border-radius: 10px; padding: 15px; text-align: center;">
+                            <div id="setupSelectionDetails"></div>
+                        </div>
+                    </div>
+
                     <!-- إعدادات الصعوبة -->
                     <div class="setup-section">
                         <h3 style="color: var(--oman-red); margin-bottom: 15px;">💣 مستوى الصعوبة</h3>
@@ -890,62 +1013,6 @@
                     <button class="btn btn-success" onclick="saveGameSettings()">💾 حفظ الإعدادات</button>
                     <button class="btn btn-info" onclick="resetToDefaults()">🔄 إعادة تعيين افتراضية</button>
                     <button class="btn btn-warning" onclick="loadPresetSettings()">📋 إعدادات جاهزة</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- نافذة اختيار الطالب -->
-    <div id="studentModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span class="close" onclick="closeModal('studentModal')">&times;</span>
-                <h2>👨‍🎓 اختيار خبير المتفجرات</h2>
-            </div>
-            <div class="modal-body">
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <p style="color: var(--warning-orange); font-size: 1.1rem;">
-                        🎯 اختر خبير المتفجرات الذي سيحاول إبطال القنبلة
-                    </p>
-                </div>
-                
-                <!-- اختيار الصف -->
-                <div style="margin-bottom: 25px;">
-                    <h3 style="color: var(--oman-red); margin-bottom: 15px; text-align: center;">📚 اختر الصف</h3>
-                    <div id="classSelection" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
-                        <!-- سيتم تعبئة الصفوف هنا -->
-                    </div>
-                </div>
-                
-                <!-- اختيار الطالب -->
-                <div id="studentSelectionContainer" style="display: none;">
-                    <h3 style="color: var(--oman-green); margin-bottom: 15px; text-align: center;">👨‍🎓 اختر الطالب</h3>
-                    <div style="margin-bottom: 20px; text-align: center;">
-                        <input type="text" id="studentSearch" placeholder="🔍 ابحث عن الطالب..." 
-                               style="padding: 10px; border-radius: 5px; border: 2px solid var(--oman-red); 
-                                      background: rgba(255,255,255,0.1); color: white; width: 80%; 
-                                      font-family: 'Cairo', sans-serif;">
-                    </div>
-                    <div id="studentList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
-                                                   gap: 10px; max-height: 300px; overflow-y: auto;">
-                        <!-- سيتم تعبئة الطلاب هنا -->
-                    </div>
-                </div>
-                
-                <!-- معلومات الطالب المختار -->
-                <div id="selectedStudentInfo" style="display: none; margin-top: 20px; 
-                                                     background: rgba(0,204,0,0.2); border: 2px solid var(--safe-green); 
-                                                     border-radius: 10px; padding: 15px; text-align: center;">
-                    <h4 style="color: var(--safe-green); margin-bottom: 10px;">✅ الطالب المختار</h4>
-                    <div id="selectedStudentDetails"></div>
-                    <button class="btn btn-success" onclick="confirmStudentSelection()" 
-                            style="margin-top: 15px;">🚀 بدء المهمة مع هذا الطالب</button>
-                </div>
-                
-                <!-- خيارات متقدمة -->
-                <div style="margin-top: 20px; text-align: center; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px;">
-                    <button class="btn btn-warning" onclick="randomStudentSelection()">🎲 اختيار عشوائي</button>
-                    <button class="btn btn-info" onclick="showClassStats()">📊 إحصائيات الصف</button>
                 </div>
             </div>
         </div>
@@ -1216,6 +1283,10 @@
         let studentsData = {};
         let selectedClass = null;
         let selectedStudent = null;
+        let selectionMethod = 'manual'; // manual أو random
+        let setupSelectedClass = null;
+        let setupSelectedStudent = null;
+        let setupSelectionMethod = 'manual';
 
         // إعدادات الصعوبة
         const difficultySettings = {
@@ -1255,9 +1326,8 @@
         function initializeGame() {
             loadSavedSettings();
             updateDisplay();
-            // عرض رسالة ترحيب
-            updateBombMessage('🎯 مرحباً بك في لعبة القنبلة المؤقتة!');
-            updateGameState('waiting', '🚨 اختر طالباً وابدأ المغامرة');
+            // تحديث رسالة الحالة بناءً على الإعدادات المحفوظة
+            updateGameStateMessage();
         }
 
         // إعداد مستمعي الأحداث
@@ -1356,6 +1426,9 @@
             // تحديد الصعوبة الحالية
             document.querySelector(`[data-difficulty="${gameState.difficulty}"]`).classList.add('selected');
             
+            // إعداد اختيار الطلاب
+            setupStudentSelection();
+            
             // إعداد مستمعي الأحداث للمدخلات
             document.getElementById('customTime').addEventListener('input', updateSettingsPreview);
             document.getElementById('totalBombs').addEventListener('input', updateSettingsPreview);
@@ -1365,6 +1438,215 @@
             document.getElementById('soundEnabled').addEventListener('change', updateSettingsPreview);
             document.getElementById('speedupEnabled').addEventListener('change', updateSettingsPreview);
             document.getElementById('speedBonusEnabled').addEventListener('change', updateSettingsPreview);
+        }
+
+        // إعداد اختيار الطلاب في نافذة الإعدادات
+        function setupStudentSelection() {
+            // إعادة تعيين المتغيرات
+            setupSelectedClass = null;
+            setupSelectedStudent = null;
+            setupSelectionMethod = 'manual';
+            
+            loadSetupClassSelection();
+            setupSelectionMethods();
+        }
+
+        // تحميل الصفوف في الإعدادات
+        function loadSetupClassSelection() {
+            const classSelection = document.getElementById('setupClassSelection');
+            classSelection.innerHTML = '';
+            
+            Object.keys(studentsData).forEach(className => {
+                const classButton = document.createElement('button');
+                classButton.className = 'btn btn-info';
+                classButton.style.margin = '5px';
+                classButton.innerHTML = `📚 ${className}`;
+                classButton.onclick = () => selectSetupClass(className);
+                classSelection.appendChild(classButton);
+            });
+        }
+
+        // اختيار صف في الإعدادات
+        function selectSetupClass(className) {
+            setupSelectedClass = className;
+            
+            // تحديث مظهر الأزرار
+            document.querySelectorAll('#setupClassSelection .btn').forEach(btn => {
+                btn.className = 'btn btn-info';
+            });
+            event.target.className = 'btn btn-success';
+            
+            // إظهار طرق الاختيار
+            document.getElementById('studentSelectionMethod').style.display = 'block';
+            
+            // إخفاء قائمة الطلاب ومعلومات الاختيار
+            document.getElementById('setupStudentList').style.display = 'none';
+            document.getElementById('setupSelectionInfo').style.display = 'none';
+            
+            updateSettingsPreview();
+        }
+
+        // إعداد طرق الاختيار
+        function setupSelectionMethods() {
+            const selectionMethods = document.querySelectorAll('.selection-method');
+            
+            selectionMethods.forEach(method => {
+                method.addEventListener('click', function() {
+                    // إزالة التحديد من جميع الطرق
+                    selectionMethods.forEach(m => m.classList.remove('selected'));
+                    
+                    // تحديد الطريقة المختارة
+                    this.classList.add('selected');
+                    
+                    // تحديث طريقة الاختيار
+                    setupSelectionMethod = this.getAttribute('data-method');
+                    
+                    if (setupSelectionMethod === 'manual') {
+                        // عرض قائمة الطلاب للاختيار اليدوي
+                        loadSetupStudentList();
+                        document.getElementById('setupStudentList').style.display = 'block';
+                    } else {
+                        // إخفاء قائمة الطلاب للاختيار العشوائي
+                        document.getElementById('setupStudentList').style.display = 'none';
+                        setupSelectedStudent = null;
+                    }
+                    
+                    showSetupSelectionInfo();
+                    updateSettingsPreview();
+                });
+            });
+            
+            // تحديد الطريقة الافتراضية
+            document.querySelector('[data-method="manual"]').classList.add('selected');
+        }
+
+        // تحميل قائمة الطلاب في الإعدادات
+        function loadSetupStudentList() {
+            if (!setupSelectedClass) return;
+            
+            const studentGrid = document.getElementById('setupStudentGrid');
+            studentGrid.innerHTML = '';
+            
+            const students = studentsData[setupSelectedClass] || [];
+            students.forEach(studentName => {
+                const studentCard = document.createElement('div');
+                studentCard.className = 'setup-student-card';
+                studentCard.innerHTML = `
+                    <div style="font-size: 1.5rem; margin-bottom: 5px;">👨‍🎓</div>
+                    <div style="font-weight: bold; color: white;">${studentName}</div>
+                `;
+                
+                studentCard.onclick = () => selectSetupStudent(studentName, studentCard);
+                studentGrid.appendChild(studentCard);
+            });
+            
+            // إعداد البحث
+            setupStudentSearchInSettings(students);
+        }
+
+        // إعداد البحث في الإعدادات
+        function setupStudentSearchInSettings(students) {
+            const searchInput = document.getElementById('setupStudentSearch');
+            searchInput.value = '';
+            
+            searchInput.oninput = (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const filteredStudents = students.filter(name => 
+                    name.toLowerCase().includes(searchTerm)
+                );
+                
+                // إعادة عرض القائمة المفلترة
+                const studentGrid = document.getElementById('setupStudentGrid');
+                studentGrid.innerHTML = '';
+                
+                filteredStudents.forEach(studentName => {
+                    const studentCard = document.createElement('div');
+                    studentCard.className = 'setup-student-card';
+                    if (setupSelectedStudent === studentName) {
+                        studentCard.classList.add('selected');
+                    }
+                    
+                    studentCard.innerHTML = `
+                        <div style="font-size: 1.5rem; margin-bottom: 5px;">👨‍🎓</div>
+                        <div style="font-weight: bold; color: white;">${studentName}</div>
+                    `;
+                    
+                    studentCard.onclick = () => selectSetupStudent(studentName, studentCard);
+                    studentGrid.appendChild(studentCard);
+                });
+            };
+        }
+
+        // اختيار طالب في الإعدادات
+        function selectSetupStudent(studentName, cardElement) {
+            setupSelectedStudent = studentName;
+            
+            // تحديث مظهر البطاقات
+            document.querySelectorAll('.setup-student-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            cardElement.classList.add('selected');
+            
+            showSetupSelectionInfo();
+            updateSettingsPreview();
+        }
+
+        // عرض معلومات الاختيار في الإعدادات
+        function showSetupSelectionInfo() {
+            const infoContainer = document.getElementById('setupSelectionInfo');
+            const detailsContainer = document.getElementById('setupSelectionDetails');
+            
+            if (!setupSelectedClass) {
+                infoContainer.style.display = 'none';
+                return;
+            }
+            
+            let content = '';
+            
+            if (setupSelectionMethod === 'manual') {
+                if (setupSelectedStudent) {
+                    content = `
+                        <h4 style="color: var(--safe-green); margin-bottom: 10px;">✅ اختيار يدوي</h4>
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 10px;">
+                            <div style="font-size: 2rem;">👨‍🎓</div>
+                            <div>
+                                <div style="font-size: 1.2rem; font-weight: bold; color: white;">${setupSelectedStudent}</div>
+                                <div style="color: var(--safe-green);">${setupSelectedClass}</div>
+                            </div>
+                        </div>
+                        <div style="font-size: 0.9rem; color: var(--warning-orange);">
+                            ✅ سيتم اختيار هذا الطالب تلقائياً عند بدء اللعبة
+                        </div>
+                    `;
+                } else {
+                    content = `
+                        <h4 style="color: var(--warning-orange); margin-bottom: 10px;">⚠️ اختيار يدوي</h4>
+                        <div style="color: white;">الصف: <strong>${setupSelectedClass}</strong></div>
+                        <div style="font-size: 0.9rem; color: var(--warning-orange); margin-top: 10px;">
+                            يرجى اختيار طالب من القائمة أعلاه
+                        </div>
+                    `;
+                }
+            } else {
+                const studentsCount = studentsData[setupSelectedClass]?.length || 0;
+                content = `
+                    <h4 style="color: var(--safe-green); margin-bottom: 10px;">🎲 اختيار عشوائي</h4>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 10px;">
+                        <div style="font-size: 2rem;">🎲</div>
+                        <div>
+                            <div style="font-size: 1.2rem; font-weight: bold; color: white;">اختيار عشوائي</div>
+                            <div style="color: var(--safe-green);">${setupSelectedClass}</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 0.9rem; color: var(--warning-orange);">
+                        🎯 سيتم اختيار طالب عشوائي من ${studentsCount} طالب في الصف
+                    </div>
+                `;
+            }
+            
+            detailsContainer.innerHTML = content;
+            infoContainer.style.display = 'block';
         }
 
         // تحديث معاينة الإعدادات
@@ -1383,30 +1665,47 @@
             
             const difficultyName = difficultySettings[gameState.difficulty]?.name || 'متوسط';
             
+            // معلومات الطالب المختار
+            let studentInfo = '';
+            if (setupSelectedClass) {
+                if (setupSelectionMethod === 'manual' && setupSelectedStudent) {
+                    studentInfo = `${setupSelectedStudent} (${setupSelectedClass})`;
+                } else if (setupSelectionMethod === 'random') {
+                    const studentsCount = studentsData[setupSelectedClass]?.length || 0;
+                    studentInfo = `عشوائي من ${setupSelectedClass} (${studentsCount} طلاب)`;
+                } else {
+                    studentInfo = `${setupSelectedClass} - لم يتم اختيار طالب`;
+                }
+            } else {
+                studentInfo = 'لم يتم اختيار صف';
+            }
+            
             preview.innerHTML = `
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                     <div style="text-align: center;">
-                        <h4 style="color: var(--oman-red); margin-bottom: 10px;">⏱️ التوقيت</h4>
+                        <h4 style="color: var(--oman-red); margin-bottom: 10px;">👨‍🎓 الطالب</h4>
+                        <p style="font-size: 0.9rem;"><strong>${studentInfo}</strong></p>
+                        <p style="font-size: 0.8rem; color: var(--warning-orange);">
+                            ${setupSelectionMethod === 'random' ? '🎲 اختيار عشوائي' : '👆 اختيار يدوي'}
+                        </p>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <h4 style="color: var(--warning-orange); margin-bottom: 10px;">⏱️ التوقيت</h4>
                         <p>الصعوبة: <strong>${difficultyName}</strong></p>
                         <p>الوقت: <strong>${customTime} ثانية</strong></p>
                     </div>
                     
                     <div style="text-align: center;">
-                        <h4 style="color: var(--warning-orange); margin-bottom: 10px;">🎯 الجولة</h4>
+                        <h4 style="color: var(--safe-green); margin-bottom: 10px;">� الجولة</h4>
                         <p>عدد القنابل: <strong>${totalBombs}</strong></p>
                         <p>تسريع الخطأ: <strong>${speedupEnabled ? speedupTime + ' ثانية' : 'معطل'}</strong></p>
                     </div>
                     
                     <div style="text-align: center;">
-                        <h4 style="color: var(--safe-green); margin-bottom: 10px;">🏆 النقاط</h4>
+                        <h4 style="color: var(--gold); margin-bottom: 10px;">🏆 النقاط</h4>
                         <p>النقاط الأساسية: <strong>${correctPoints}</strong></p>
                         <p>مضاعف الوقت: <strong>×${timeMultiplier}</strong></p>
-                        <p>مكافأة السرعة: <strong>${speedBonusEnabled ? 'نعم' : 'لا'}</strong></p>
-                    </div>
-                    
-                    <div style="text-align: center;">
-                        <h4 style="color: var(--gold); margin-bottom: 10px;">🔊 الإضافات</h4>
-                        <p>الأصوات: <strong>${soundEnabled ? 'مفعلة' : 'معطلة'}</strong></p>
                         <p>مثال النقاط: <strong>${calculateExamplePoints(correctPoints, timeMultiplier, 20)}</strong></p>
                     </div>
                 </div>
@@ -1426,6 +1725,18 @@
         // حفظ إعدادات اللعبة
         function saveGameSettings() {
             try {
+                // التحقق من اختيار الصف
+                if (!setupSelectedClass) {
+                    alert('⚠️ يجب اختيار صف أولاً!');
+                    return;
+                }
+                
+                // التحقق من اختيار الطالب للاختيار اليدوي
+                if (setupSelectionMethod === 'manual' && !setupSelectedStudent) {
+                    alert('⚠️ يجب اختيار طالب للاختيار اليدوي!');
+                    return;
+                }
+                
                 // جمع الإعدادات
                 const settings = {
                     difficulty: gameState.difficulty,
@@ -1436,11 +1747,29 @@
                     speedupTime: parseInt(document.getElementById('speedupTime').value),
                     soundEnabled: document.getElementById('soundEnabled').checked,
                     speedupEnabled: document.getElementById('speedupEnabled').checked,
-                    speedBonusEnabled: document.getElementById('speedBonusEnabled').checked
+                    speedBonusEnabled: document.getElementById('speedBonusEnabled').checked,
+                    // إعدادات الطالب
+                    selectedClass: setupSelectedClass,
+                    selectedStudent: setupSelectedStudent,
+                    selectionMethod: setupSelectionMethod
                 };
                 
                 // تطبيق الإعدادات
                 gameState.totalBombs = settings.totalBombs;
+                gameState.currentClass = settings.selectedClass;
+                selectionMethod = settings.selectionMethod;
+                
+                // تطبيق اختيار الطالب
+                if (selectionMethod === 'manual') {
+                    gameState.currentStudent = settings.selectedStudent;
+                    selectedStudent = settings.selectedStudent;
+                } else {
+                    // للاختيار العشوائي، سيتم الاختيار عند بدء اللعبة
+                    gameState.currentStudent = null;
+                    selectedStudent = null;
+                }
+                
+                selectedClass = settings.selectedClass;
                 
                 // تحديث إعدادات الصعوبة المخصصة
                 difficultySettings.custom = {
@@ -1452,6 +1781,10 @@
                 // حفظ في التخزين المحلي
                 localStorage.setItem('bombGameSettings', JSON.stringify(settings));
                 
+                // تحديث العرض
+                updateDisplay();
+                updateGameStateMessage();
+                
                 // تأكيد الحفظ
                 showSaveConfirmation();
                 
@@ -1460,6 +1793,20 @@
             } catch (error) {
                 console.error('خطأ في حفظ الإعدادات:', error);
                 alert('❌ حدث خطأ في حفظ الإعدادات!');
+            }
+        }
+
+        // تحديث رسالة حالة اللعبة بناءً على الإعدادات
+        function updateGameStateMessage() {
+            if (gameState.currentStudent) {
+                updateBombMessage(`🎯 تم اختيار ${gameState.currentStudent} من ${gameState.currentClass}!`);
+                updateGameState('waiting', `🚨 ${gameState.currentStudent} جاهز للمهمة!`);
+            } else if (selectedClass && selectionMethod === 'random') {
+                updateBombMessage(`🎲 سيتم اختيار طالب عشوائي من ${selectedClass} عند بدء اللعبة`);
+                updateGameState('waiting', `🎲 اختيار عشوائي من ${selectedClass}`);
+            } else {
+                updateBombMessage('🎯 استخدم إعدادات اللعبة لاختيار الطالب!');
+                updateGameState('waiting', '⚙️ قم بإعداد اللعبة أولاً');
             }
         }
 
@@ -1591,6 +1938,18 @@
                     // تطبيق الإعدادات المحفوظة
                     gameState.difficulty = settings.difficulty || 'medium';
                     gameState.totalBombs = settings.totalBombs || 5;
+                    
+                    // تطبيق إعدادات الطالب إذا كانت موجودة
+                    if (settings.selectedClass) {
+                        selectedClass = settings.selectedClass;
+                        gameState.currentClass = settings.selectedClass;
+                        selectionMethod = settings.selectionMethod || 'manual';
+                        
+                        if (settings.selectionMethod === 'manual' && settings.selectedStudent) {
+                            gameState.currentStudent = settings.selectedStudent;
+                            selectedStudent = settings.selectedStudent;
+                        }
+                    }
                     
                     console.log('✅ تم تحميل الإعدادات المحفوظة');
                 }
@@ -1931,11 +2290,43 @@
 
         // بدء القنبلة
         function startBomb() {
-            if (!gameState.currentStudent) {
-                alert('⚠️ يجب اختيار طالب أولاً!');
+            // التحقق من وجود صف مختار
+            if (!selectedClass) {
+                alert('⚠️ يجب إعداد اللعبة واختيار صف أولاً!');
+                showGameSetup();
                 return;
             }
             
+            // التعامل مع الاختيار العشوائي
+            if (selectionMethod === 'random' && !gameState.currentStudent) {
+                const students = studentsData[selectedClass] || [];
+                if (students.length === 0) {
+                    alert('⚠️ لا يوجد طلاب في الصف المختار!');
+                    return;
+                }
+                
+                // اختيار طالب عشوائي
+                const randomStudent = students[Math.floor(Math.random() * students.length)];
+                gameState.currentStudent = randomStudent;
+                gameState.currentClass = selectedClass;
+                
+                // عرض رسوم متحركة للاختيار العشوائي
+                showRandomSelectionForGame(randomStudent, selectedClass);
+                return; // سيتم استدعاء startBombAfterSelection بعد انتهاء الرسوم المتحركة
+            }
+            
+            // التحقق من وجود طالب
+            if (!gameState.currentStudent) {
+                alert('⚠️ يجب اختيار طالب أولاً!');
+                showGameSetup();
+                return;
+            }
+            
+            startBombAfterSelection();
+        }
+
+        // بدء القنبلة بعد اختيار الطالب
+        function startBombAfterSelection() {
             if (gameState.isActive && !gameState.isPaused) {
                 alert('💣 القنبلة نشطة بالفعل!');
                 return;
@@ -1948,9 +2339,71 @@
             
             updateGameState('active', '🚨 القنبلة نشطة! أجب بسرعة!');
             updateBombMessage(`⚡ ${gameState.currentStudent} - أجب على سؤال المعلم!`);
+            updateDisplay();
             
             // بدء العداد التنازلي
             startTimer();
+        }
+
+        // رسوم متحركة للاختيار العشوائي في اللعبة
+        function showRandomSelectionForGame(studentName, className) {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.9);
+                z-index: 4000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-family: 'Cairo', sans-serif;
+            `;
+            
+            overlay.innerHTML = `
+                <div style="text-align: center; animation: pulse 1s infinite;">
+                    <div style="font-size: 4rem; margin-bottom: 20px;">🎲</div>
+                    <div style="font-size: 2rem; margin-bottom: 10px;">اختيار خبير المتفجرات...</div>
+                    <div style="font-size: 1.2rem; color: var(--warning-orange);">من ${className}</div>
+                    <div id="randomCounterGame" style="font-size: 3rem; color: var(--warning-orange); margin-top: 20px;">3</div>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+            
+            let counter = 3;
+            const counterElement = document.getElementById('randomCounterGame');
+            
+            const countdown = setInterval(() => {
+                counter--;
+                if (counter > 0) {
+                    counterElement.textContent = counter;
+                } else {
+                    clearInterval(countdown);
+                    
+                    // عرض النتيجة
+                    overlay.innerHTML = `
+                        <div style="text-align: center; animation: bounceIn 0.5s ease-out;">
+                            <div style="font-size: 4rem; margin-bottom: 20px;">🎯</div>
+                            <div style="font-size: 2rem; margin-bottom: 10px; color: var(--safe-green);">تم الاختيار!</div>
+                            <div style="font-size: 2rem; margin-bottom: 10px; color: white;">${studentName}</div>
+                            <div style="font-size: 1.2rem; color: var(--warning-orange);">${className}</div>
+                            <div style="font-size: 1rem; color: rgba(255,255,255,0.8); margin-top: 20px;">
+                                جاهز لإبطال القنبلة! 💣
+                            </div>
+                        </div>
+                    `;
+                    
+                    setTimeout(() => {
+                        document.body.removeChild(overlay);
+                        updateDisplay();
+                        startBombAfterSelection(); // بدء القنبلة بعد الاختيار
+                    }, 3000);
+                }
+            }, 1000);
         }
 
         // إيقاف القنبلة مؤقتاً
@@ -1979,7 +2432,7 @@
             clearInterval(gameState.timer);
             
             updateGameState('waiting', '🔄 تم إعادة تعيين القنبلة');
-            updateBombMessage('💣 اختر طالباً وابدأ اللعبة!');
+            updateGameStateMessage(); // استخدام الرسالة المناسبة بناءً على الإعدادات
             updateDisplay();
         }
 
@@ -2355,8 +2808,23 @@
             document.getElementById(modalId).style.display = 'none';
         }
 
-        // وظائف إضافية ستتم إضافتها لاحقاً...
-        console.log('💣 تم تحميل الهيكل الأساسي للعبة القنبلة المؤقتة');
+        // وظائف إضافية للتوافق مع النظام الجديد
+        
+        // إزالة الوظائف القديمة لاختيار الطلاب وإبقاء الضرورية فقط
+        
+        // اختيار طالب (وظيفة مبسطة للتوجيه إلى الإعدادات)
+        function selectStudent() {
+            alert('📋 يتم اختيار الطلاب الآن من إعدادات اللعبة!');
+            showGameSetup();
+        }
+
+        // اختيار عشوائي (وظيفة مبسطة للتوجيه إلى الإعدادات)
+        function randomStudentSelection() {
+            alert('🎲 يتم الاختيار العشوائي الآن من إعدادات اللعبة!\nاختر صفاً ثم حدد "اختيار عشوائي"');
+            showGameSetup();
+        }
+
+        console.log('💣 تم تحميل الهيكل المحدث للعبة القنبلة المؤقتة مع نظام الاختيار الجديد');
     </script>
 </body>
 </html>
