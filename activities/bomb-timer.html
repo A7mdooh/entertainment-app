@@ -1,0 +1,2362 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💣 لعبة القنبلة المؤقتة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --oman-red: #db1f1f;
+            --oman-green: #008000;
+            --oman-white: #ffffff;
+            --dark-blue: #003366;
+            --gold: #FFD700;
+            --danger-red: #ff0000;
+            --warning-orange: #ff6600;
+            --safe-green: #00cc00;
+            --bomb-black: #1a1a1a;
+            --shadow: 0 4px 15px rgba(0,0,0,0.2);
+            --glow: 0 0 20px rgba(255,0,0,0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* تأثيرات الخلفية */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 80%, rgba(255,0,0,0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255,100,0,0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 40%, rgba(255,50,0,0.05) 0%, transparent 50%);
+            z-index: -1;
+            animation: backgroundPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes backgroundPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+        }
+
+        /* أزرار التحكم */
+        .control-btn {
+            position: fixed;
+            top: 15px;
+            font-size: 24px;
+            background: rgba(0,0,0,0.8);
+            border: 2px solid var(--oman-red);
+            color: var(--oman-red);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 10px;
+            z-index: 2147483647;
+            border-radius: 50%;
+            backdrop-filter: blur(10px);
+        }
+        
+        .control-btn:hover {
+            transform: scale(1.1);
+            background: var(--oman-red);
+            color: white;
+            box-shadow: var(--glow);
+        }
+        
+        #homeBtn {
+            right: 15px;
+        }
+        
+        #gameGuideBtn {
+            right: 70px;
+        }
+        
+        #fullscreenBtn {
+            left: 15px;
+        }
+
+        /* رأس الصفحة */
+        header {
+            background: linear-gradient(135deg, var(--bomb-black) 0%, #333 100%);
+            color: var(--danger-red);
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+            position: relative;
+            margin-bottom: 20px;
+            border-bottom: 3px solid var(--danger-red);
+        }
+
+        header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(255,0,0,0.5);
+            animation: titleGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            from { text-shadow: 0 0 10px rgba(255,0,0,0.5); }
+            to { text-shadow: 0 0 20px rgba(255,0,0,0.8), 0 0 30px rgba(255,0,0,0.6); }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            color: var(--warning-orange);
+        }
+
+        /* الحاوي الرئيسي */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 20px;
+            min-height: 70vh;
+        }
+
+        /* القسم الأيسر - معلومات اللعبة */
+        .game-info {
+            background: rgba(0,0,0,0.7);
+            border: 2px solid var(--oman-red);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .info-card {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid var(--warning-orange);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            color: var(--warning-orange);
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        /* القسم المركزي - منطقة القنبلة */
+        .bomb-area {
+            background: rgba(0,0,0,0.8);
+            border: 3px solid var(--danger-red);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            backdrop-filter: blur(15px);
+            box-shadow: var(--glow);
+        }
+
+        .bomb-container {
+            position: relative;
+            margin: 20px auto;
+            width: 300px;
+            height: 300px;
+        }
+
+        /* القنبلة */
+        .bomb {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, #333 0%, #111 70%);
+            border-radius: 50%;
+            margin: 50px auto;
+            position: relative;
+            border: 5px solid #666;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8),
+                        0 0 30px rgba(255,0,0,0.3);
+        }
+
+        .bomb::before {
+            content: '💣';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4rem;
+            animation: bombPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes bombPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        /* الفتيل */
+        .fuse {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 40px;
+            background: linear-gradient(to top, #8B4513 0%, #D2691E 100%);
+            border-radius: 2px;
+        }
+
+        .fuse::after {
+            content: '🔥';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.2rem;
+            animation: fireFlicker 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes fireFlicker {
+            from { opacity: 0.8; }
+            to { opacity: 1; }
+        }
+
+        /* العداد */
+        .timer-display {
+            background: rgba(0,0,0,0.9);
+            border: 3px solid var(--danger-red);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px auto;
+            width: fit-content;
+            box-shadow: 0 0 20px rgba(255,0,0,0.5);
+        }
+
+        .timer-text {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--danger-red);
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 10px rgba(255,0,0,0.8);
+            animation: timerGlow 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes timerGlow {
+            from { text-shadow: 0 0 10px rgba(255,0,0,0.8); }
+            to { text-shadow: 0 0 20px rgba(255,0,0,1), 0 0 30px rgba(255,0,0,0.8); }
+        }
+
+        /* القسم الأيمن - أدوات المعلم */
+        .teacher-controls {
+            background: rgba(0,0,0,0.7);
+            border: 2px solid var(--oman-green);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            border: 1px solid var(--oman-green);
+        }
+
+        .control-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--oman-green);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        /* الأزرار */
+        .btn {
+            background: linear-gradient(135deg, var(--oman-red) 0%, #c41e3a 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            margin: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--safe-green) 0%, #28a745 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-red) 0%, #dc3545 100%);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-orange) 0%, #fd7e14 100%);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, var(--dark-blue) 0%, #007bff 100%);
+        }
+
+        /* حالات اللعبة */
+        .game-state {
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .state-waiting {
+            background: rgba(255,193,7,0.2);
+            border: 2px solid var(--warning-orange);
+            color: var(--warning-orange);
+        }
+
+        .state-active {
+            background: rgba(255,0,0,0.2);
+            border: 2px solid var(--danger-red);
+            color: var(--danger-red);
+            animation: statePulse 1s ease-in-out infinite;
+        }
+
+        .state-success {
+            background: rgba(0,204,0,0.2);
+            border: 2px solid var(--safe-green);
+            color: var(--safe-green);
+        }
+
+        .state-explosion {
+            background: rgba(255,0,0,0.3);
+            border: 2px solid var(--danger-red);
+            color: var(--danger-red);
+            animation: explosionFlash 0.2s ease-in-out infinite;
+        }
+
+        @keyframes statePulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes explosionFlash {
+            0%, 100% { background: rgba(255,0,0,0.3); }
+            50% { background: rgba(255,0,0,0.8); }
+        }
+
+        /* المودال الرئيسي */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 3px solid var(--oman-red);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--oman-red) 0%, #c41e3a 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .modal-body {
+            padding: 20px;
+            color: white;
+        }
+
+        .close {
+            color: white;
+            float: left;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .close:hover {
+            opacity: 0.7;
+        }
+
+        /* تبويبات الدليل */
+        .guide-tabs {
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .guide-tab {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid var(--oman-red);
+            color: var(--oman-red);
+            padding: 10px 20px;
+            margin-left: 5px;
+            border-radius: 10px 10px 0 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 600;
+            border-bottom: none;
+        }
+
+        .guide-tab:hover {
+            background: rgba(219,31,31,0.2);
+            transform: translateY(-2px);
+        }
+
+        .guide-tab.active {
+            background: var(--oman-red);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .guide-content {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .guide-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .guide-section {
+            margin-bottom: 30px;
+        }
+
+        .guide-section h4 {
+            margin: 20px 0 15px 0;
+            border-bottom: 2px solid currentColor;
+            padding-bottom: 5px;
+        }
+
+        .guide-section ul, .guide-section ol {
+            line-height: 1.8;
+        }
+
+        .guide-section li {
+            margin-bottom: 8px;
+        }
+
+        /* نمط خاص للجداول في الدليل */
+        .difficulty-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .difficulty-item {
+            text-align: center;
+            padding: 15px 10px;
+            border-radius: 10px;
+            border: 2px solid;
+            transition: transform 0.3s ease;
+        }
+
+        .difficulty-item:hover {
+            transform: scale(1.05);
+        }
+
+        /* تحسينات للشاشات الصغيرة للدليل */
+        @media (max-width: 768px) {
+            .guide-tabs {
+                flex-direction: column;
+            }
+            
+            .guide-tab {
+                margin: 2px 0;
+                border-radius: 5px;
+            }
+            
+            .modal-content {
+                margin: 2% auto;
+                max-height: 95vh;
+            }
+        }
+
+        /* إعدادات اللعبة */
+        .setup-section {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .difficulty-option {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .difficulty-option:hover {
+            border-color: var(--oman-red);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .difficulty-option.selected {
+            border-color: var(--safe-green);
+            background: rgba(0,204,0,0.2);
+            transform: scale(1.05);
+        }
+
+        .difficulty-option h4 {
+            margin: 10px 0 5px 0;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .difficulty-option p {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--warning-orange);
+            margin: 5px 0;
+        }
+
+        .difficulty-option small {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.85rem;
+        }
+
+        .difficulty-option.selected::after {
+            content: '✅';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* تحسين المدخلات */
+        input[type="number"], input[type="text"] {
+            font-family: 'Cairo', sans-serif;
+            direction: ltr;
+            text-align: center;
+        }
+
+        input[type="number"]:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--safe-green);
+            box-shadow: 0 0 10px rgba(0,204,0,0.3);
+        }
+
+        input[type="checkbox"] {
+            transform: scale(1.2);
+            accent-color: var(--safe-green);
+        }
+
+        /* رسوم متحركة للإعدادات */
+        @keyframes settingsUpdate {
+            0% { background: rgba(0,204,0,0.3); }
+            100% { background: rgba(255,255,255,0.1); }
+        }
+
+        .settings-updated {
+            animation: settingsUpdate 0.5s ease-out;
+        }
+
+        /* التكيف مع الشاشات الصغيرة */
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+                gap: 15px;
+            }
+            
+            .bomb {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .bomb-container {
+                width: 250px;
+                height: 250px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .timer-text {
+                font-size: 2.5rem;
+            }
+            
+            .bomb::before {
+                font-size: 3rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-container {
+                padding: 10px;
+            }
+            
+            .timer-text {
+                font-size: 2rem;
+            }
+            
+            .bomb {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .bomb::before {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- أزرار التحكم -->
+    <button class="control-btn" id="homeBtn" title="العودة للصفحة الرئيسية">🏠</button>
+    <button class="control-btn" id="gameGuideBtn" title="دليل اللعبة">📖</button>
+    <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">⛶</button>
+
+    <!-- رأس الصفحة -->
+    <header>
+        <h1>💣 لعبة القنبلة المؤقتة</h1>
+        <p class="subtitle">اختبر معرفتك قبل انتهاء الوقت!</p>
+    </header>
+
+    <!-- الحاوي الرئيسي -->
+    <div class="main-container">
+        <!-- القسم الأيسر - معلومات اللعبة -->
+        <div class="game-info">
+            <h3 style="color: var(--oman-red); text-align: center; margin-bottom: 20px;">📊 معلومات اللعبة</h3>
+            
+            <div class="info-card">
+                <div class="info-label">👨‍🎓 الطالب الحالي</div>
+                <div class="info-value" id="currentStudent">غير محدد</div>
+            </div>
+            
+            <div class="info-card">
+                <div class="info-label">📚 الصف</div>
+                <div class="info-value" id="currentClass">غير محدد</div>
+            </div>
+            
+            <div class="info-card">
+                <div class="info-label">🏆 النقاط</div>
+                <div class="info-value" id="gamePoints">0</div>
+            </div>
+            
+            <div class="info-card">
+                <div class="info-label">💣 القنابل المُبطلة</div>
+                <div class="info-value" id="defusedBombs">0</div>
+            </div>
+            
+            <div class="info-card">
+                <div class="info-label">💥 القنابل المنفجرة</div>
+                <div class="info-value" id="explodedBombs">0</div>
+            </div>
+            
+            <div class="info-card">
+                <div class="info-label">🎯 معدل النجاح</div>
+                <div class="info-value" id="successRate">0%</div>
+            </div>
+        </div>
+
+        <!-- القسم المركزي - منطقة القنبلة -->
+        <div class="bomb-area">
+            <div class="game-state state-waiting" id="gameState">
+                🚨 في انتظار بدء اللعبة
+            </div>
+            
+            <div class="bomb-container">
+                <div class="bomb" id="bomb">
+                    <div class="fuse" id="fuse"></div>
+                </div>
+            </div>
+            
+            <div class="timer-display">
+                <div class="timer-text" id="timerDisplay">00:00</div>
+            </div>
+            
+            <div id="bombMessage" style="margin-top: 20px; font-size: 1.2rem; font-weight: bold;">
+                💣 اختر طالباً وابدأ اللعبة!
+            </div>
+        </div>
+
+        <!-- القسم الأيمن - أدوات المعلم -->
+        <div class="teacher-controls">
+            <h3 style="color: var(--oman-green); text-align: center; margin-bottom: 20px;">🎛️ لوحة المعلم</h3>
+            
+            <!-- إعداد اللعبة -->
+            <div class="control-section">
+                <div class="control-title">⚙️ إعداد اللعبة</div>
+                <button class="btn btn-info" onclick="showGameSetup()">📋 إعداد جديد</button>
+                <button class="btn btn-warning" onclick="selectStudent()">👨‍🎓 اختيار طالب</button>
+            </div>
+            
+            <!-- التحكم في القنبلة -->
+            <div class="control-section">
+                <div class="control-title">💣 التحكم في القنبلة</div>
+                <button class="btn btn-danger" onclick="startBomb()">🚀 بدء القنبلة</button>
+                <button class="btn btn-warning" onclick="pauseBomb()">⏸️ إيقاف مؤقت</button>
+                <button class="btn btn-info" onclick="resetBomb()">🔄 إعادة تعيين</button>
+            </div>
+            
+            <!-- الإجابات -->
+            <div class="control-section">
+                <div class="control-title">✅ تقييم الإجابة</div>
+                <button class="btn btn-success" onclick="correctAnswer()">✅ إجابة صحيحة</button>
+                <button class="btn btn-danger" onclick="wrongAnswer()">❌ إجابة خاطئة</button>
+            </div>
+            
+            <!-- إضافات -->
+            <div class="control-section">
+                <div class="control-title">🎮 خيارات إضافية</div>
+                <button class="btn btn-info" onclick="showStats()">📊 الإحصائيات</button>
+                <button class="btn btn-warning" onclick="showGameGuide()">📖 دليل اللعبة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة إعداد اللعبة -->
+    <div id="setupModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" onclick="closeModal('setupModal')">&times;</span>
+                <h2>⚙️ إعداد لعبة القنبلة المؤقتة</h2>
+            </div>
+            <div class="modal-body">
+                <div style="display: grid; gap: 20px;">
+                    <!-- إعدادات الصعوبة -->
+                    <div class="setup-section">
+                        <h3 style="color: var(--oman-red); margin-bottom: 15px;">💣 مستوى الصعوبة</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                            <div class="difficulty-option" data-difficulty="easy">
+                                <div style="font-size: 2rem; margin-bottom: 10px;">🟢</div>
+                                <h4>مبتدئ</h4>
+                                <p>60 ثانية</p>
+                                <small>للأسئلة السهلة</small>
+                            </div>
+                            <div class="difficulty-option" data-difficulty="medium">
+                                <div style="font-size: 2rem; margin-bottom: 10px;">🟡</div>
+                                <h4>متوسط</h4>
+                                <p>45 ثانية</p>
+                                <small>للأسئلة العادية</small>
+                            </div>
+                            <div class="difficulty-option" data-difficulty="hard">
+                                <div style="font-size: 2rem; margin-bottom: 10px;">🟠</div>
+                                <h4>متقدم</h4>
+                                <p>30 ثانية</p>
+                                <small>للأسئلة الصعبة</small>
+                            </div>
+                            <div class="difficulty-option" data-difficulty="expert">
+                                <div style="font-size: 2rem; margin-bottom: 10px;">🔴</div>
+                                <h4>خبير</h4>
+                                <p>20 ثانية</p>
+                                <small>للتحدي الأقصى</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- إعدادات مخصصة -->
+                    <div class="setup-section">
+                        <h3 style="color: var(--oman-green); margin-bottom: 15px;">🎛️ إعدادات مخصصة</h3>
+                        <div style="display: grid; gap: 15px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: center;">
+                                <label style="color: white;">⏰ وقت مخصص (ثواني):</label>
+                                <input type="number" id="customTime" min="10" max="300" value="45" 
+                                       style="padding: 8px; border-radius: 5px; border: 2px solid var(--oman-red); 
+                                              background: rgba(255,255,255,0.1); color: white;">
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: center;">
+                                <label style="color: white;">🎯 عدد القنابل في الجولة:</label>
+                                <input type="number" id="totalBombs" min="1" max="20" value="5" 
+                                       style="padding: 8px; border-radius: 5px; border: 2px solid var(--oman-red); 
+                                              background: rgba(255,255,255,0.1); color: white;">
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center;">
+                                <label style="color: white;">🔊 تشغيل الأصوات:</label>
+                                <input type="checkbox" id="soundEnabled" checked 
+                                       style="width: 20px; height: 20px;">
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center;">
+                                <label style="color: white;">⚡ تسريع القنبلة عند الخطأ:</label>
+                                <input type="checkbox" id="speedupEnabled" checked 
+                                       style="width: 20px; height: 20px;">
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: center;">
+                                <label style="color: white;">⏳ وقت التسريع (ثواني):</label>
+                                <input type="number" id="speedupTime" min="5" max="30" value="10" 
+                                       style="padding: 8px; border-radius: 5px; border: 2px solid var(--oman-red); 
+                                              background: rgba(255,255,255,0.1); color: white;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- إعدادات النقاط -->
+                    <div class="setup-section">
+                        <h3 style="color: var(--gold); margin-bottom: 15px;">🏆 نظام النقاط</h3>
+                        <div style="display: grid; gap: 15px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: center;">
+                                <label style="color: white;">💯 نقاط الإجابة الصحيحة:</label>
+                                <input type="number" id="correctPoints" min="10" max="500" value="100" 
+                                       style="padding: 8px; border-radius: 5px; border: 2px solid var(--oman-red); 
+                                              background: rgba(255,255,255,0.1); color: white;">
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: center;">
+                                <label style="color: white;">⚡ مضاعف نقاط الوقت:</label>
+                                <input type="number" id="timeMultiplier" min="1" max="50" value="10" 
+                                       style="padding: 8px; border-radius: 5px; border: 2px solid var(--oman-red); 
+                                              background: rgba(255,255,255,0.1); color: white;">
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center;">
+                                <label style="color: white;">🎁 مكافآت إضافية للسرعة:</label>
+                                <input type="checkbox" id="speedBonusEnabled" checked 
+                                       style="width: 20px; height: 20px;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- معاينة الإعدادات -->
+                    <div class="setup-section">
+                        <h3 style="color: var(--safe-green); margin-bottom: 15px;">👁️ معاينة الإعدادات</h3>
+                        <div id="settingsPreview" style="background: rgba(255,255,255,0.1); border-radius: 10px; padding: 15px;">
+                            <!-- سيتم تحديثها تلقائياً -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- أزرار الحفظ -->
+                <div style="text-align: center; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px;">
+                    <button class="btn btn-success" onclick="saveGameSettings()">💾 حفظ الإعدادات</button>
+                    <button class="btn btn-info" onclick="resetToDefaults()">🔄 إعادة تعيين افتراضية</button>
+                    <button class="btn btn-warning" onclick="loadPresetSettings()">📋 إعدادات جاهزة</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة اختيار الطالب -->
+    <div id="studentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" onclick="closeModal('studentModal')">&times;</span>
+                <h2>👨‍🎓 اختيار خبير المتفجرات</h2>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <p style="color: var(--warning-orange); font-size: 1.1rem;">
+                        🎯 اختر خبير المتفجرات الذي سيحاول إبطال القنبلة
+                    </p>
+                </div>
+                
+                <!-- اختيار الصف -->
+                <div style="margin-bottom: 25px;">
+                    <h3 style="color: var(--oman-red); margin-bottom: 15px; text-align: center;">📚 اختر الصف</h3>
+                    <div id="classSelection" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                        <!-- سيتم تعبئة الصفوف هنا -->
+                    </div>
+                </div>
+                
+                <!-- اختيار الطالب -->
+                <div id="studentSelectionContainer" style="display: none;">
+                    <h3 style="color: var(--oman-green); margin-bottom: 15px; text-align: center;">👨‍🎓 اختر الطالب</h3>
+                    <div style="margin-bottom: 20px; text-align: center;">
+                        <input type="text" id="studentSearch" placeholder="🔍 ابحث عن الطالب..." 
+                               style="padding: 10px; border-radius: 5px; border: 2px solid var(--oman-red); 
+                                      background: rgba(255,255,255,0.1); color: white; width: 80%; 
+                                      font-family: 'Cairo', sans-serif;">
+                    </div>
+                    <div id="studentList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+                                                   gap: 10px; max-height: 300px; overflow-y: auto;">
+                        <!-- سيتم تعبئة الطلاب هنا -->
+                    </div>
+                </div>
+                
+                <!-- معلومات الطالب المختار -->
+                <div id="selectedStudentInfo" style="display: none; margin-top: 20px; 
+                                                     background: rgba(0,204,0,0.2); border: 2px solid var(--safe-green); 
+                                                     border-radius: 10px; padding: 15px; text-align: center;">
+                    <h4 style="color: var(--safe-green); margin-bottom: 10px;">✅ الطالب المختار</h4>
+                    <div id="selectedStudentDetails"></div>
+                    <button class="btn btn-success" onclick="confirmStudentSelection()" 
+                            style="margin-top: 15px;">🚀 بدء المهمة مع هذا الطالب</button>
+                </div>
+                
+                <!-- خيارات متقدمة -->
+                <div style="margin-top: 20px; text-align: center; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px;">
+                    <button class="btn btn-warning" onclick="randomStudentSelection()">🎲 اختيار عشوائي</button>
+                    <button class="btn btn-info" onclick="showClassStats()">📊 إحصائيات الصف</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة دليل اللعبة -->
+    <div id="guideModal" class="modal">
+        <div class="modal-content" style="max-width: 1000px;">
+            <div class="modal-header">
+                <span class="close" onclick="closeModal('guideModal')">&times;</span>
+                <h2>📖 دليل لعبة القنبلة المؤقتة</h2>
+            </div>
+            <div class="modal-body">
+                <!-- تبويبات الدليل -->
+                <div class="guide-tabs" style="display: flex; margin-bottom: 20px; border-bottom: 2px solid var(--oman-red);">
+                    <button class="guide-tab active" onclick="showGuideTab('overview')">🎮 نظرة عامة</button>
+                    <button class="guide-tab" onclick="showGuideTab('teacher')">👨‍🏫 دليل المعلم</button>
+                    <button class="guide-tab" onclick="showGuideTab('gameplay')">🎯 طريقة اللعب</button>
+                    <button class="guide-tab" onclick="showGuideTab('tips')">💡 نصائح متقدمة</button>
+                </div>
+                
+                <!-- نظرة عامة -->
+                <div id="guideOverview" class="guide-content active">
+                    <h3 style="color: var(--oman-red); margin-bottom: 15px;">🎮 ما هي لعبة القنبلة المؤقتة؟</h3>
+                    <div class="guide-section">
+                        <p>لعبة تعليمية تفاعلية تهدف إلى:</p>
+                        <ul style="margin: 15px 0; padding-right: 20px;">
+                            <li>📚 تعزيز التعلم من خلال الإثارة والتشويق</li>
+                            <li>⏰ تطوير مهارات الإجابة السريعة</li>
+                            <li>🧠 تحفيز التفكير تحت الضغط</li>
+                            <li>🏆 زيادة التفاعل والمشاركة في الصف</li>
+                        </ul>
+                        
+                        <div style="background: rgba(255,193,7,0.2); border: 2px solid var(--warning-orange); 
+                                    border-radius: 10px; padding: 15px; margin: 20px 0;">
+                            <h4 style="color: var(--warning-orange); margin-bottom: 10px;">⚡ مبدأ اللعبة</h4>
+                            <p>يختار المعلم طالباً ليكون "خبير المتفجرات" ويعطيه سؤالاً شفهياً. يجب على الطالب الإجابة قبل انتهاء الوقت وانفجار القنبلة!</p>
+                        </div>
+                        
+                        <h4 style="color: var(--safe-green); margin: 20px 0 10px 0;">🎯 الفوائد التعليمية:</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                            <div style="background: rgba(0,204,0,0.1); border: 1px solid var(--safe-green); 
+                                        border-radius: 8px; padding: 15px; text-align: center;">
+                                <h5 style="color: var(--safe-green);">🎪 المتعة في التعلم</h5>
+                                <p>تحويل الدرس إلى تجربة مثيرة</p>
+                            </div>
+                            <div style="background: rgba(0,204,0,0.1); border: 1px solid var(--safe-green); 
+                                        border-radius: 8px; padding: 15px; text-align: center;">
+                                <h5 style="color: var(--safe-green);">⚡ سرعة الاستجابة</h5>
+                                <p>تطوير القدرة على الإجابة السريعة</p>
+                            </div>
+                            <div style="background: rgba(0,204,0,0.1); border: 1px solid var(--safe-green); 
+                                        border-radius: 8px; padding: 15px; text-align: center;">
+                                <h5 style="color: var(--safe-green);">🧠 التفكير النقدي</h5>
+                                <p>تحفيز التفكير تحت الضغط</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- دليل المعلم -->
+                <div id="guideTeacher" class="guide-content">
+                    <h3 style="color: var(--oman-red); margin-bottom: 15px;">👨‍🏫 دليل المعلم الشامل</h3>
+                    
+                    <div class="guide-section">
+                        <h4 style="color: var(--warning-orange);">🚀 خطوات بدء اللعبة:</h4>
+                        <ol style="margin: 15px 0; padding-right: 20px;">
+                            <li><strong>اختيار الطالب:</strong> اضغط "اختيار طالب" واختر الخبير</li>
+                            <li><strong>تحديد الصعوبة:</strong> اختر المدة المناسبة للسؤال</li>
+                            <li><strong>طرح السؤال:</strong> اطرح السؤال شفهياً على الطالب</li>
+                            <li><strong>بدء القنبلة:</strong> اضغط "بدء القنبلة" لتشغيل المؤقت</li>
+                            <li><strong>تقييم الإجابة:</strong> استخدم أزرار "صحيح" أو "خطأ"</li>
+                        </ol>
+                        
+                        <div style="background: rgba(255,0,0,0.2); border: 2px solid var(--danger-red); 
+                                    border-radius: 10px; padding: 15px; margin: 20px 0;">
+                            <h4 style="color: var(--danger-red); margin-bottom: 10px;">🎛️ أزرار التحكم</h4>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                                <div><strong>🚀 بدء القنبلة:</strong> يبدأ العداد التنازلي</div>
+                                <div><strong>⏸️ إيقاف مؤقت:</strong> إيقاف/استئناف المؤقت</div>
+                                <div><strong>✅ إجابة صحيحة:</strong> إبطال القنبلة ومنح نقاط</div>
+                                <div><strong>❌ إجابة خاطئة:</strong> تسريع المؤقت (خصم 10 ثوانِ)</div>
+                                <div><strong>🔄 إعادة تعيين:</strong> إعادة تعيين اللعبة</div>
+                                <div><strong>🎲 اختيار عشوائي:</strong> اختيار طالب عشوائياً</div>
+                            </div>
+                        </div>
+                        
+                        <h4 style="color: var(--safe-green);">💡 نصائح للمعلم:</h4>
+                        <ul style="margin: 15px 0; padding-right: 20px;">
+                            <li>📝 حضّر أسئلة متنوعة مسبقاً</li>
+                            <li>⏰ اختر مدة مناسبة لصعوبة السؤال</li>
+                            <li>🎭 استخدم تعبيرات مثيرة لزيادة التشويق</li>
+                            <li>🏆 احتفل بالنجاحات وشجع على المحاولة</li>
+                            <li>📊 راجع الإحصائيات لتتبع الأداء</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- طريقة اللعب -->
+                <div id="guideGameplay" class="guide-content">
+                    <h3 style="color: var(--oman-red); margin-bottom: 15px;">🎯 طريقة اللعب التفصيلية</h3>
+                    
+                    <div class="guide-section">
+                        <h4 style="color: var(--warning-orange);">🔥 مراحل اللعبة:</h4>
+                        
+                        <div style="display: grid; gap: 15px; margin: 20px 0;">
+                            <div style="background: rgba(255,193,7,0.2); border: 2px solid var(--warning-orange); 
+                                        border-radius: 10px; padding: 15px;">
+                                <h5 style="color: var(--warning-orange);">1️⃣ مرحلة الإعداد</h5>
+                                <p>• اختيار الطالب المشارك<br>
+                                   • تحديد مستوى الصعوبة<br>
+                                   • التأكد من جاهزية السؤال</p>
+                            </div>
+                            
+                            <div style="background: rgba(255,0,0,0.2); border: 2px solid var(--danger-red); 
+                                        border-radius: 10px; padding: 15px;">
+                                <h5 style="color: var(--danger-red);">2️⃣ مرحلة التنفيذ</h5>
+                                <p>• بدء العداد التنازلي<br>
+                                   • طرح السؤال على الطالب<br>
+                                   • مراقبة الوقت المتبقي</p>
+                            </div>
+                            
+                            <div style="background: rgba(0,204,0,0.2); border: 2px solid var(--safe-green); 
+                                        border-radius: 10px; padding: 15px;">
+                                <h5 style="color: var(--safe-green);">3️⃣ مرحلة التقييم</h5>
+                                <p>• تقييم إجابة الطالب<br>
+                                   • منح النقاط أو التحفيز<br>
+                                   • عرض النتائج والإحصائيات</p>
+                            </div>
+                        </div>
+                        
+                        <h4 style="color: var(--danger-red);">💣 مستويات الصعوبة:</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 15px 0;">
+                            <div style="text-align: center; padding: 10px; background: rgba(0,255,0,0.1); border-radius: 8px;">
+                                <h6 style="color: var(--safe-green);">🟢 مبتدئ</h6>
+                                <p>60 ثانية</p>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: rgba(255,255,0,0.1); border-radius: 8px;">
+                                <h6 style="color: var(--warning-orange);">🟡 متوسط</h6>
+                                <p>45 ثانية</p>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: rgba(255,100,0,0.1); border-radius: 8px;">
+                                <h6 style="color: #ff6400;">🟠 متقدم</h6>
+                                <p>30 ثانية</p>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: rgba(255,0,0,0.1); border-radius: 8px;">
+                                <h6 style="color: var(--danger-red);">🔴 خبير</h6>
+                                <p>20 ثانية</p>
+                            </div>
+                        </div>
+                        
+                        <h4 style="color: var(--safe-green);">🏆 نظام النقاط:</h4>
+                        <ul style="margin: 15px 0; padding-right: 20px;">
+                            <li><strong>نقاط أساسية:</strong> 100 نقطة لكل إجابة صحيحة</li>
+                            <li><strong>مكافأة الوقت:</strong> 10 نقاط لكل ثانية متبقية</li>
+                            <li><strong>عقوبة الخطأ:</strong> خصم 10 ثوانِ من المؤقت</li>
+                            <li><strong>الانفجار:</strong> لا نقاط ولكن شجع الطالب للمحاولة مرة أخرى</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- نصائح متقدمة -->
+                <div id="guideTips" class="guide-content">
+                    <h3 style="color: var(--oman-red); margin-bottom: 15px;">💡 نصائح متقدمة للاستخدام الأمثل</h3>
+                    
+                    <div class="guide-section">
+                        <h4 style="color: var(--warning-orange);">🎭 تحسين التجربة:</h4>
+                        <div style="display: grid; gap: 15px; margin: 20px 0;">
+                            <div style="background: rgba(0,204,0,0.1); border: 1px solid var(--safe-green); 
+                                        border-radius: 8px; padding: 15px;">
+                                <h5 style="color: var(--safe-green);">🎪 جو الإثارة</h5>
+                                <p>• استخدم أصوات مثيرة ومعبرة<br>
+                                   • أضف تعليقات محمسة أثناء العد التنازلي<br>
+                                   • احتفل بالنجاحات بحماس</p>
+                            </div>
+                            
+                            <div style="background: rgba(255,193,7,0.1); border: 1px solid var(--warning-orange); 
+                                        border-radius: 8px; padding: 15px;">
+                                <h5 style="color: var(--warning-orange);">📚 التنويع التعليمي</h5>
+                                <p>• نوّع بين الأسئلة السهلة والصعبة<br>
+                                   • استخدم أسئلة من مواد مختلفة<br>
+                                   • أضف أسئلة ثقافية عامة</p>
+                            </div>
+                            
+                            <div style="background: rgba(255,0,0,0.1); border: 1px solid var(--danger-red); 
+                                        border-radius: 8px; padding: 15px;">
+                                <h5 style="color: var(--danger-red);">⚡ إدارة الوقت</h5>
+                                <p>• ابدأ بأسئلة أطول للتشويق<br>
+                                   • استخدم الأسئلة السريعة للتسريع<br>
+                                   • راقب تفاعل الطلاب</p>
+                            </div>
+                        </div>
+                        
+                        <h4 style="color: var(--safe-green);">🏆 تحفيز الطلاب:</h4>
+                        <ul style="margin: 15px 0; padding-right: 20px;">
+                            <li>🎖️ <strong>نظام التشجيع:</strong> امدح المحاولات حتى لو كانت خاطئة</li>
+                            <li>🏅 <strong>المكافآت:</strong> اربط النقاط بمكافآت تعليمية</li>
+                            <li>📊 <strong>التتبع:</strong> اعرض تقدم الطلاب عبر الوقت</li>
+                            <li>🎯 <strong>التحدي:</strong> شجع الطلاب على تحسين أرقامهم</li>
+                        </ul>
+                        
+                        <div style="background: rgba(255,193,7,0.2); border: 2px solid var(--warning-orange); 
+                                    border-radius: 10px; padding: 15px; margin: 20px 0;">
+                            <h4 style="color: var(--warning-orange); margin-bottom: 10px;">⚠️ تحذيرات مهمة</h4>
+                            <ul style="padding-right: 20px;">
+                                <li>لا تجعل الأسئلة صعبة جداً لتجنب الإحباط</li>
+                                <li>تأكد من أن جميع الطلاب يحصلون على فرص</li>
+                                <li>استخدم اللعبة كأداة تعليمية وليس للتقييم الرسمي</li>
+                                <li>راقب مستوى التوتر وتأكد أنه إيجابي</li>
+                            </ul>
+                        </div>
+                        
+                        <h4 style="color: var(--danger-red);">🔧 حل المشاكل الشائعة:</h4>
+                        <div style="display: grid; gap: 10px; margin: 15px 0;">
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 5px; padding: 10px;">
+                                <strong>❓ الطالب لا يعرف الإجابة:</strong> أعطه تلميحاً أو أوقف المؤقت مؤقتاً
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 5px; padding: 10px;">
+                                <strong>⏰ الوقت قصير جداً:</strong> استخدم زر الإيقاف المؤقت لإعطاء وقت إضافي
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 5px; padding: 10px;">
+                                <strong>😰 الطالب متوتر جداً:</strong> خفف الجو بكلمات مشجعة أو غيّر لمستوى أسهل
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- أزرار العمل -->
+                <div style="text-align: center; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px;">
+                    <button class="btn btn-success" onclick="closeModal('guideModal')">✅ فهمت، دعني أبدأ!</button>
+                    <button class="btn btn-info" onclick="showWelcomeInstructions()">🎯 عرض التعليمات التفاعلية</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة الإحصائيات -->
+    <div id="statsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" onclick="closeModal('statsModal')">&times;</span>
+                <h2>📊 إحصائيات اللعبة</h2>
+            </div>
+            <div class="modal-body">
+                <!-- الإحصائيات سيتم إضافتها لاحقاً -->
+                <p style="text-align: center; padding: 50px;">سيتم إضافة الإحصائيات التفصيلية هنا...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // متغيرات اللعبة الأساسية
+        let gameState = {
+            isActive: false,
+            isPaused: false,
+            timeLeft: 0,
+            currentStudent: null,
+            currentClass: null,
+            difficulty: 'medium', // easy, medium, hard, expert
+            totalBombs: 5,
+            defusedBombs: 0,
+            explodedBombs: 0,
+            points: 0,
+            timer: null
+        };
+
+        // بيانات الطلاب والصفوف
+        let studentsData = {};
+        let selectedClass = null;
+        let selectedStudent = null;
+
+        // إعدادات الصعوبة
+        const difficultySettings = {
+            easy: { time: 60, name: 'مبتدئ', color: '#00cc00' },
+            medium: { time: 45, name: 'متوسط', color: '#ff6600' },
+            hard: { time: 30, name: 'متقدم', color: '#ff3300' },
+            expert: { time: 20, name: 'خبير', color: '#cc0000' }
+        };
+
+        // تهيئة اللعبة عند التحميل
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('💣 تحميل لعبة القنبلة المؤقتة...');
+            initializeGame();
+            setupEventListeners();
+            loadStudentsData();
+            console.log('✅ تم تحميل اللعبة بنجاح!');
+        });
+
+        // تحميل بيانات الطلاب
+        async function loadStudentsData() {
+            try {
+                const response = await fetch('../data/studentData.json');
+                studentsData = await response.json();
+                console.log('✅ تم تحميل بيانات الطلاب:', studentsData);
+            } catch (error) {
+                console.error('❌ خطأ في تحميل بيانات الطلاب:', error);
+                // بيانات تجريبية في حالة فشل التحميل
+                studentsData = {
+                    "الصف السابع": ["أحمد محمد", "فاطمة سالم", "محمد عبدالله"],
+                    "الصف الثامن": ["سارة أحمد", "عمر محمد", "ليلى سعيد"],
+                    "الصف التاسع": ["خالد عمر", "نورا محمد", "يوسف سالم"]
+                };
+            }
+        }
+
+        // تهيئة اللعبة
+        function initializeGame() {
+            loadSavedSettings();
+            updateDisplay();
+            // عرض رسالة ترحيب
+            updateBombMessage('🎯 مرحباً بك في لعبة القنبلة المؤقتة!');
+            updateGameState('waiting', '🚨 اختر طالباً وابدأ المغامرة');
+        }
+
+        // إعداد مستمعي الأحداث
+        function setupEventListeners() {
+            // أزرار التحكم الرئيسية
+            document.getElementById('homeBtn').addEventListener('click', function() {
+                if (confirm('هل تريد العودة للصفحة الرئيسية؟ سيتم فقدان التقدم الحالي.')) {
+                    window.location.href = '../main.html';
+                }
+            });
+
+            document.getElementById('gameGuideBtn').addEventListener('click', function() {
+                showGameGuide();
+            });
+
+            document.getElementById('fullscreenBtn').addEventListener('click', function() {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.log('خطأ في ملء الشاشة:', err);
+                    });
+                } else {
+                    document.exitFullscreen();
+                }
+            });
+
+            // إغلاق المودال عند النقر خارجه
+            window.addEventListener('click', function(event) {
+                if (event.target.classList.contains('modal')) {
+                    event.target.style.display = 'none';
+                }
+            });
+        }
+
+        // تحديث العرض
+        function updateDisplay() {
+            document.getElementById('currentStudent').textContent = gameState.currentStudent || 'غير محدد';
+            document.getElementById('currentClass').textContent = gameState.currentClass || 'غير محدد';
+            document.getElementById('gamePoints').textContent = gameState.points;
+            document.getElementById('defusedBombs').textContent = gameState.defusedBombs;
+            document.getElementById('explodedBombs').textContent = gameState.explodedBombs;
+            
+            // حساب معدل النجاح
+            const total = gameState.defusedBombs + gameState.explodedBombs;
+            const successRate = total > 0 ? Math.round((gameState.defusedBombs / total) * 100) : 0;
+            document.getElementById('successRate').textContent = successRate + '%';
+            
+            // تحديث العداد
+            const minutes = Math.floor(gameState.timeLeft / 60);
+            const seconds = gameState.timeLeft % 60;
+            document.getElementById('timerDisplay').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // تحديث رسالة القنبلة
+        function updateBombMessage(message) {
+            document.getElementById('bombMessage').innerHTML = message;
+        }
+
+        // تحديث حالة اللعبة
+        function updateGameState(state, message) {
+            const gameStateElement = document.getElementById('gameState');
+            gameStateElement.className = `game-state state-${state}`;
+            gameStateElement.textContent = message;
+        }
+
+        // عرض إعداد اللعبة
+        function showGameSetup() {
+            updateSettingsPreview();
+            setupDifficultyOptions();
+            document.getElementById('setupModal').style.display = 'block';
+        }
+
+        // إعداد خيارات الصعوبة
+        function setupDifficultyOptions() {
+            const difficultyOptions = document.querySelectorAll('.difficulty-option');
+            
+            difficultyOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // إزالة التحديد من جميع الخيارات
+                    difficultyOptions.forEach(opt => opt.classList.remove('selected'));
+                    
+                    // تحديد الخيار المختار
+                    this.classList.add('selected');
+                    
+                    // تحديث الصعوبة
+                    const difficulty = this.getAttribute('data-difficulty');
+                    gameState.difficulty = difficulty;
+                    
+                    // تحديث الوقت المخصص ليطابق الصعوبة
+                    document.getElementById('customTime').value = difficultySettings[difficulty].time;
+                    
+                    updateSettingsPreview();
+                });
+            });
+            
+            // تحديد الصعوبة الحالية
+            document.querySelector(`[data-difficulty="${gameState.difficulty}"]`).classList.add('selected');
+            
+            // إعداد مستمعي الأحداث للمدخلات
+            document.getElementById('customTime').addEventListener('input', updateSettingsPreview);
+            document.getElementById('totalBombs').addEventListener('input', updateSettingsPreview);
+            document.getElementById('correctPoints').addEventListener('input', updateSettingsPreview);
+            document.getElementById('timeMultiplier').addEventListener('input', updateSettingsPreview);
+            document.getElementById('speedupTime').addEventListener('input', updateSettingsPreview);
+            document.getElementById('soundEnabled').addEventListener('change', updateSettingsPreview);
+            document.getElementById('speedupEnabled').addEventListener('change', updateSettingsPreview);
+            document.getElementById('speedBonusEnabled').addEventListener('change', updateSettingsPreview);
+        }
+
+        // تحديث معاينة الإعدادات
+        function updateSettingsPreview() {
+            const preview = document.getElementById('settingsPreview');
+            if (!preview) return;
+            
+            const customTime = document.getElementById('customTime')?.value || 45;
+            const totalBombs = document.getElementById('totalBombs')?.value || 5;
+            const correctPoints = document.getElementById('correctPoints')?.value || 100;
+            const timeMultiplier = document.getElementById('timeMultiplier')?.value || 10;
+            const speedupTime = document.getElementById('speedupTime')?.value || 10;
+            const soundEnabled = document.getElementById('soundEnabled')?.checked ?? true;
+            const speedupEnabled = document.getElementById('speedupEnabled')?.checked ?? true;
+            const speedBonusEnabled = document.getElementById('speedBonusEnabled')?.checked ?? true;
+            
+            const difficultyName = difficultySettings[gameState.difficulty]?.name || 'متوسط';
+            
+            preview.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div style="text-align: center;">
+                        <h4 style="color: var(--oman-red); margin-bottom: 10px;">⏱️ التوقيت</h4>
+                        <p>الصعوبة: <strong>${difficultyName}</strong></p>
+                        <p>الوقت: <strong>${customTime} ثانية</strong></p>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <h4 style="color: var(--warning-orange); margin-bottom: 10px;">🎯 الجولة</h4>
+                        <p>عدد القنابل: <strong>${totalBombs}</strong></p>
+                        <p>تسريع الخطأ: <strong>${speedupEnabled ? speedupTime + ' ثانية' : 'معطل'}</strong></p>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <h4 style="color: var(--safe-green); margin-bottom: 10px;">🏆 النقاط</h4>
+                        <p>النقاط الأساسية: <strong>${correctPoints}</strong></p>
+                        <p>مضاعف الوقت: <strong>×${timeMultiplier}</strong></p>
+                        <p>مكافأة السرعة: <strong>${speedBonusEnabled ? 'نعم' : 'لا'}</strong></p>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <h4 style="color: var(--gold); margin-bottom: 10px;">🔊 الإضافات</h4>
+                        <p>الأصوات: <strong>${soundEnabled ? 'مفعلة' : 'معطلة'}</strong></p>
+                        <p>مثال النقاط: <strong>${calculateExamplePoints(correctPoints, timeMultiplier, 20)}</strong></p>
+                    </div>
+                </div>
+            `;
+            
+            preview.classList.add('settings-updated');
+            setTimeout(() => preview.classList.remove('settings-updated'), 500);
+        }
+
+        // حساب مثال للنقاط
+        function calculateExamplePoints(basePoints, multiplier, timeLeft) {
+            const base = parseInt(basePoints);
+            const timeBonus = parseInt(timeLeft) * parseInt(multiplier);
+            return `${base + timeBonus} نقطة`;
+        }
+
+        // حفظ إعدادات اللعبة
+        function saveGameSettings() {
+            try {
+                // جمع الإعدادات
+                const settings = {
+                    difficulty: gameState.difficulty,
+                    customTime: parseInt(document.getElementById('customTime').value),
+                    totalBombs: parseInt(document.getElementById('totalBombs').value),
+                    correctPoints: parseInt(document.getElementById('correctPoints').value),
+                    timeMultiplier: parseInt(document.getElementById('timeMultiplier').value),
+                    speedupTime: parseInt(document.getElementById('speedupTime').value),
+                    soundEnabled: document.getElementById('soundEnabled').checked,
+                    speedupEnabled: document.getElementById('speedupEnabled').checked,
+                    speedBonusEnabled: document.getElementById('speedBonusEnabled').checked
+                };
+                
+                // تطبيق الإعدادات
+                gameState.totalBombs = settings.totalBombs;
+                
+                // تحديث إعدادات الصعوبة المخصصة
+                difficultySettings.custom = {
+                    time: settings.customTime,
+                    name: 'مخصص',
+                    color: '#6c757d'
+                };
+                
+                // حفظ في التخزين المحلي
+                localStorage.setItem('bombGameSettings', JSON.stringify(settings));
+                
+                // تأكيد الحفظ
+                showSaveConfirmation();
+                
+                closeModal('setupModal');
+                
+            } catch (error) {
+                console.error('خطأ في حفظ الإعدادات:', error);
+                alert('❌ حدث خطأ في حفظ الإعدادات!');
+            }
+        }
+
+        // تأكيد الحفظ
+        function showSaveConfirmation() {
+            const confirmation = document.createElement('div');
+            confirmation.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--safe-green);
+                color: white;
+                padding: 15px 25px;
+                border-radius: 10px;
+                z-index: 3000;
+                font-family: 'Cairo', sans-serif;
+                font-weight: bold;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                animation: slideInRight 0.5s ease-out;
+            `;
+            
+            confirmation.innerHTML = '✅ تم حفظ الإعدادات بنجاح!';
+            document.body.appendChild(confirmation);
+            
+            setTimeout(() => {
+                confirmation.style.animation = 'slideOutRight 0.5s ease-in';
+                setTimeout(() => document.body.removeChild(confirmation), 500);
+            }, 3000);
+        }
+
+        // إعادة تعيين للإعدادات الافتراضية
+        function resetToDefaults() {
+            if (!confirm('هل تريد إعادة تعيين جميع الإعدادات للقيم الافتراضية؟')) {
+                return;
+            }
+            
+            // الإعدادات الافتراضية
+            gameState.difficulty = 'medium';
+            document.getElementById('customTime').value = 45;
+            document.getElementById('totalBombs').value = 5;
+            document.getElementById('correctPoints').value = 100;
+            document.getElementById('timeMultiplier').value = 10;
+            document.getElementById('speedupTime').value = 10;
+            document.getElementById('soundEnabled').checked = true;
+            document.getElementById('speedupEnabled').checked = true;
+            document.getElementById('speedBonusEnabled').checked = true;
+            
+            // إعادة تحديد الصعوبة
+            document.querySelectorAll('.difficulty-option').forEach(opt => opt.classList.remove('selected'));
+            document.querySelector(`[data-difficulty="medium"]`).classList.add('selected');
+            
+            updateSettingsPreview();
+            
+            alert('✅ تم إعادة تعيين الإعدادات للقيم الافتراضية');
+        }
+
+        // تحميل إعدادات جاهزة
+        function loadPresetSettings() {
+            const presets = {
+                beginner: {
+                    name: '🟢 إعدادات المبتدئين',
+                    difficulty: 'easy',
+                    customTime: 60,
+                    totalBombs: 3,
+                    correctPoints: 50,
+                    timeMultiplier: 5,
+                    speedupTime: 5,
+                    speedupEnabled: false
+                },
+                standard: {
+                    name: '🟡 إعدادات قياسية',
+                    difficulty: 'medium',
+                    customTime: 45,
+                    totalBombs: 5,
+                    correctPoints: 100,
+                    timeMultiplier: 10,
+                    speedupTime: 10,
+                    speedupEnabled: true
+                },
+                expert: {
+                    name: '🔴 إعدادات الخبراء',
+                    difficulty: 'expert',
+                    customTime: 20,
+                    totalBombs: 10,
+                    correctPoints: 200,
+                    timeMultiplier: 20,
+                    speedupTime: 15,
+                    speedupEnabled: true
+                }
+            };
+            
+            let options = 'اختر الإعدادات المطلوبة:\n\n';
+            Object.keys(presets).forEach((key, index) => {
+                options += `${index + 1}. ${presets[key].name}\n`;
+            });
+            
+            const choice = prompt(options + '\nأدخل رقم الاختيار (1-3):');
+            
+            if (choice && choice >= 1 && choice <= 3) {
+                const presetKeys = Object.keys(presets);
+                const selectedPreset = presets[presetKeys[choice - 1]];
+                
+                // تطبيق الإعدادات المحددة
+                gameState.difficulty = selectedPreset.difficulty;
+                document.getElementById('customTime').value = selectedPreset.customTime;
+                document.getElementById('totalBombs').value = selectedPreset.totalBombs;
+                document.getElementById('correctPoints').value = selectedPreset.correctPoints;
+                document.getElementById('timeMultiplier').value = selectedPreset.timeMultiplier;
+                document.getElementById('speedupTime').value = selectedPreset.speedupTime;
+                document.getElementById('speedupEnabled').checked = selectedPreset.speedupEnabled;
+                
+                // تحديث الواجهة
+                document.querySelectorAll('.difficulty-option').forEach(opt => opt.classList.remove('selected'));
+                document.querySelector(`[data-difficulty="${selectedPreset.difficulty}"]`).classList.add('selected');
+                
+                updateSettingsPreview();
+                
+                alert(`✅ تم تحميل ${selectedPreset.name} بنجاح!`);
+            }
+        }
+
+        // تحميل الإعدادات المحفوظة عند البدء
+        function loadSavedSettings() {
+            try {
+                const savedSettings = localStorage.getItem('bombGameSettings');
+                if (savedSettings) {
+                    const settings = JSON.parse(savedSettings);
+                    
+                    // تطبيق الإعدادات المحفوظة
+                    gameState.difficulty = settings.difficulty || 'medium';
+                    gameState.totalBombs = settings.totalBombs || 5;
+                    
+                    console.log('✅ تم تحميل الإعدادات المحفوظة');
+                }
+            } catch (error) {
+                console.log('ℹ️ لا توجد إعدادات محفوظة، سيتم استخدام الإعدادات الافتراضية');
+            }
+        }
+
+        // اختيار طالب
+        function selectStudent() {
+            selectedClass = null;
+            selectedStudent = null;
+            document.getElementById('studentSelectionContainer').style.display = 'none';
+            document.getElementById('selectedStudentInfo').style.display = 'none';
+            
+            loadClassSelection();
+            document.getElementById('studentModal').style.display = 'block';
+        }
+
+        // تحميل خيارات الصفوف
+        function loadClassSelection() {
+            const classSelection = document.getElementById('classSelection');
+            classSelection.innerHTML = '';
+            
+            Object.keys(studentsData).forEach(className => {
+                const classButton = document.createElement('button');
+                classButton.className = 'btn btn-info';
+                classButton.style.margin = '5px';
+                classButton.innerHTML = `📚 ${className}`;
+                classButton.onclick = () => selectClass(className);
+                classSelection.appendChild(classButton);
+            });
+        }
+
+        // اختيار صف
+        function selectClass(className) {
+            selectedClass = className;
+            
+            // تحديث مظهر الأزرار
+            document.querySelectorAll('#classSelection .btn').forEach(btn => {
+                btn.className = 'btn btn-info';
+            });
+            event.target.className = 'btn btn-success';
+            
+            loadStudentSelection(className);
+            document.getElementById('studentSelectionContainer').style.display = 'block';
+        }
+
+        // تحميل خيارات الطلاب
+        function loadStudentSelection(className) {
+            const studentList = document.getElementById('studentList');
+            studentList.innerHTML = '';
+            
+            const students = studentsData[className] || [];
+            students.forEach(studentName => {
+                const studentCard = document.createElement('div');
+                studentCard.className = 'student-card';
+                studentCard.style.cssText = `
+                    background: rgba(255,255,255,0.1);
+                    border: 2px solid var(--oman-green);
+                    border-radius: 10px;
+                    padding: 15px;
+                    text-align: center;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    margin: 5px;
+                `;
+                
+                studentCard.innerHTML = `
+                    <div style="font-size: 2rem; margin-bottom: 10px;">👨‍🎓</div>
+                    <div style="font-weight: bold; color: white;">${studentName}</div>
+                    <div style="font-size: 0.9rem; color: var(--oman-green); margin-top: 5px;">${className}</div>
+                `;
+                
+                studentCard.onclick = () => selectStudentFromList(studentName, className);
+                
+                // تأثيرات التفاعل
+                studentCard.onmouseover = () => {
+                    studentCard.style.background = 'rgba(0,204,0,0.2)';
+                    studentCard.style.transform = 'scale(1.05)';
+                };
+                
+                studentCard.onmouseout = () => {
+                    if (selectedStudent !== studentName) {
+                        studentCard.style.background = 'rgba(255,255,255,0.1)';
+                        studentCard.style.transform = 'scale(1)';
+                    }
+                };
+                
+                studentList.appendChild(studentCard);
+            });
+            
+            // إعداد البحث
+            setupStudentSearch(students, className);
+        }
+
+        // إعداد وظيفة البحث
+        function setupStudentSearch(students, className) {
+            const searchInput = document.getElementById('studentSearch');
+            searchInput.value = '';
+            
+            searchInput.oninput = (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const filteredStudents = students.filter(name => 
+                    name.toLowerCase().includes(searchTerm)
+                );
+                
+                // إعادة عرض القائمة المفلترة
+                const studentList = document.getElementById('studentList');
+                studentList.innerHTML = '';
+                
+                filteredStudents.forEach(studentName => {
+                    const studentCard = document.createElement('div');
+                    studentCard.className = 'student-card';
+                    studentCard.style.cssText = `
+                        background: rgba(255,255,255,0.1);
+                        border: 2px solid var(--oman-green);
+                        border-radius: 10px;
+                        padding: 15px;
+                        text-align: center;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        margin: 5px;
+                    `;
+                    
+                    studentCard.innerHTML = `
+                        <div style="font-size: 2rem; margin-bottom: 10px;">👨‍🎓</div>
+                        <div style="font-weight: bold; color: white;">${studentName}</div>
+                        <div style="font-size: 0.9rem; color: var(--oman-green); margin-top: 5px;">${className}</div>
+                    `;
+                    
+                    studentCard.onclick = () => selectStudentFromList(studentName, className);
+                    studentList.appendChild(studentCard);
+                });
+            };
+        }
+
+        // اختيار طالب من القائمة
+        function selectStudentFromList(studentName, className) {
+            selectedStudent = studentName;
+            
+            // تحديث مظهر البطاقات
+            document.querySelectorAll('.student-card').forEach(card => {
+                card.style.background = 'rgba(255,255,255,0.1)';
+                card.style.border = '2px solid var(--oman-green)';
+                card.style.transform = 'scale(1)';
+            });
+            
+            // تمييز الطالب المختار
+            event.currentTarget.style.background = 'rgba(0,204,0,0.3)';
+            event.currentTarget.style.border = '2px solid var(--safe-green)';
+            event.currentTarget.style.transform = 'scale(1.1)';
+            
+            // عرض معلومات الطالب المختار
+            showSelectedStudentInfo(studentName, className);
+        }
+
+        // عرض معلومات الطالب المختار
+        function showSelectedStudentInfo(studentName, className) {
+            const infoContainer = document.getElementById('selectedStudentInfo');
+            const detailsContainer = document.getElementById('selectedStudentDetails');
+            
+            detailsContainer.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 15px;">
+                    <div style="font-size: 3rem;">👨‍🎓</div>
+                    <div>
+                        <div style="font-size: 1.3rem; font-weight: bold; color: white;">${studentName}</div>
+                        <div style="color: var(--safe-green);">${className}</div>
+                    </div>
+                </div>
+                <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; margin: 10px 0;">
+                    <strong>🎯 الدور:</strong> خبير إبطال المتفجرات
+                </div>
+                <div style="font-size: 0.9rem; color: var(--warning-orange);">
+                    ⚡ سيحصل هذا الطالب على سؤال ويجب عليه الإجابة قبل انفجار القنبلة!
+                </div>
+            `;
+            
+            infoContainer.style.display = 'block';
+        }
+
+        // تأكيد اختيار الطالب
+        function confirmStudentSelection() {
+            if (!selectedStudent || !selectedClass) {
+                alert('⚠️ يرجى اختيار طالب أولاً!');
+                return;
+            }
+            
+            gameState.currentStudent = selectedStudent;
+            gameState.currentClass = selectedClass;
+            
+            updateDisplay();
+            updateBombMessage(`🎯 تم اختيار ${selectedStudent} من ${selectedClass} كخبير متفجرات!`);
+            updateGameState('waiting', `🚨 ${selectedStudent} جاهز للمهمة!`);
+            
+            closeModal('studentModal');
+            
+            // تأثيرات بصرية للتأكيد
+            showSelectionConfirmation();
+        }
+
+        // تأكيد بصري لاختيار الطالب
+        function showSelectionConfirmation() {
+            const message = document.createElement('div');
+            message.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, var(--safe-green) 0%, #28a745 100%);
+                color: white;
+                padding: 20px 40px;
+                border-radius: 15px;
+                z-index: 3000;
+                text-align: center;
+                font-size: 1.2rem;
+                font-weight: bold;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                animation: popIn 0.5s ease-out;
+            `;
+            
+            message.innerHTML = `
+                <div style="font-size: 2rem; margin-bottom: 10px;">✅</div>
+                <div>تم اختيار ${gameState.currentStudent}</div>
+                <div style="font-size: 0.9rem; margin-top: 5px;">جاهز لإبطال القنبلة!</div>
+            `;
+            
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                document.body.removeChild(message);
+            }, 3000);
+        }
+
+        // اختيار طالب عشوائي
+        function randomStudentSelection() {
+            if (!studentsData || Object.keys(studentsData).length === 0) {
+                alert('⚠️ لا توجد بيانات طلاب متاحة!');
+                return;
+            }
+            
+            const classes = Object.keys(studentsData);
+            const randomClass = classes[Math.floor(Math.random() * classes.length)];
+            const students = studentsData[randomClass];
+            const randomStudent = students[Math.floor(Math.random() * students.length)];
+            
+            selectedClass = randomClass;
+            selectedStudent = randomStudent;
+            
+            // تحديث واجهة الاختيار العشوائي
+            showRandomSelectionAnimation(randomStudent, randomClass);
+        }
+
+        // رسوم متحركة للاختيار العشوائي
+        function showRandomSelectionAnimation(studentName, className) {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.9);
+                z-index: 4000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-family: 'Cairo', sans-serif;
+            `;
+            
+            overlay.innerHTML = `
+                <div style="text-align: center; animation: pulse 1s infinite;">
+                    <div style="font-size: 4rem; margin-bottom: 20px;">🎲</div>
+                    <div style="font-size: 2rem; margin-bottom: 10px;">اختيار عشوائي...</div>
+                    <div id="randomCounter" style="font-size: 3rem; color: var(--warning-orange);">3</div>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+            
+            let counter = 3;
+            const counterElement = document.getElementById('randomCounter');
+            
+            const countdown = setInterval(() => {
+                counter--;
+                if (counter > 0) {
+                    counterElement.textContent = counter;
+                } else {
+                    clearInterval(countdown);
+                    
+                    // عرض النتيجة
+                    overlay.innerHTML = `
+                        <div style="text-align: center; animation: bounceIn 0.5s ease-out;">
+                            <div style="font-size: 4rem; margin-bottom: 20px;">🎯</div>
+                            <div style="font-size: 2rem; margin-bottom: 10px; color: var(--safe-green);">تم الاختيار!</div>
+                            <div style="font-size: 1.5rem; margin-bottom: 5px;">${studentName}</div>
+                            <div style="font-size: 1.2rem; color: var(--warning-orange);">${className}</div>
+                        </div>
+                    `;
+                    
+                    setTimeout(() => {
+                        document.body.removeChild(overlay);
+                        
+                        // تطبيق الاختيار
+                        gameState.currentStudent = studentName;
+                        gameState.currentClass = className;
+                        updateDisplay();
+                        updateBombMessage(`🎲 تم اختيار ${studentName} عشوائياً!`);
+                        closeModal('studentModal');
+                        
+                    }, 2000);
+                }
+            }, 1000);
+        }
+
+        // عرض إحصائيات الصف
+        function showClassStats() {
+            if (!selectedClass || !studentsData[selectedClass]) {
+                alert('⚠️ يرجى اختيار صف أولاً!');
+                return;
+            }
+            
+            const students = studentsData[selectedClass];
+            const stats = `
+                📊 إحصائيات ${selectedClass}:
+                
+                👥 عدد الطلاب: ${students.length}
+                📚 الصف: ${selectedClass}
+                🎯 متاح للعب: نعم
+                
+                الطلاب:
+                ${students.map((student, index) => `${index + 1}. ${student}`).join('\n')}
+            `;
+            
+            alert(stats);
+        }
+
+        // بدء القنبلة
+        function startBomb() {
+            if (!gameState.currentStudent) {
+                alert('⚠️ يجب اختيار طالب أولاً!');
+                return;
+            }
+            
+            if (gameState.isActive && !gameState.isPaused) {
+                alert('💣 القنبلة نشطة بالفعل!');
+                return;
+            }
+            
+            // إعداد القنبلة
+            gameState.isActive = true;
+            gameState.isPaused = false;
+            gameState.timeLeft = difficultySettings[gameState.difficulty].time;
+            
+            updateGameState('active', '🚨 القنبلة نشطة! أجب بسرعة!');
+            updateBombMessage(`⚡ ${gameState.currentStudent} - أجب على سؤال المعلم!`);
+            
+            // بدء العداد التنازلي
+            startTimer();
+        }
+
+        // إيقاف القنبلة مؤقتاً
+        function pauseBomb() {
+            if (!gameState.isActive) {
+                alert('⚠️ لا توجد قنبلة نشطة!');
+                return;
+            }
+            
+            gameState.isPaused = !gameState.isPaused;
+            
+            if (gameState.isPaused) {
+                clearInterval(gameState.timer);
+                updateGameState('waiting', '⏸️ تم إيقاف القنبلة مؤقتاً');
+            } else {
+                startTimer();
+                updateGameState('active', '🚨 القنبلة نشطة! أجب بسرعة!');
+            }
+        }
+
+        // إعادة تعيين القنبلة
+        function resetBomb() {
+            gameState.isActive = false;
+            gameState.isPaused = false;
+            gameState.timeLeft = 0;
+            clearInterval(gameState.timer);
+            
+            updateGameState('waiting', '🔄 تم إعادة تعيين القنبلة');
+            updateBombMessage('💣 اختر طالباً وابدأ اللعبة!');
+            updateDisplay();
+        }
+
+        // بدء المؤقت
+        function startTimer() {
+            clearInterval(gameState.timer);
+            
+            gameState.timer = setInterval(() => {
+                gameState.timeLeft--;
+                updateDisplay();
+                
+                // تحديث ألوان القنبلة حسب الوقت المتبقي
+                updateBombAppearance();
+                
+                // انتهاء الوقت
+                if (gameState.timeLeft <= 0) {
+                    explodeBomb();
+                }
+            }, 1000);
+        }
+
+        // تحديث مظهر القنبلة
+        function updateBombAppearance() {
+            const bomb = document.getElementById('bomb');
+            const timerDisplay = document.getElementById('timerDisplay');
+            
+            if (gameState.timeLeft <= 10) {
+                // خطر شديد - أحمر وامض
+                bomb.style.border = '5px solid #ff0000';
+                bomb.style.boxShadow = 'inset 0 0 20px rgba(255,0,0,0.8), 0 0 30px rgba(255,0,0,0.8)';
+                timerDisplay.style.color = '#ff0000';
+            } else if (gameState.timeLeft <= 20) {
+                // تحذير - برتقالي
+                bomb.style.border = '5px solid #ff6600';
+                bomb.style.boxShadow = 'inset 0 0 20px rgba(255,102,0,0.6), 0 0 30px rgba(255,102,0,0.6)';
+                timerDisplay.style.color = '#ff6600';
+            } else {
+                // طبيعي - رمادي
+                bomb.style.border = '5px solid #666';
+                bomb.style.boxShadow = 'inset 0 0 20px rgba(0,0,0,0.8), 0 0 30px rgba(255,0,0,0.3)';
+                timerDisplay.style.color = '#db1f1f';
+            }
+        }
+
+        // إجابة صحيحة
+        function correctAnswer() {
+            if (!gameState.isActive) {
+                alert('⚠️ لا توجد قنبلة نشطة!');
+                return;
+            }
+            
+            // إيقاف المؤقت
+            clearInterval(gameState.timer);
+            gameState.isActive = false;
+            
+            // حساب النقاط
+            const timeBonus = gameState.timeLeft * 10;
+            const basePoints = 100;
+            const totalPoints = basePoints + timeBonus;
+            gameState.points += totalPoints;
+            gameState.defusedBombs++;
+            
+            // تحديث العرض
+            updateGameState('success', '✅ تم إبطال القنبلة بنجاح!');
+            updateBombMessage(`🎉 أحسنت ${gameState.currentStudent}! حصلت على ${totalPoints} نقطة`);
+            
+            // تأثيرات النجاح
+            showSuccessEffect();
+            updateDisplay();
+        }
+
+        // إجابة خاطئة
+        function wrongAnswer() {
+            if (!gameState.isActive) {
+                alert('⚠️ لا توجد قنبلة نشطة!');
+                return;
+            }
+            
+            // تسريع المؤقت (خصم 10 ثوانِ)
+            gameState.timeLeft = Math.max(0, gameState.timeLeft - 10);
+            
+            updateBombMessage(`❌ إجابة خاطئة! القنبلة تسرع! ${gameState.currentStudent} حاول مرة أخرى!`);
+            
+            // تأثيرات الخطأ
+            showErrorEffect();
+            updateDisplay();
+        }
+
+        // انفجار القنبلة
+        function explodeBomb() {
+            clearInterval(gameState.timer);
+            gameState.isActive = false;
+            gameState.explodedBombs++;
+            
+            updateGameState('explosion', '💥 انفجرت القنبلة!');
+            updateBombMessage(`💥 لقد انفجرت القنبلة! ${gameState.currentStudent} حاول مرة أخرى!`);
+            
+            // تأثيرات الانفجار
+            showExplosionEffect();
+            updateDisplay();
+        }
+
+        // تأثيرات النجاح
+        function showSuccessEffect() {
+            // تأثيرات بصرية للنجاح
+            document.body.style.background = 'linear-gradient(135deg, #00cc00 0%, #1a1a1a 50%, #00cc00 100%)';
+            setTimeout(() => {
+                document.body.style.background = 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%)';
+            }, 2000);
+        }
+
+        // تأثيرات الخطأ
+        function showErrorEffect() {
+            // تأثيرات بصرية للخطأ
+            document.body.style.background = 'linear-gradient(135deg, #ff6600 0%, #1a1a1a 50%, #ff6600 100%)';
+            setTimeout(() => {
+                document.body.style.background = 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%)';
+            }, 1000);
+        }
+
+        // تأثيرات الانفجار
+        function showExplosionEffect() {
+            // تأثيرات بصرية للانفجار
+            document.body.style.background = 'linear-gradient(135deg, #ff0000 0%, #1a1a1a 50%, #ff0000 100%)';
+            setTimeout(() => {
+                document.body.style.background = 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%)';
+            }, 3000);
+        }
+
+        // عرض الإحصائيات
+        function showStats() {
+            document.getElementById('statsModal').style.display = 'block';
+        }
+
+        // عرض دليل اللعبة
+        function showGameGuide() {
+            document.getElementById('guideModal').style.display = 'block';
+            showGuideTab('overview'); // عرض النظرة العامة أولاً
+        }
+
+        // تبديل تبويبات الدليل
+        function showGuideTab(tabName) {
+            // إخفاء جميع التبويبات
+            document.querySelectorAll('.guide-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // إزالة التفعيل من جميع الأزرار
+            document.querySelectorAll('.guide-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // تفعيل التبويب المحدد
+            document.getElementById(`guide${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`).classList.add('active');
+            
+            // تفعيل الزر المحدد
+            event.target.classList.add('active');
+        }
+
+        // عرض التعليمات التفاعلية
+        function showWelcomeInstructions() {
+            const instructionsOverlay = document.createElement('div');
+            instructionsOverlay.id = 'instructionsOverlay';
+            instructionsOverlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.95);
+                z-index: 5000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: 'Cairo', sans-serif;
+                color: white;
+            `;
+            
+            let step = 1;
+            const totalSteps = 5;
+            
+            function showStep(stepNumber) {
+                const steps = {
+                    1: {
+                        title: "🎯 مرحباً بك في لعبة القنبلة المؤقتة!",
+                        content: `
+                            <div style="text-align: center;">
+                                <div style="font-size: 5rem; margin-bottom: 20px;">💣</div>
+                                <p style="font-size: 1.3rem; line-height: 1.8; max-width: 600px;">
+                                    لعبة تعليمية مثيرة تجمع بين التعلم والإثارة!<br>
+                                    اختبر معرفة الطلاب في جو مليء بالتشويق والمرح.
+                                </p>
+                            </div>
+                        `,
+                        highlight: null
+                    },
+                    2: {
+                        title: "👨‍🎓 الخطوة الأولى: اختيار الطالب",
+                        content: `
+                            <div style="text-align: center;">
+                                <div style="font-size: 4rem; margin-bottom: 20px;">👨‍🎓</div>
+                                <p style="font-size: 1.2rem; line-height: 1.8;">
+                                    انقر على زر "اختيار طالب" لتحديد خبير المتفجرات<br>
+                                    يمكنك الاختيار يدوياً أو استخدام الاختيار العشوائي
+                                </p>
+                            </div>
+                        `,
+                        highlight: ".teacher-controls .control-section:nth-child(2) button:nth-child(2)"
+                    },
+                    3: {
+                        title: "💣 الخطوة الثانية: بدء القنبلة",
+                        content: `
+                            <div style="text-align: center;">
+                                <div style="font-size: 4rem; margin-bottom: 20px;">🚀</div>
+                                <p style="font-size: 1.2rem; line-height: 1.8;">
+                                    اطرح سؤالك على الطالب ثم انقر "بدء القنبلة"<br>
+                                    سيبدأ العداد التنازلي فوراً!
+                                </p>
+                            </div>
+                        `,
+                        highlight: ".teacher-controls .control-section:nth-child(3) button:nth-child(1)"
+                    },
+                    4: {
+                        title: "✅ الخطوة الثالثة: تقييم الإجابة",
+                        content: `
+                            <div style="text-align: center;">
+                                <div style="font-size: 4rem; margin-bottom: 20px;">⚖️</div>
+                                <p style="font-size: 1.2rem; line-height: 1.8;">
+                                    استمع لإجابة الطالب واستخدم:<br>
+                                    ✅ إجابة صحيحة: لإبطال القنبلة ومنح نقاط<br>
+                                    ❌ إجابة خاطئة: لتسريع المؤقت
+                                </p>
+                            </div>
+                        `,
+                        highlight: ".teacher-controls .control-section:nth-child(4)"
+                    },
+                    5: {
+                        title: "🎉 استمتع باللعبة!",
+                        content: `
+                            <div style="text-align: center;">
+                                <div style="font-size: 4rem; margin-bottom: 20px;">🎉</div>
+                                <p style="font-size: 1.2rem; line-height: 1.8;">
+                                    الآن أنت جاهز لبدء المغامرة!<br>
+                                    استخدم دليل اللعبة للمزيد من النصائح والإرشادات
+                                </p>
+                                <div style="margin-top: 30px;">
+                                    <button onclick="closeInstructions()" style="
+                                        background: var(--safe-green);
+                                        color: white;
+                                        border: none;
+                                        padding: 15px 30px;
+                                        border-radius: 10px;
+                                        font-size: 1.1rem;
+                                        cursor: pointer;
+                                        font-family: 'Cairo', sans-serif;
+                                    ">🚀 ابدأ اللعب الآن!</button>
+                                </div>
+                            </div>
+                        `,
+                        highlight: null
+                    }
+                };
+                
+                const currentStep = steps[stepNumber];
+                
+                instructionsOverlay.innerHTML = `
+                    <div style="
+                        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                        border: 3px solid var(--oman-red);
+                        border-radius: 20px;
+                        padding: 40px;
+                        max-width: 800px;
+                        width: 90%;
+                        text-align: center;
+                        position: relative;
+                        animation: slideIn 0.5s ease-out;
+                    ">
+                        <div style="
+                            position: absolute;
+                            top: 15px;
+                            right: 15px;
+                            background: var(--oman-red);
+                            color: white;
+                            border-radius: 50%;
+                            width: 40px;
+                            height: 40px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-weight: bold;
+                        ">${stepNumber}/${totalSteps}</div>
+                        
+                        <h2 style="color: var(--oman-red); margin-bottom: 30px; font-size: 1.8rem;">
+                            ${currentStep.title}
+                        </h2>
+                        
+                        ${currentStep.content}
+                        
+                        <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center;">
+                            <button onclick="previousStep()" ${stepNumber === 1 ? 'style="visibility: hidden;"' : ''} 
+                                    style="background: var(--warning-orange); color: white; border: none; 
+                                           padding: 10px 20px; border-radius: 8px; cursor: pointer;">
+                                ← السابق
+                            </button>
+                            
+                            <div style="display: flex; gap: 10px;">
+                                ${Array.from({length: totalSteps}, (_, i) => 
+                                    `<div style="width: 12px; height: 12px; border-radius: 50%; 
+                                                 background: ${i + 1 === stepNumber ? 'var(--oman-red)' : 'rgba(255,255,255,0.3)'};
+                                                 transition: all 0.3s ease;"></div>`
+                                ).join('')}
+                            </div>
+                            
+                            <button onclick="nextStep()" ${stepNumber === totalSteps ? 'style="visibility: hidden;"' : ''}
+                                    style="background: var(--safe-green); color: white; border: none; 
+                                           padding: 10px 20px; border-radius: 8px; cursor: pointer;">
+                                التالي →
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // تمييز العنصر المطلوب
+                if (currentStep.highlight) {
+                    const element = document.querySelector(currentStep.highlight);
+                    if (element) {
+                        element.style.boxShadow = '0 0 20px var(--oman-red)';
+                        element.style.position = 'relative';
+                        element.style.zIndex = '4999';
+                    }
+                }
+            }
+            
+            // إضافة الوظائف للنافذة العامة
+            window.nextStep = function() {
+                if (step < totalSteps) {
+                    step++;
+                    showStep(step);
+                }
+            };
+            
+            window.previousStep = function() {
+                if (step > 1) {
+                    step--;
+                    showStep(step);
+                }
+            };
+            
+            window.closeInstructions = function() {
+                // إزالة التمييز
+                document.querySelectorAll('[style*="box-shadow"]').forEach(el => {
+                    el.style.boxShadow = '';
+                    el.style.zIndex = '';
+                });
+                
+                document.body.removeChild(instructionsOverlay);
+                
+                // حذف الوظائف المؤقتة
+                delete window.nextStep;
+                delete window.previousStep;
+                delete window.closeInstructions;
+                
+                // إغلاق دليل اللعبة إذا كان مفتوحاً
+                closeModal('guideModal');
+            };
+            
+            document.body.appendChild(instructionsOverlay);
+            showStep(1);
+        }
+
+        // إغلاق المودال
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // وظائف إضافية ستتم إضافتها لاحقاً...
+        console.log('💣 تم تحميل الهيكل الأساسي للعبة القنبلة المؤقتة');
+    </script>
+</body>
+</html>
