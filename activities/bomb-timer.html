@@ -181,117 +181,17 @@
             height: 300px;
         }
 
-        /* المسار الدائري للقنبلة */
-        .bomb-orbit {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 200px;
-            height: 200px;
-            transform: translate(-50%, -50%);
-        }
-
         /* القنبلة */
         .bomb {
-            width: 80px;
-            height: 80px;
+            width: 200px;
+            height: 200px;
             background: radial-gradient(circle, #333 0%, #111 70%);
             border-radius: 50%;
-            position: absolute;
-            top: -40px;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 3px solid #666;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.8),
-                        0 0 20px rgba(255,0,0,0.3);
-        }
-
-        /* الفتيل */
-        .fuse {
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 4px;
-            height: 20px;
-            background: linear-gradient(to bottom, #8B4513, #654321);
-            border-radius: 2px;
-            z-index: 20;
-            box-shadow: 0 0 5px rgba(139, 69, 19, 0.5);
-        }
-
-        /* الشعلة الثابتة في المركز */
-        .center-flame {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 30px;
-            height: 30px;
-            font-size: 24px;
-            filter: drop-shadow(0 0 15px rgba(255, 100, 0, 0.9));
-            animation: flameFlicker 0.4s infinite alternate;
-            z-index: 25;
-        }
-
-        /* المسار الدائري المرئي */
-        .bomb-orbit::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            border: 2px dashed rgba(255, 165, 0, 0.5);
-            border-radius: 50%;
-        }
-
-        /* تحذير عندما تقترب القنبلة من الشعلة */
-        .bomb.danger {
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.8),
-                        0 0 30px rgba(255, 0, 0, 0.8);
-            animation: bombDanger 0.2s infinite alternate;
-        }
-
-        @keyframes bombDanger {
-            0% { 
-                transform: translateX(-50%) scale(1);
-            }
-            100% { 
-                transform: translateX(-50%) scale(1.1);
-            }
-        }
-
-        /* حركة وميض الشعلة */
-        @keyframes flameFlicker {
-            0% { 
-                transform: translateX(-50%) scale(1) rotate(-5deg);
-                filter: drop-shadow(0 0 15px rgba(255, 100, 0, 0.9));
-            }
-            50% { 
-                transform: translateX(-50%) scale(1.1) rotate(5deg);
-                filter: drop-shadow(0 0 20px rgba(255, 120, 0, 1));
-            }
-            100% { 
-                transform: translateX(-50%) scale(1.2) rotate(-3deg);
-                filter: drop-shadow(0 0 25px rgba(255, 150, 0, 1));
-            }
-        }
-
-        /* تأثير توهج الفتيل عند الخطر */
-        .fuse.danger {
-            background: linear-gradient(to bottom, #ff4500, #ff0000);
-            box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
-            animation: fuseGlow 0.3s infinite alternate;
-        }
-
-        @keyframes fuseGlow {
-            0% { 
-                box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
-            }
-            100% { 
-                box-shadow: 0 0 25px rgba(255, 0, 0, 1);
-            }
+            margin: 50px auto;
+            position: relative;
+            border: 5px solid #666;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8),
+                        0 0 30px rgba(255,0,0,0.3);
         }
 
         .bomb::before {
@@ -950,14 +850,8 @@
             </div>
             
             <div class="bomb-container">
-                <!-- الشعلة الثابتة في المركز -->
-                <div class="center-flame" id="centerFlame">🔥</div>
-                
-                <!-- المسار الدائري للقنبلة -->
-                <div class="bomb-orbit" id="bombOrbit">
-                    <div class="bomb" id="bomb">
-                        <div class="fuse" id="fuse"></div>
-                    </div>
+                <div class="bomb" id="bomb">
+                    <div class="fuse" id="fuse"></div>
                 </div>
             </div>
             
@@ -1509,9 +1403,7 @@
             defusedBombs: 0,
             explodedBombs: 0,
             points: 0,
-            timer: null,
-            dangerSoundPlayed: false,
-            criticalSoundPlayed: false
+            timer: null
         };
 
         // بيانات الطلاب والصفوف
@@ -2929,9 +2821,6 @@
             gameState.timeLeft = 0;
             clearInterval(gameState.timer);
             
-            // إيقاف حركة القنبلة
-            stopBombAnimation();
-            
             updateGameState('waiting', '🔄 تم إعادة تعيين القنبلة');
             updateGameStateMessage(); // استخدام الرسالة المناسبة بناءً على الإعدادات
             updateDisplay();
@@ -2948,94 +2837,11 @@
                 // تحديث ألوان القنبلة حسب الوقت المتبقي
                 updateBombAppearance();
                 
-                // تحديث موقع القنبلة
-                updateBombPosition();
-                
                 // انتهاء الوقت
                 if (gameState.timeLeft <= 0) {
                     explodeBomb();
                 }
             }, 1000);
-            
-            // بدء حركة القنبلة
-            startBombAnimation();
-        }
-
-        // تحديث موقع القنبلة بناءً على الوقت المتبقي
-        function updateBombPosition() {
-            const bombOrbit = document.getElementById('bombOrbit');
-            const bomb = document.getElementById('bomb');
-            
-            if (!bombOrbit || !bomb) return;
-            
-            // حساب النسبة المئوية للوقت المنقضي
-            const totalTime = getDifficultySettings().time;
-            const timeElapsed = totalTime - gameState.timeLeft;
-            const progress = timeElapsed / totalTime;
-            
-            // حساب الزاوية (360 درجة كاملة)
-            const angle = progress * 360;
-            
-            // تطبيق الدوران على المسار
-            bombOrbit.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
-            
-            // تحديد إذا كانت القنبلة قريبة من الشعلة (آخر 10%)
-            if (progress >= 0.9) {
-                bomb.classList.add('danger');
-                
-                // تشغيل صوت تحذيري عند دخول منطقة الخطر
-                if (progress >= 0.9 && progress < 0.92 && !gameState.dangerSoundPlayed) {
-                    playGameSound('long-beep.mp3');
-                    gameState.dangerSoundPlayed = true;
-                }
-                
-                // صوت أكثر إلحاحاً في النهاية
-                if (progress >= 0.98 && !gameState.criticalSoundPlayed) {
-                    playGameSound('countdown-beep.mp3');
-                    gameState.criticalSoundPlayed = true;
-                }
-            } else {
-                bomb.classList.remove('danger');
-            }
-        }
-
-        // بدء حركة القنبلة
-        function startBombAnimation() {
-            const bombOrbit = document.getElementById('bombOrbit');
-            const bomb = document.getElementById('bomb');
-            const centerFlame = document.getElementById('centerFlame');
-            
-            if (bombOrbit && bomb && centerFlame) {
-                // إظهار العناصر
-                bombOrbit.style.display = 'block';
-                centerFlame.style.display = 'block';
-                
-                // إعادة تعيين موقع القنبلة إلى البداية
-                bombOrbit.style.transform = 'translate(-50%, -50%) rotate(0deg)';
-                bomb.classList.remove('danger');
-                
-                // إعادة تعيين متغيرات الصوت
-                gameState.dangerSoundPlayed = false;
-                gameState.criticalSoundPlayed = false;
-                
-                // تحديث موقع القنبلة الأولي
-                updateBombPosition();
-            }
-        }
-
-        // إيقاف حركة القنبلة
-        function stopBombAnimation() {
-            const bombOrbit = document.getElementById('bombOrbit');
-            const bomb = document.getElementById('bomb');
-            const centerFlame = document.getElementById('centerFlame');
-            
-            if (bomb) {
-                bomb.classList.remove('danger');
-            }
-            
-            if (centerFlame) {
-                centerFlame.style.display = 'none';
-            }
         }
 
         // تحديث مظهر القنبلة
@@ -3071,9 +2877,6 @@
             // إيقاف المؤقت
             clearInterval(gameState.timer);
             gameState.isActive = false;
-            
-            // إيقاف حركة القنبلة
-            stopBombAnimation();
             
             // حساب النقاط
             const timeBonus = gameState.timeLeft * 10;
@@ -3113,9 +2916,6 @@
             clearInterval(gameState.timer);
             gameState.isActive = false;
             gameState.explodedBombs++;
-            
-            // إيقاف حركة القنبلة
-            stopBombAnimation();
             
             updateGameState('explosion', '💥 انفجرت القنبلة!');
             updateBombMessage(`💥 لقد انفجرت القنبلة! ${gameState.currentStudent} حاول مرة أخرى!`);
