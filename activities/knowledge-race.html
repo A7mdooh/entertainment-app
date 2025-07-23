@@ -36,6 +36,58 @@
         .home-btn:active {
             transform: scale(0.95);
         }
+
+        /* أزرار التحكم العامة مثل باقي الألعاب */
+        .control-btn {
+            position: fixed;
+            top: 15px;
+            font-size: 24px;
+            background: rgba(0,0,0,0.8);
+            border: 2px solid var(--oman-green);
+            color: var(--oman-green);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 10px;
+            z-index: 2147483647;
+            border-radius: 50%;
+            backdrop-filter: blur(10px);
+        }
+        
+        .control-btn:hover {
+            transform: scale(1.1);
+            background: var(--oman-green);
+            color: white;
+            box-shadow: 0 0 20px rgba(0, 128, 0, 0.5);
+        }
+        
+        #homeBtn {
+            right: 15px;
+        }
+        
+        #gameGuideBtn {
+            right: 70px;
+        }
+        
+        #fullscreenBtn {
+            left: 15px;
+        }
+
+        /* تحسينات للجوال */
+        @media (max-width: 480px) {
+            .control-btn {
+                font-size: 20px;
+                padding: 8px;
+            }
+            #homeBtn {
+                right: 10px;
+            }
+            #gameGuideBtn {
+                right: 55px;
+            }
+            #fullscreenBtn {
+                left: 10px;
+            }
+        }
         
         /* Base Styles */
         :root {
@@ -612,8 +664,10 @@
     </style>
 </head>
 <body>
-    <!-- Home Button -->
-    <a href="../main -live.html" class="home-btn" title="العودة للصفحة الرئيسية">🏠</a>
+    <!-- أزرار التحكم العامة مثل باقي الألعاب -->
+    <button class="control-btn" id="homeBtn" title="العودة للصفحة الرئيسية">🏠</button>
+    <button class="control-btn" id="gameGuideBtn" title="دليل اللعبة">📖</button>
+    <button class="control-btn" id="fullscreenBtn" title="ملء الشاشة">⛶</button>
     
     <!-- Game Header -->
     <header class="game-header">
@@ -1500,7 +1554,7 @@
             
             // Check for winner
             if (currentTeam.position >= gameState.settings.raceDistance) {
-                endGame(currentTeam);
+                endRace(currentTeam);
                 return;
             }
             
@@ -2231,6 +2285,59 @@
                 }
             });
         }
+
+        // إضافة وظائف الأزرار الأساسية مثل باقي الألعاب
+        document.addEventListener('DOMContentLoaded', function() {
+            // إنشاء كائن الصوت
+            const clickSound = new Audio('../assets/media/sounds/Click.mp3');
+            clickSound.preload = 'auto';
+
+            // وظيفة تشغيل الصوت
+            function playClickSound() {
+                clickSound.currentTime = 0;
+                clickSound.play().catch(() => {});
+            }
+
+            // زر العودة للصفحة الرئيسية
+            document.getElementById('homeBtn').addEventListener('click', function() {
+                playClickSound();
+                window.location.href = '../main -live.html';
+            });
+
+            // زر دليل اللعبة
+            document.getElementById('gameGuideBtn').addEventListener('click', function() {
+                playClickSound();
+                showModal('instructionsModal');
+            });
+
+            // زر ملء الشاشة
+            document.getElementById('fullscreenBtn').addEventListener('click', function() {
+                playClickSound();
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.log('خطأ في ملء الشاشة:', err);
+                    });
+                } else {
+                    document.exitFullscreen();
+                }
+            });
+
+            // تفعيل ملء الشاشة عند أول تفاعل
+            function requestFullscreenOnFirstInteraction() {
+                function handler() {
+                    if (!document.fullscreenElement) {
+                        document.documentElement.requestFullscreen().catch(()=>{});
+                    }
+                    window.removeEventListener('click', handler);
+                    window.removeEventListener('keydown', handler);
+                    window.removeEventListener('touchstart', handler);
+                }
+                window.addEventListener('click', handler);
+                window.addEventListener('keydown', handler);
+                window.addEventListener('touchstart', handler);
+            }
+            requestFullscreenOnFirstInteraction();
+        });
 
         console.log('🏆 لعبة سباق المعرفة جاهزة تماماً!');
         
