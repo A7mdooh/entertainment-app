@@ -683,7 +683,7 @@
             <div class="control-section">
                 <div class="control-title">⚙️ إعداد اللعبة</div>
                 <button class="btn btn-primary" onclick="showGameSetup()">🎮 إعداد الفرق</button>
-                <button class="btn btn-info" onclick="showSettings()">⚙️ الإعدادات</button>
+
                 <button class="btn btn-warning" onclick="showInstructions()">📖 التعليمات</button>
             </div>
 
@@ -840,61 +840,7 @@
         </div>
     </div>
 
-    <!-- Settings Modal -->
-    <div id="settingsModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span class="close" onclick="closeModal('settingsModal')">&times;</span>
-                <h2>⚙️ إعدادات اللعبة</h2>
-            </div>
-            <div class="modal-body">
-                <!-- Race Settings -->
-                <div style="margin-bottom: 30px;">
-                    <h3 style="color: var(--oman-green); margin-bottom: 15px;">🏁 إعدادات السباق</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                        <div>
-                            <label>المسافة المطلوبة للفوز:</label>
-                            <input type="number" id="raceDistance" min="5" max="20" value="10" 
-                                   style="width: 100%; padding: 8px; margin-top: 5px; border-radius: 5px; background: #333; color: white; border: 1px solid #555;">
-                        </div>
-                        <div>
-                            <label>نقاط الإجابة الصحيحة:</label>
-                            <input type="number" id="correctPoints" min="1" max="5" value="1" 
-                                   style="width: 100%; padding: 8px; margin-top: 5px; border-radius: 5px; background: #333; color: white; border: 1px solid #555;">
-                        </div>
-                        <div>
-                            <label>خصم الإجابة الخاطئة:</label>
-                            <select id="wrongPenalty" style="width: 100%; padding: 8px; margin-top: 5px; border-radius: 5px; background: #333; color: white; border: 1px solid #555;">
-                                <option value="0">بدون خصم</option>
-                                <option value="1">تجميد جولة واحدة</option>
-                                <option value="2">خطوة للخلف</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Sound Settings -->
-                <div style="margin-bottom: 30px;">
-                    <h3 style="color: var(--oman-green); margin-bottom: 15px;">🔊 إعدادات الصوت</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                        <label style="display: flex; align-items: center; gap: 10px;">
-                            <input type="checkbox" id="soundEnabled" checked>
-                            <span>تفعيل الأصوات</span>
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 10px;">
-                            <input type="checkbox" id="musicEnabled" checked>
-                            <span>موسيقى الخلفية</span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Save Settings -->
-                <div style="text-align: center;">
-                    <button class="btn btn-success" onclick="saveSettings()">💾 حفظ الإعدادات</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Instructions Modal -->
     <div id="instructionsModal" class="modal">
