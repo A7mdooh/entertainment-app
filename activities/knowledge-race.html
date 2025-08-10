@@ -1308,38 +1308,34 @@
             showSetupComplete();
         }
 
-        // Initialize race track with teams
+
+        // Initialize race track with teams (smart, animated, and interactive)
         function initializeRaceTrack() {
             const raceTrack = document.getElementById('raceTrack');
             raceTrack.innerHTML = '';
-            
             gameState.teams.forEach((team, index) => {
                 const trackLane = document.createElement('div');
                 trackLane.className = 'track-lane';
+                trackLane.style.position = 'relative';
                 trackLane.style.borderLeft = `4px solid ${team.color}`;
-                
+                trackLane.style.overflow = 'visible';
+                // Draw track tiles
+                let tiles = '';
+                for (let i = 0; i < gameState.settings.raceDistance; i++) {
+                    tiles += `<div class="race-tile${i === gameState.settings.raceDistance - 1 ? ' finish' : ''}" style="display:inline-block;width:38px;height:38px;margin:2px;border-radius:8px;background:${i === gameState.settings.raceDistance-1 ? '#ffe066' : '#eee'};border:1.5px solid #ccc;vertical-align:middle;text-align:center;line-height:38px;font-size:1.2rem;${i === team.position ? 'box-shadow:0 0 16px 2px '+team.color+'55;' : ''}">${i === gameState.settings.raceDistance-1 ? '🏁' : ''}</div>`;
+                }
+                // Runner avatar
+                const runner = `<div class="moving-runner" id="runner-${team.id}" style="position:absolute;left:${team.position*42}px;top:-18px;transition:left 0.5s cubic-bezier(.68,-0.55,.27,1.55);font-size:2.2rem;z-index:2;filter:drop-shadow(0 2px 8px ${team.color}99);">🚀</div>`;
                 trackLane.innerHTML = `
                     <div class="team-info">
-                        <div class="team-avatar" style="background: ${team.color}">
-                            ${index + 1}
-                        </div>
+                        <div class="team-avatar" style="background: ${team.color}">${index + 1}</div>
                         <div class="team-name">${team.name}</div>
                     </div>
-                    <div class="track-progress">
-                        <div class="progress-bar" id="progress-${team.id}" 
-                             style="width: 0%; background: linear-gradient(90deg, ${team.color}, ${team.color}AA);">
-                        </div>
-                        <div class="moving-runner" id="runner-${team.id}">🏃‍♂️</div>
-                        <div class="finish-line"></div>
-                    </div>
-                    <div class="team-score" id="score-${team.id}">
-                        ${team.position}/${gameState.settings.raceDistance}
-                    </div>
+                    <div class="track-tiles" style="position:relative;display:inline-block;width:auto;vertical-align:middle;">${tiles}${runner}</div>
+                    <div class="team-score" id="score-${team.id}">${team.position}/${gameState.settings.raceDistance}</div>
                 `;
-                
                 raceTrack.appendChild(trackLane);
             });
-            
             updateRankings();
         }
 
@@ -1594,24 +1590,44 @@
             }
         }
 
-        // Update team progress on track
-        function updateTeamProgress(team) {
-            const progressBar = document.getElementById(`progress-${team.id}`);
-            const runner = document.getElementById(`runner-${team.id}`);
-            const scoreDisplay = document.getElementById(`score-${team.id}`);
-            
-            if (progressBar && runner && scoreDisplay) {
-                const progressPercent = (team.position / gameState.settings.raceDistance) * 100;
-                progressBar.style.width = `${Math.min(progressPercent, 100)}%`;
-                runner.style.right = `${Math.max(0, 100 - progressPercent)}%`;
-                scoreDisplay.textContent = `${team.position}/${gameState.settings.raceDistance}`;
-                
-                // Add animation for movement
-                progressBar.style.transition = 'width 0.5s ease';
-                runner.style.transition = 'right 0.5s ease';
-            }
-            
-            updateRankings();
+
+                // Update team progress on track (with smart animation and effects)
+                function updateTeamProgress(team) {
+                        const runner = document.getElementById(`runner-${team.id}`);
+                        const scoreDisplay = document.getElementById(`score-${team.id}`);
+                        if (runner && scoreDisplay) {
+                                runner.style.left = `${team.position*42}px`;
+                                scoreDisplay.textContent = `${team.position}/${gameState.settings.raceDistance}`;
+                                // Smart effect: pop and glow when progress
+                                runner.animate([
+                                    { transform: 'scale(1.2)', filter: `drop-shadow(0 0 16px ${team.color}99)` },
+                                    { transform: 'scale(1)', filter: 'none' }
+                                ], { duration: 500, easing: 'cubic-bezier(.68,-0.55,.27,1.55)' });
+                                // Firework/confetti effect on finish
+                                if (team.position >= gameState.settings.raceDistance-1) {
+                                    showSmartCelebration(team);
+                                }
+                        }
+                        updateRankings();
+                }
+        // Smart celebration for finish
+        function showSmartCelebration(team) {
+            if (document.getElementById('smartCelebration')) return;
+            const el = document.createElement('div');
+            el.id = 'smartCelebration';
+            el.style.position = 'fixed';
+            el.style.top = '0';
+            el.style.left = '0';
+            el.style.width = '100vw';
+            el.style.height = '100vh';
+            el.style.background = 'rgba(0,0,0,0.7)';
+            el.style.display = 'flex';
+            el.style.alignItems = 'center';
+            el.style.justifyContent = 'center';
+            el.style.zIndex = 5000;
+            el.innerHTML = `<div style="background:linear-gradient(135deg,${team.color},#fffbe6 80%);padding:48px 60px;border-radius:24px;box-shadow:0 8px 48px #FFD70055;text-align:center;animation: celebration 1.5s infinite alternate;"><div style="font-size:5rem;">🎉</div><h2 style="color:${team.color};font-size:2.5rem;">${team.name} وصل للنهاية!</h2><div style="font-size:1.3rem;margin:18px 0;">👏 تهانينا للفريق البطل!</div><button onclick="document.getElementById('smartCelebration').remove()" style="margin-top:18px;font-size:1.1rem;padding:12px 32px;border-radius:12px;background:var(--success-color);color:white;border:none;">إغلاق</button></div>`;
+            document.body.appendChild(el);
+            setTimeout(()=>{if(document.getElementById('smartCelebration'))document.getElementById('smartCelebration').remove();}, 5000);
         }
 
         // Show current team
@@ -1670,43 +1686,40 @@
             }).join('');
         }
 
-        // Show answer feedback
+
+        // Show smart, exciting answer feedback
         function showAnswerFeedback(type, teamName) {
             const feedback = document.createElement('div');
             feedback.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 15px 25px;
-                border-radius: 10px;
-                z-index: 3000;
-                font-family: 'Cairo', sans-serif;
-                font-weight: bold;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-                animation: slideIn 0.5s ease-out;
+                position: fixed; top: 30px; left: 50%; transform: translateX(-50%); min-width: 260px;
+                padding: 18px 32px; border-radius: 16px; z-index: 4000; font-family: 'Cairo', sans-serif; font-weight: bold;
+                box-shadow: 0 5px 25px rgba(0,0,0,0.25); font-size: 1.3rem; text-align: center; animation: popIn 0.5s cubic-bezier(.68,-0.55,.27,1.55);
             `;
-            
             if (type === 'correct') {
-                feedback.style.background = 'var(--success-color)';
+                feedback.style.background = 'linear-gradient(90deg, var(--success-color), #20c997)';
                 feedback.style.color = 'white';
-                feedback.innerHTML = `✅ إجابة صحيحة!<br><small>${teamName} يتقدم خطوة</small>`;
+                const cheers = ['👏 أحسنت!', '🎉 إجابة رائعة!', '🚀 تقدم مذهل!', '🔥 إجابة نارية!', '🌟 مبدع!'];
+                feedback.innerHTML = `${cheers[Math.floor(Math.random()*cheers.length)]}<br><small>${teamName} يتقدم خطوة</small>`;
             } else {
-                feedback.style.background = 'var(--danger-color)';
+                feedback.style.background = 'linear-gradient(90deg, var(--danger-color), #e74c3c)';
                 feedback.style.color = 'white';
-                feedback.innerHTML = `❌ إجابة خاطئة!<br><small>${teamName} ${gameState.settings.wrongPenalty === 1 ? 'مجمد' : gameState.settings.wrongPenalty === 2 ? 'يتراجع' : 'بدون عقاب'}</small>`;
+                const oops = ['😅 حظاً أوفر!', '❌ إجابة خاطئة!', '🙃 حاول مرة أخرى!', '😬 تحتاج تركيز!', '🔄 جرب مجدداً!'];
+                feedback.innerHTML = `${oops[Math.floor(Math.random()*oops.length)]}<br><small>${teamName} ${gameState.settings.wrongPenalty === 1 ? '❄️ مجمد' : gameState.settings.wrongPenalty === 2 ? '↩️ يتراجع' : 'بدون عقاب'}</small>`;
             }
-            
             document.body.appendChild(feedback);
-            
             setTimeout(() => {
-                feedback.style.animation = 'slideOut 0.5s ease-in';
-                setTimeout(() => {
-                    if (document.body.contains(feedback)) {
-                        document.body.removeChild(feedback);
-                    }
-                }, 500);
-            }, 3000);
+                feedback.style.animation = 'fadeOut 0.5s';
+                setTimeout(() => { if (document.body.contains(feedback)) document.body.removeChild(feedback); }, 500);
+            }, 2200);
         }
+    // CSS Animations for feedback and celebration
+    const style = document.createElement('style');
+    style.innerHTML = `
+    @keyframes popIn { 0%{transform:scale(0.7) translateX(-50%);opacity:0;} 80%{transform:scale(1.15) translateX(-50%);opacity:1;} 100%{transform:scale(1) translateX(-50%);} }
+    @keyframes fadeOut { to{opacity:0;transform:scale(0.8) translateX(-50%);} }
+    @keyframes celebration { 0%{box-shadow:0 0 40px #FFD70099;} 100%{box-shadow:0 0 80px #FFD700;} }
+    `;
+    document.head.appendChild(style);
 
         // End race with winner
         function endRace(winnerTeam) {
