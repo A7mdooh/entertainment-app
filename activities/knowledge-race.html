@@ -1018,13 +1018,7 @@
             questionsAsked: 0,
             correctAnswersCount: 0,
             gameStartTime: null,
-            settings: {
-                raceDistance: 10,
-                correctPoints: 1,
-                wrongPenalty: 1,
-                soundEnabled: true,
-                musicEnabled: true
-            }
+            // ...existing code...
         };
 
         // Students Data
@@ -1047,7 +1041,7 @@
         ];
 
         // Sound System (similar to bomb-timer)
-        let soundEnabled = true;
+        // ...existing code...
         const gameSounds = {
             correct: new Audio('../assets/media/sounds/win.mp3'),
             wrong: new Audio('../assets/media/sounds/wrong_answer.mp3'),
@@ -1131,9 +1125,7 @@
             showModal('gameSetupModal');
         }
 
-        function showSettings() {
-            showModal('settingsModal');
-        }
+        // ...existing code...
 
         function showInstructions() {
             showModal('instructionsModal');
